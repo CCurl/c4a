@@ -20,7 +20,7 @@ There are 4 modes in the editor:
 | [ctrl]+c  | Insert tag: INTERP |
 | [ctrl]+d  | Insert tag: COMMENT |
 | [ctrl]+e  | Execute the current line |
-| [ctrl]+h  | Left 1 char |
+| [ctrl]+h  | Left 1 char (and delete it if in INSERT mode) |
 | [ctrl]+i  | Right 8 chars (also [tab]) |
 | [ctrl]+j  | Down 1 line |
 | [ctrl]+k  | Up 1 line |
@@ -90,14 +90,14 @@ The movement keys are similar to those in VI:
 ### INSERT mode
 
 In INSERT mode, all printable characters are inserted into the line.
-
-Carriage-Return inserts a new line.
+- [Enter] inserts a new line.
+- [Backspace] moves left and deletes that character.
 
 ### REPLACE mode
 
 In REPLACE mode, all printable characters are placed into the line.
-
-Carriage-Return moves to the beginning of the next line.
+- [Enter] moves to the beginning of the next line.
+- [Backspace] moves left and does not delete that character.
 
 ### COMMAND mode
 
