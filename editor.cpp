@@ -14,6 +14,7 @@ void editBlock(cell blk) { zType("-no edit-"); }
 #define EDCH(r,c)     edBuf[((r)*NUM_COLS)+(c)]
 #define DIRTY         isDirty=1; isShow=1
 #define BCASE         break; case
+#define RCASE         return; case
 
 #ifndef MAX
   #define MIN(a,b) ((a)<(b))?(a):(b)
@@ -194,13 +195,17 @@ static void insertSpace(int toEnd) {
     DIRTY;
 }
 
-static void insertLine(int l) {
+static void insertLine(int l, int o) {
     for (int r=MAX_LINE; r>l; r--) {
         char *f = &EDCH(r-1, 0);
         char *t = &EDCH(r, 0);
         for (int c=0; c<NUM_COLS; c++) { *(t++) = *(f++); }
     }
     clrToEOL(l, 0);
+    if (0 <= o) {
+        for (int i=o; i<NUM_COLS; i++) { EDCH(l,i-o) = EDCH(l-1,i); }
+        clrToEOL(l-1, o);
+    }
 }
 
 static void joinLines() {
@@ -239,8 +244,8 @@ static void replace1() {
 
 static int doInsertReplace(char c) {
     if (c==13) {
+        if (edMode == INSERT) { insertLine(line+1, off); }
         mv(1, -NUM_COLS);
-        if (edMode == INSERT) { insertLine(line); }
         return 1;
     }
     if (!btwi(c,1,5) && !btwi(c,32,126)) { return 1; }
@@ -254,8 +259,10 @@ static void edDelX(int c) {
     if (c=='d') { yankLine(line); deleteLine(line); }
     else if (c=='w') { deleteWord(); }
     else if (c=='.') { deleteChar(0); }
-    else if (c=='z') { if (0<off) { --off; deleteChar(0); } }
+    else if (c=='x') { deleteChar(0); }
+    else if (c=='X') { if (0<off) { --off; deleteChar(0); } }
     else if (c=='$') { clrToEOL(line, off); }
+    else if (c=='Z') { deleteChar(1); }
 }
 
 static int edReadLine(char *buf, int sz) {
@@ -348,35 +355,34 @@ static void doCTL(int c) {
         return;
     }
     if (c == 13) {      // <CR>
-        mv(1, -NUM_COLS); if (edMode == INSERT) { insertLine(line); }
+        doInsertReplace(c);
         return;
     }
     switch (c) {
         case   1:   doInsertReplace(c);     // COMPLE
-        BCASE  2:   doInsertReplace(c);     // DEFINE
-        BCASE  3:   doInsertReplace(c);     // INTERP
-        BCASE  4:   doInsertReplace(c);     // COMMENT
-        BCASE  5:   execLine(line);         // Execute current line
-        BCASE  9:   mv(0, 8);               // <tab>
-        BCASE 10:   mv(1, 0);               // <ctrl-j>
-        BCASE 11:   mv(-1, 0);              // <ctrl-k>
-        BCASE 12:   mv(0, 1);               // <ctrl-l>
-        BCASE 17:   mv(0, -8);              // <ctrl-q>
-        BCASE 24:   edDelX('.');            // <ctrl-x>
-        BCASE 20:   edSvBlk(0);             // <ctrl-s>
-        BCASE 26:   edDelX('z');            // <ctrl-z>
-        BCASE 27:   normalMode();           // <escape>
-        BCASE Up:   mv(-1, 0);              // Up
-        BCASE Lt:   mv(0, -1);              // Left
-        BCASE Rt:   mv(0, 1);               // Right
-        BCASE Dn:   mv(1, 0);               // Down
-        BCASE Home: mv(0, -NUM_COLS);       // Home
-        BCASE End:  gotoEOL();              // End
-        BCASE PgUp: gotoBlock(block-1);     // PgUp
-        BCASE PgDn: gotoBlock(block+1);     // PgDn
-        BCASE Del:  edDelX('.');            // Delete
-        BCASE Ins:  toggleInsert();         // Insert
-        BCASE CHome: mv(-NUM_LINES, -NUM_COLS);  // <ctrl>-Home
+        RCASE  2:   doInsertReplace(c);     // DEFINE
+        RCASE  3:   doInsertReplace(c);     // INTERP
+        RCASE  4:   doInsertReplace(c);     // COMMENT
+        RCASE  5:   execLine(line);         // Execute current line
+        RCASE  9:   mv(0, 8);               // <tab>
+        RCASE 10:   mv(1, 0);               // <ctrl-j>
+        RCASE 11:   mv(-1, 0);              // <ctrl-k>
+        RCASE 12:   mv(0, 1);               // <ctrl-l>
+        RCASE 17:   mv(0, -8);              // <ctrl-q>
+        RCASE 24:   edDelX('.');            // <ctrl-x>
+        RCASE 20:   edSvBlk(0);             // <ctrl-s>
+        RCASE 27:   normalMode();           // <escape>
+        RCASE Up:   mv(-1, 0);              // Up
+        RCASE Lt:   mv(0, -1);              // Left
+        RCASE Rt:   mv(0, 1);               // Right
+        RCASE Dn:   mv(1, 0);               // Down
+        RCASE Home: mv(0, -NUM_COLS);       // Home
+        RCASE End:  gotoEOL();              // End
+        RCASE PgUp: gotoBlock(block-1);     // PgUp
+        RCASE PgDn: gotoBlock(block+1);     // PgDn
+        RCASE Del:  edDelX('.');            // Delete
+        RCASE Ins:  toggleInsert();         // Insert
+        RCASE CHome: mv(-NUM_LINES, -NUM_COLS);  // <ctrl>-Home
     }
 }
 
@@ -416,10 +422,10 @@ static int processEditorChar(int c) {
         BCASE 'k': mv(-1,0);
         BCASE 'l': mv(0, 1);
         BCASE 'n': replaceChar(10,1,0);
-        BCASE 'o': mv(1, -NUM_COLS); insertLine(line); insertMode();
-        BCASE 'O': mv(0, -NUM_COLS); insertLine(line); insertMode();
-        BCASE 'p': mv(1,-NUM_COLS); insertLine(line); putLine(line);
-        BCASE 'P': mv(0,-NUM_COLS); insertLine(line); putLine(line);
+        BCASE 'o': mv(1, -NUM_COLS); insertLine(line, -1); insertMode();
+        BCASE 'O': mv(0, -NUM_COLS); insertLine(line, -1); insertMode();
+        BCASE 'p': mv(1, -NUM_COLS); insertLine(line, -1); putLine(line);
+        BCASE 'P': mv(0, -NUM_COLS); insertLine(line, -1); putLine(line);
         BCASE 'q': mv(0,8);
         BCASE 'Q': mv(0,-8);
         BCASE 'r': replace1();
@@ -428,10 +434,10 @@ static int processEditorChar(int c) {
         BCASE 'T': toBlock();
         BCASE 'w': moveWord(1);
         BCASE 'W': moveWord(0);
-        BCASE 'x': deleteChar(0);
-        BCASE 'X': deleteChar(1);
+        BCASE 'x': edDelX(c);
+        BCASE 'X': edDelX(c);
         BCASE 'Y': yankLine(line);
-        BCASE 'z': edDelX('z');
+        BCASE 'Z': edDelX(c);
     }
     return 1;
 }

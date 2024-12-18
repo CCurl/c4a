@@ -28,7 +28,6 @@ There are 4 modes in the editor:
 | [ctrl]+q  | Left 8 chars |
 | [ctrl]+s  | Save the block to disk |
 | [ctrl]+x  | Delete the char under the cursor |
-| [ctrl]+z  | Delete the char to the left of the cursor |
 | [esc-esc] | Goto NORMAL mode |
 
 ### NORMAL mode
@@ -84,19 +83,19 @@ The movement keys are similar to those in VI:
 | w    | Move right to the beginning of the next word |
 | W    | Move left to the beginning of the previous word |
 | x    | Delete the char under the cursor to the end of the line |
-| X    | Delete the char under the cursor to the end of the block |
+| X    | Delete the char to the left of the cursor (same as 'hx') |
 | Y    | Copy the current line into the YANK buffer |
-| z    | Delete the char to the left of the cursor (same as 'hx') |
+| Z    | Delete the char under the cursor to the end of the block |
 
 ### INSERT mode
 
-In INSERT mode, all printable characters are inserted into the block.
+In INSERT mode, all printable characters are inserted into the line.
 
 Carriage-Return inserts a new line.
 
 ### REPLACE mode
 
-In REPLACE mode, all printable characters are placed into the block.
+In REPLACE mode, all printable characters are placed into the line.
 
 Carriage-Return moves to the beginning of the next line.
 
