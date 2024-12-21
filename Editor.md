@@ -1,8 +1,8 @@
-# The c4 editor
+# The c4a editor
 
-The c4 editor is an editor inspired by, and similar to, a stripped-down version of VI.
+The c4a editor is an editor inspired by, and similar to, a stripped-down version of VI.
 
-Enable the editor using `#define EDITOR` (editor.c)
+Enable the editor using `#define EDITOR` (in c4a.h)
 
 ## Modes
 There are 4 modes in the editor:

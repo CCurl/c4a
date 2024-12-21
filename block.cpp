@@ -27,7 +27,7 @@ static void dumpCacheEntry(const char *msg, CACHE_T *p) {
 }
 
 void dumpCache() {
-    zType("\n");
+    zTypeF("\nThere are %d cache entries\n", BLOCK_CACHE_SZ);
     for (int i=0; i<BLOCK_CACHE_SZ; i++) { dumpCacheEntry("dump", &blockCache[i]); }
 }
 
