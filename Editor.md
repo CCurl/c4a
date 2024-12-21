@@ -32,14 +32,8 @@ There are 4 modes in the editor:
 
 ### NORMAL mode
 
-The movement keys are similar to those in VI:
-
 | Key  | Action|
 | :--  | :-- |
-| h    | Left 1 char |
-| j    | Down 1 line |
-| k    | Up 1 line |
-| l    | Right 1 char |
 | $    | Goto the end of the line |
 | _    | Goto the beginning of the line |
 | [CR] | Goto the beginning of the next line |
@@ -65,10 +59,14 @@ The movement keys are similar to those in VI:
 | D    | Delete to the end of the line (same as 'd$') |
 | g    | Goto the top-left of the screen |
 | G    | Goto the bottom-left of the screen |
+| h    | Left 1 char |
 | H    | Toggle between current block and help block (block+1) |
 | i    | Insert: change to INSERT mode |
 | I    | Insert: goto the beginning of the line and change to INSERT mode (same as '_i') |
+| j    | Down 1 line |
 | J    | Join the current and next lines together |
+| k    | Up 1 line |
+| l    | Right 1 char |
 | n    | Insert a 'new-line' (#10/$0A) into the block |
 | o    | Insert an empty line BELOW the current line and change to INSERT mode |
 | O    | Insert an empty line ABOVE the current line and change to INSERT mode |
