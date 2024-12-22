@@ -287,7 +287,7 @@ static void edCommand() {
     edReadLine(buf, sizeof(buf));
     toCmd(); ClearEOL();
     if (strEqI(buf,"rl")) { edRdBlk(); }
-    else if (buf[0]=='!') { ttyMode(0); outer(&buf[1]); }
+    else if (buf[0]=='!') { ttyMode(0); changeState(INTERP); outer(&buf[1]); }
     else if (strEqI(buf,"w")) { edSvBlk(0); }
     else if (strEqI(buf,"w!")) { edSvBlk(1); }
     else if (strEqI(buf,"wq")) { edSvBlk(0); edMode=QUIT; }
