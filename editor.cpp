@@ -223,7 +223,7 @@ static void execLine(int ln) {
     char c = x[MAX_COL];
     x[MAX_COL] = 0;
     changeState(INTERP); ttyMode(0);
-    toFooter(); emit('\n'); outer(x);
+    toCmd(); outer(x);
     x[MAX_COL] = c;
 }
 
