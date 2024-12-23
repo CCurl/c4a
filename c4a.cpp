@@ -6,14 +6,11 @@
 #define tsp           code[TSPA]
 #define asp           code[ASPA]
 #define here          code[HA]
-#define last          code[LA]
 #define base          code[BA]
 #define state         code[SA]
-#define vhere         code[VHA]
 #define inSp          code[INSPA]
-#define block         code[BLKA]
 
-#define TOS           dstk[dsp]
+#define TOS           dstk[dsp]	
 #define NOS           dstk[dsp-1]
 #define L0            lstk[lsp]
 #define L1            lstk[lsp-1]
@@ -24,7 +21,7 @@
 byte memory[MEM_SZ+1];
 wc_t *code = (wc_t*)&memory[0];
 cell lstk[LSTK_SZ+1], rstk[RSTK_SZ+1], dstk[STK_SZ+1];
-cell tstk[TSTK_SZ+1], astk[TSTK_SZ+1];
+cell tstk[TSTK_SZ+1], astk[TSTK_SZ+1], vhere, last;
 DE_T tmpWords[10];
 char wd[32], *toIn, *inStk[FSTK_SZ+1];
 
@@ -162,10 +159,9 @@ char *inPop() { return (0 < inSp) ? inStk[inSp--] : 0; }
 int  lower(const char c) { return btwi(c, 'A', 'Z') ? c + 32 : c; }
 int  strLen(const char *s) { int l = 0; while (s[l]) { l++; } return l; }
 void comma(cell x) { code[here++] = (wc_t)x; }
-void commaCell(cell n) { store32((cell)&code[here], n); here += (CELL_SZ / WC_SZ); }
+void commaCell(cell n) { store32((cell)&code[here], n); here += (CELL_SZ/WC_SZ); }
 int  changeState(int x) { state = x; return x; }
 void ok() { if (state==0) { state=INTERP; } zType((state==INTERP) ? " ok\r\n" : "... "); }
-void storeWC(cell addr, wc_t val) { code[addr] = val; }
 
 int strEqI(const char *s, const char *d) {
 	while (lower(*s) == lower(*d)) { if (*s == 0) { return 1; } s++; d++; }
@@ -242,8 +238,8 @@ DE_T *findWord(const char *w) {
 	return (DE_T*)0;
 }
 
-int findXT(int xt) {
-	int cw = last;
+int findXT(wc_t xt) {
+	cell cw = last;
 	while (cw < MEM_SZ) {
 		DE_T *dp = (DE_T*)&memory[cw];
 		if (dp->xt == xt) { return cw; }
@@ -311,7 +307,7 @@ void fType(const char *s) {
 
 void compileNum(cell num) {
 	if (btwi(num, 0, NUM_MASK)) { comma((wc_t)(num | NUM_BITS)); }
-	else { comma(LIT); comma(num); }
+	else { comma(LIT); commaCell(num); }
 }
 
 void quote() {
@@ -339,7 +335,7 @@ void inner(wc_t start) {
 	wc = code[pc++];
 	switch(wc) {
 		case  STOP:   return;
-		NCASE LIT:    push(fetch32((cell)&code[pc])); pc += CELL_SZ/WC_SZ;
+		NCASE LIT:    push(fetch32((cell)&code[pc])); pc += (CELL_SZ/WC_SZ);
 		NCASE JMP:    pc=code[pc];
 		NCASE JMPZ:   if (pop()==0) { pc=code[pc]; } else { ++pc; }
 		NCASE NJMPZ:  if (TOS==0) { pc=code[pc]; } else { ++pc; }
@@ -490,7 +486,7 @@ void baseSys() {
 	outerF(addrFmt, "(njmpnz)", NJMPNZ);
 	outerF(addrFmt, "(exit)",   EXIT);
 	outerF(addrFmt, "(here)",   HA);
-	outerF(addrFmt, "(last)",   LA);
+	outerF(addrFmt, "(last)",   &last);
 	outerF(addrFmt, "base",     BA);
 	outerF(addrFmt, "state",    SA);
 	outerF(addrFmt, "cell",     CELL_SZ);

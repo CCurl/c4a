@@ -25,7 +25,7 @@ enum { NORMAL=1, INSERT, REPLACE, QUIT };
 enum { Up=7240, Dn=7248, Rt=7245, Lt=7243, Home=7239, PgUp=7241, PgDn=7249,
     End=7247, Ins=7250, Del=7251, CHome=7287 };
 
-static cell line, off, edMode, isDirty, isShow, block;
+static cell line, off, edMode, isDirty, isShow;
 static char edBuf[BLOCK_SZ], yanked[NUM_COLS+1], *curLine;
 
 static void GotoXY(int x, int y) { zTypeF("\x1B[%d;%dH", y, x); }
@@ -48,7 +48,7 @@ static void Red() { FG(203); }
 static void Yellow() { FG(226); }
 static void White() { FG(255); }
 
-static void setBlock(int blk) { block=MAX(MIN(blk,BLOCK_MAX),0); storeWC(BLKA, block); }
+static void setBlock(int blk) { block=MAX(MIN(blk,BLOCK_MAX),0); }
 
 static int vtKey() {
     int y = key();

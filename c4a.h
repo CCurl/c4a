@@ -21,16 +21,16 @@
 #include <time.h>
 
 #ifdef IS_PC
-  #define MEM_SZ        4*1024*1024
+  #define MEM_SZ            32*1024
   #define STK_SZ            64 // Data stack
   #define RSTK_SZ           64 // Return stack
   #define LSTK_SZ           45 // 15 nested loops (3 entries per loop)
   #define TSTK_SZ           64 // 'A' and 'T' stacks
   #define FSTK_SZ           16 // Files stack
-  #define NAME_LEN          17 // To make dict-entry size 24 (17+1+1+1+4)
-  #define CODE_SLOTS   48*1024 // 48*1024*4 = 192k bytes
-  #define BLOCK_CACHE_SZ    32 // Each block is 1024 bytes
-  #define BLOCK_MAX       1023 // Maximim block
+  #define NAME_LEN          13 // To make dict-entry size 18 (13+1+1+1+2)
+  #define CODE_SLOTS    0x0800 // $C000 and larger are inline numbers
+  #define BLOCK_CACHE_SZ    16 // Each block is 1024 bytes
+  #define BLOCK_MAX       1023 // Maximum block
 #define FILE_PC
 #else
   #include <Arduino.h>
@@ -40,10 +40,10 @@
   #define LSTK_SZ           45 // 15 nested loops (3 entries per loop)
   #define TSTK_SZ           64 // 'A' and 'T' stacks
   #define FSTK_SZ           16 // Files stack
-  #define NAME_LEN          17 // To make dict-entry size 24 (17+1+1+1+4)
-  #define CODE_SLOTS   32*1024 // 32*1024*4 = 128k
+  #define NAME_LEN          13 // To make dict-entry size 18 (13+1+1+1+2)
+  #define CODE_SLOTS    0xC000 // $C000 and larger are inline numbers
   #define BLOCK_CACHE_SZ    16 // Each block is 1024 bytes
-  #define BLOCK_MAX        255 // Maximim block
+  #define BLOCK_MAX        255 // Maximum block
   // #define FILE_NONE
   #define FILE_PICO
   // #define FILE_TEENSY
@@ -55,14 +55,14 @@
 
 #define CELL_T        int32_t
 #define CELL_SZ       4
-#define WC_T          uint32_t
-#define WC_SZ         4
+#define WC_T          uint16_t
+#define WC_SZ         2
 #define BLOCK_SZ      1024
-#define NUM_BITS      0xE0000000
-#define NUM_MASK      0x1FFFFFFF
+#define NUM_BITS      0xC000
+#define NUM_MASK      0x3FFF
 
 enum { COMPILE=1, DEFINE=2, INTERP=3, COMMENT=4 };
-enum { DSPA=0, RSPA, LSPA, TSPA, ASPA, HA, LA, BA, SA, VHA, INSPA, BLKA };
+enum { DSPA=0, RSPA, LSPA, TSPA, ASPA, HA, BA, SA, INSPA, BLKA };
 
 typedef CELL_T cell;
 typedef WC_T wc_t;
@@ -118,6 +118,7 @@ extern cell filePos(cell fh);
 extern void fileLoad(const char *name);
 
 // Blocks
+extern cell block;
 extern void blockInit();
 extern char *blockAddr(cell blk);
 extern void blockIsDirty(int blk);

@@ -10,7 +10,7 @@ void sys_load() {
     outer(": \\ 0 >in @ c! ; immediate");
     outer(": ->memory memory + ;");
     outer(": here  (here)  wc@ ;");
-    outer(": last  (last)  wc@ ;");
+    outer(": last  (last)  @ ;");
     outer(": base@ base    wc@ ;");
     outer(": base! base    wc! ;");
     outer(": vhere (vhere) @ ;");
@@ -21,11 +21,10 @@ void sys_load() {
     outer(": v, vhere dup cell + (vhere) ! ! ;");
     outer(": vc, vhere dup 1+ (vhere) ! c! ;");
 
-    outer(": const  addword inline lit, (exit) , ;");
+    outer(": const  addword lit, (exit) , ;");
     outer(": var    vhere const allot ;");
-    outer(": create vhere addword inline vhere lit, ;");
+    outer(": create vhere addword vhere lit, ;");
     outer(": does> (jmp) , r> , ;");
-
     outer(": begin here ; immediate");
     outer(": again (jmp)   , , ; immediate");
     outer(": while (jmpnz) , , ; immediate");
@@ -109,10 +108,10 @@ void sys_load() {
     outer("          dup ->name ztype tab a@+ 9 > if cr 0 a! then de-sz +");
     outer("      next drop adrop ;");
 
-    outer("cell var vh");
-    outer(": marker here 20 wc! last 21 wc! vhere vh ! ;");
-    outer(": forget 20 wc@ (here) wc! 21 wc@ (last) wc! vh @ (vhere) ! ;");
-    outer(": fgl last dup de-sz + (last) wc! ->memory @ (here) wc! ;");
+    outer("cell var vh cell var vl");
+    outer(": marker here 20 wc! last vl ! vhere vh ! ;");
+    outer(": forget 20 wc@ (here) wc! vl @ (last) ! vh @ (vhere) ! ;");
+    outer(": fgl last dup de-sz + (last) ! ->memory @ (here) wc! ;");
 
 #ifndef FILE_NONE
     outer(": fopen-rt ( fn--fh )  z\" rt\" fopen ;");
