@@ -1,7 +1,7 @@
 #ifndef __C4_H__
 #define __C4_H__
 
-#define VERSION   20241217
+#define VERSION   20241223
 #define _SYS_LOAD_
 #define EDITOR
 
@@ -21,14 +21,14 @@
 #include <time.h>
 
 #ifdef IS_PC
-  #define MEM_SZ       32*1024 // A memory constrained system
+  #define MEM_SZ       64*1024 // A memory constrained system
   #define STK_SZ            32 // Data stack
   #define RSTK_SZ           32 // Return stack
   #define LSTK_SZ           30 // 10 nested loops (3 entries per loop)
   #define TSTK_SZ           32 // 'A' and 'T' stacks
   #define FSTK_SZ            8 // Files stack
   #define NAME_LEN          13 // To make dict-entry size 18 (13+1+1+1+2)
-  #define CODE_SLOTS    0x0800 // $C000 and larger are inline numbers
+  #define CODE_SLOTS    0x1000 // $C000 and larger are inline numbers
   #define BLOCK_CACHE_SZ     8 // Each block is 1024 bytes
   #define BLOCK_MAX        255 // Maximum block
 #define FILE_PC
@@ -106,7 +106,6 @@ extern void sys_load();
 
 // Files
 extern void fileInit();
-extern void fileExit();
 extern cell fileOpen(const char *name, const char *mode);
 extern void fileClose(cell fh);
 extern cell fileSize(cell fh);
