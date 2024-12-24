@@ -311,7 +311,7 @@ void fType(const char *s) {
 
 void compileNum(cell num) {
 	if (btwi(num, 0, NUM_MASK)) { comma((wc_t)(num | NUM_BITS)); }
-	else { comma(LIT); comma(num); }
+	else { comma(LIT); commaCell(num); }
 }
 
 void quote() {
