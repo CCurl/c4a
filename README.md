@@ -1,4 +1,4 @@
-# c4a: a 32-bit Forth system for PCs and Arduino, inspired by ColorForth and Tachyon
+# c4a: a Forth system for PCs and Arduino, inspired by ColorForth and Tachyon
 
 ## ColorForth's influence on c4a
 - c4a supports control characters in the whitespace that change the state.<br/>
@@ -19,17 +19,16 @@
 
 ## Tachyon's influence on c4a
 - In c4a, a program is a sequence of WORD-CODEs. <br/>
-- A WORD-CODE is a 32-bit unsigned number (i.e. - a DWORD). <br/>
+- A WORD-CODE is a 16-bit unsigned number. <br/>
 - Primitives are assigned numbers sequentially from 0 to [BYE]. <br/>
 - If a WORD-CODE is less than or equal to [BYE], it is a primitive. <br/>
-- If the top 3 bits are set, it is a 29-bit unsigned literal, 0-$1FFFFFFF. <br/>
-- If it is between [BYE], and $E0000000, it is the code address of a word to execute. <br/>
+- If the top 3 bits are set, it is 13-bit unsigned literal, 0-$1FFF. <br/>
+- If it is between [BYE], and $E000, it is the code address of a word to execute. <br/>
 
 ## CELLs in c4a
-- A **CELL** in c4a is 32-bits, the same size as a **WORD-CODE**.
-- Since development boards don't support 64-bits, neither does c4a.
+- A **CELL** in c4a is 32-bits.
 - For PCs, only 32-bit platforms are supported.
-- For 64-bit systems, see c4: https://github.com/CCurl/c4).
+- For 64-bit systems, see c4: https://github.com/CCurl/c4.
 
 ## Building c4a
  
@@ -60,11 +59,11 @@ c4a provides a single memory area. See 'mem-sz' (MEM_SZ in c4a.h) for its size.
 - It is broken into 3 areas: CODE, VARS, and DICT.
 - The CODE area is an aray of WORD-CODEs starting at the beginning of the memory.
   - `here` is an offset into the CODE area.
-  - The size of the CODE area is `code-sz`. See 'code-sz' (CODE_SZ in c4a.h).
+  - The size of the CODE area is `code-sz`. See CODE_SZ in c4a.h.
   - **NOTE**: Use `wc@` and `wc!` to get and set WORD-CODE values in the code area.
   - **NOTE**: CODE slots 0-25 (`0 wc@ .. 25 wc@`) are reserved for c4a system values.
   - **NOTE**: CODE slots 26-[BYE] (`26 wc@` .. `[BYE] wc@`) are unused by c4a.
-  - **NOTE**: So c4a provides space for about 75 'free' variables.
+  - **NOTE**: So c4a provides space for about 75 'free' 16-bit variables.
   - **NOTE**: These are free for the user/application to use as desired.
 - The VARS area is defined to begin at address `code-sz wc-sz * memory +`.
   - `vhere` is the absolute address of the first free byte the VARS area.
@@ -114,7 +113,7 @@ For example `: ascii dup dup dup ." char %c, decimal #%d, binary: %%%b, hex: $%x
 
 ## The A stack
 c4a includes an A stack. <br/>
-This is somewhat similar to MachineForth's operations for 'a', but in c4a, it is a stack.<br/>
+This is somewhat similar to ColorForth's operations for 'a', but in c4a, it is a stack.<br/>
 The size of the A stack is configurable (see `tstk-sz`).<br/>
 
 | WORD  | STACK | DESCRIPTION |

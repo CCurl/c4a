@@ -207,9 +207,11 @@ int isTemp(const char *w) {
 DE_T *addWord(const char *w) {
 	if (!w) {
 		nextWord();
-		if (NAME_LEN < strLen(wd)) { wd[NAME_LEN]=0; }
+		if (NAME_LEN < strLen(wd)) { zTypeF("-trunc:[%s]-",wd); wd[NAME_LEN]=0; }
 		w = wd;
 	}
+	if (NAME_LEN < strLen(w)) { zTypeF("-len:[%s]-",w); }
+
 	if (isTemp(w)) {
 		tmpWords[w[1]-'0'].xt = here;
 		return &tmpWords[w[1]-'0'];

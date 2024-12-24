@@ -1,7 +1,7 @@
 #ifndef __C4_H__
 #define __C4_H__
 
-#define VERSION   20241223
+#define VERSION   20241224
 #define _SYS_LOAD_
 #define EDITOR
 
@@ -21,16 +21,16 @@
 #include <time.h>
 
 #ifdef IS_PC
-  #define MEM_SZ       64*1024 // A memory constrained system
-  #define STK_SZ            32 // Data stack
-  #define RSTK_SZ           32 // Return stack
-  #define LSTK_SZ           30 // 10 nested loops (3 entries per loop)
-  #define TSTK_SZ           32 // 'A' and 'T' stacks
+  #define MEM_SZ     1024*1024 // Could be much bigger
+  #define STK_SZ            64 // Data stack
+  #define RSTK_SZ           64 // Return stack
+  #define LSTK_SZ           45 // 10 nested loops (3 entries per loop)
+  #define TSTK_SZ           64 // 'A' and 'T' stacks
   #define FSTK_SZ            8 // Files stack
-  #define NAME_LEN          13 // To make dict-entry size 18 (13+1+1+1+2)
-  #define CODE_SLOTS    0x1000 // $C000 and larger are inline numbers
-  #define BLOCK_CACHE_SZ     8 // Each block is 1024 bytes
-  #define BLOCK_MAX        255 // Maximum block
+  #define NAME_LEN          15 // To make dict-entry size 20 (15+1+1+1+2)
+  #define CODE_SLOTS    0xE000 // $E000 and larger are inline numbers
+  #define BLOCK_CACHE_SZ    16 // Each block is 1024 bytes
+  #define BLOCK_MAX       1023 // Maximum block
 #define FILE_PC
 #else
   #include <Arduino.h>
@@ -40,8 +40,8 @@
   #define LSTK_SZ           45 // 15 nested loops (3 entries per loop)
   #define TSTK_SZ           64 // 'A' and 'T' stacks
   #define FSTK_SZ            8 // Files stack
-  #define NAME_LEN          13 // To make dict-entry size 18 (13+1+1+1+2)
-  #define CODE_SLOTS    0xC000 // $C000 and larger are inline numbers
+  #define NAME_LEN          15 // To make dict-entry size 20 (15+1+1+1+2)
+  #define CODE_SLOTS    0xE000 // $E000 and larger are inline numbers
   #define BLOCK_CACHE_SZ    16 // Each block is 1024 bytes
   #define BLOCK_MAX        255 // Maximum block
   // #define FILE_NONE
@@ -58,8 +58,8 @@
 #define WC_T          uint16_t
 #define WC_SZ         2
 #define BLOCK_SZ      1024
-#define NUM_BITS      0xC000
-#define NUM_MASK      0x3FFF
+#define NUM_BITS      0xE000
+#define NUM_MASK      0x1FFF
 
 enum { COMPILE=1, DEFINE=2, INTERP=3, COMMENT=4 };
 enum { DSPA=0, RSPA, LSPA, TSPA, ASPA, HA, BA, SA, INSPA };
