@@ -24,7 +24,7 @@
   #define MEM_SZ     1024*1024 // Could be much bigger
   #define STK_SZ            64 // Data stack
   #define RSTK_SZ           64 // Return stack
-  #define LSTK_SZ           45 // 10 nested loops (3 entries per loop)
+  #define LSTK_SZ           45 // 15 nested loops (3 entries per loop)
   #define TSTK_SZ           64 // 'A' and 'T' stacks
   #define FSTK_SZ            8 // Files stack
   #define NAME_LEN          15 // To make dict-entry size 20 (15+1+1+1+2)
