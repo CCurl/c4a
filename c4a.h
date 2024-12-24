@@ -87,7 +87,6 @@ extern int  changeState(int x);
 extern void inner(wc_t start);
 extern void outer(const char *src);
 extern void outerF(const char *fmt, ...);
-extern void storeWC(cell addr, wc_t val);
 extern void ok();
 
 // c4.cpp needs these to be defined
@@ -104,7 +103,7 @@ extern int  qKey();
 extern cell timer();
 extern void sys_load();
 
-// Files
+// ... and these - files
 extern void fileInit();
 extern cell fileOpen(const char *name, const char *mode);
 extern void fileClose(cell fh);
@@ -116,7 +115,7 @@ extern cell fileSeek(cell fh, cell pos);
 extern cell filePos(cell fh);
 extern void fileLoad(const char *name);
 
-// Blocks
+// ... and these - blocks
 extern cell block;
 extern void blockInit();
 extern char *blockAddr(cell blk);
