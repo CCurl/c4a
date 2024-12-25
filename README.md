@@ -44,7 +44,7 @@
 - I use the Arduino IDE v2.0
 - There is a c4a.ino file
 - File `c4a.h` controls parameters for the target board
-- Edit the section where isBOARD is defined to set the configuration for the board
+- Edit the section where `IS_BOARD` is defined to set the configuration for the board
 - Use `#define FILE_NONE` to disable support for blocks and LittleFS
 - For the RPI Pico:
   - Use the arduino-pico from earlephilhower (https://github.com/earlephilhower/arduino-pico)
@@ -95,7 +95,7 @@ Strings in c4a are NULL-terminated with no count byte.<br/>
 
 ## Format specifiers in `ftype` and `."`
 Similar to the printf() function in C, c4a supports formatted output using '%'. <br/>
-For example `: ascii dup dup dup ." char %c, decimal #%d, binary: %%%b, hex: $%x%n" ;`.
+For example `: ascii dup dup dup ." char: %c, decimal: #%d, binary: %%%b, hex: $%x%n" ;`.
 
 | Format | Stack | Description |
 |:--     |:--    |:-- |

@@ -3,7 +3,6 @@
 
 #define VERSION   20241224
 #define _SYS_LOAD_
-#define EDITOR
 
 #ifdef _MSC_VER
   #define _CRT_SECURE_NO_WARNINGS
@@ -31,9 +30,10 @@
   #define CODE_SLOTS    0xE000 // $E000 and larger are inline numbers
   #define BLOCK_CACHE_SZ    16 // Each block is 1024 bytes
   #define BLOCK_MAX       1023 // Maximum block
-#define FILE_PC
+  #define FILE_PC
 #else
   #include <Arduino.h>
+  #define IS_BOARD           1 // This must be a devdelopment board
   #define MEM_SZ      400*1024 // These are for a RPi PICO 2 (2350)
   #define STK_SZ            64 // Data stack
   #define RSTK_SZ           64 // Return stack
@@ -67,7 +67,7 @@ enum { DSPA=0, RSPA, LSPA, TSPA, ASPA, HA, BA, SA, INSPA };
 typedef CELL_T cell;
 typedef WC_T wc_t;
 typedef unsigned char byte;
-typedef struct { wc_t xt; byte fl, ln; char nm[NAME_LEN+1]; } DE_T;
+typedef struct { wc_t xt; byte flg, len; char nm[NAME_LEN+1]; } DE_T;
 typedef struct { wc_t op; const char *name; byte fl; } PRIM_T;
 typedef struct { uint16_t num, seq, flags; char data[BLOCK_SZ]; } CACHE_T;
 
@@ -88,6 +88,7 @@ extern void inner(wc_t start);
 extern void outer(const char *src);
 extern void outerF(const char *fmt, ...);
 extern void ok();
+extern cell block;
 
 // c4.cpp needs these to be defined
 extern cell inputFp, outputFp;
@@ -103,28 +104,29 @@ extern int  qKey();
 extern cell timer();
 extern void sys_load();
 
-// ... and these - files
-extern void fileInit();
-extern cell fileOpen(const char *name, const char *mode);
-extern void fileClose(cell fh);
-extern cell fileSize(cell fh);
-extern void fileDelete(const char *name);
-extern cell fileRead(char *buf, int sz, cell fh);
-extern cell fileWrite(char *buf, int sz, cell fh);
-extern cell fileSeek(cell fh, cell pos);
-extern cell filePos(cell fh);
-extern void fileLoad(const char *name);
-
-// ... and these - blocks
-extern cell block;
-extern void blockInit();
-extern char *blockAddr(cell blk);
-extern void blockIsDirty(int blk);
-extern void blockLoad(int blk);
-extern void blockLoadNext(int blk);
-extern void dumpCache();
-extern void editBlock(cell blk);
-extern void flushBlock(cell blk, CACHE_T *p, cell clear);
-extern void flushBlocks(cell clear);
+#ifndef FILE_NONE
+  extern void fileInit();
+  extern cell fileOpen(const char *name, const char *mode);
+  extern void fileClose(cell fh);
+  extern cell fileSize(cell fh);
+  extern void fileDelete(const char *name);
+  extern cell fileRead(char *buf, int sz, cell fh);
+  extern cell fileWrite(char *buf, int sz, cell fh);
+  extern cell fileSeek(cell fh, cell pos);
+  extern cell filePos(cell fh);
+  extern void fileLoad(const char *name);
+  
+  // ... and these - blocks
+  extern void blockInit();
+  extern char *blockAddr(cell blk);
+  extern void blockIsDirty(int blk);
+  extern void blockLoad(int blk);
+  extern void blockLoadNext(int blk);
+  extern void dumpCache();
+  extern void editBlock(cell blk);
+  extern void flushBlock(cell blk, CACHE_T *p, cell clear);
+  extern void flushBlocks(cell clear);
+  #define EDITOR
+#endif // FILE_NONE
 
 #endif //  __C4_H__

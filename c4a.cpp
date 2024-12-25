@@ -21,7 +21,7 @@
 byte memory[MEM_SZ+1];
 wc_t *code = (wc_t*)&memory[0];
 cell lstk[LSTK_SZ+1], rstk[RSTK_SZ+1], dstk[STK_SZ+1];
-cell tstk[TSTK_SZ+1], astk[TSTK_SZ+1], vhere, last;
+cell tstk[TSTK_SZ+1], astk[TSTK_SZ+1], vhere, last, block;
 DE_T tmpWords[10];
 char wd[32], *toIn, *inStk[FSTK_SZ+1];
 
@@ -85,8 +85,8 @@ char wd[32], *toIn, *inStk[FSTK_SZ+1];
 	X(SEMI,    ";",         1, comma(EXIT); state=INTERP; ) \
 	X(LITC,    "lit,",      0, t=pop(); compileNum(t); ) \
 	X(NEXTWD,  "next-wd",   0, push(nextWord()); ) \
-	X(IMMED,   "immediate", 0, { DE_T *dp = (DE_T*)&memory[last]; dp->fl=_IMMED; } ) \
-	X(INLINE,  "inline",    0, { DE_T *dp = (DE_T*)&memory[last]; dp->fl=_INLINE; } ) \
+	X(IMMED,   "immediate", 0, { DE_T *dp = (DE_T*)&memory[last]; dp->flg=_IMMED; } ) \
+	X(INLINE,  "inline",    0, { DE_T *dp = (DE_T*)&memory[last]; dp->flg=_INLINE; } ) \
 	X(OUTER,   "outer",     0, outer((char*)pop()); ) \
 	X(ADDWORD, "addword",   0, addWord(0); ) \
 	X(CLK,     "timer",     0, push(timer()); ) \
@@ -220,10 +220,10 @@ DE_T *addWord(const char *w) {
 	int ln = strLen(w);
 	DE_T *dp = (DE_T*)&memory[last];
 	dp->xt = here;
-	dp->fl = 0;
-	dp->ln = ln;
+	dp->flg = 0;
+	dp->len = ln;
 	strCpy(dp->nm, w);
-	// zTypeF("\n-add:%d,[%s],(%d)-\n", last, dp->nm, dp->xt);
+	// zTypeF("\n-add:%d,%d,[%s],(%d)-\n", last, dp->len, dp->nm, dp->xt);
 	return dp;
 }
 
@@ -234,7 +234,7 @@ DE_T *findWord(const char *w) {
 	int cw = last;
 	while (cw < MEM_SZ) {
 		DE_T *dp = (DE_T*)&memory[cw];
-		if ((len == dp->ln) && strEqI(dp->nm, w)) { return dp; }
+		if ((len == dp->len) && strEqI(dp->nm, w)) { return dp; }
 		cw += sizeof(DE_T);
 	}
 	return (DE_T*)0;
@@ -381,8 +381,8 @@ void executeWord(DE_T *de) {
 }
 
 void compileWord(DE_T *de) {
-	if (de->fl & _IMMED) { executeWord(de); }
-	else if (de->fl & _INLINE) {
+	if (de->flg & _IMMED) { executeWord(de); }
+	else if (de->flg & _INLINE) {
 		wc_t x = de->xt;
 		do { comma(code[x++]); } while (code[x]!=EXIT);
 	} else { comma(de->xt); }
@@ -451,7 +451,7 @@ void baseSys() {
 	for (int i = 0; prims[i].name; i++) {
 		DE_T *w = addWord(prims[i].name);
 		w->xt = prims[i].op;
-		w->fl = prims[i].fl;
+		w->flg = prims[i].fl;
 	}
 
 	const char *addrFmt = ": %s $%lx ; inline";

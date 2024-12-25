@@ -8,7 +8,6 @@
 
 CACHE_T blockCache[BLOCK_CACHE_SZ];
 static uint16_t seq;
-cell block;
 extern char *toIn;
 
 #ifdef FILE_PC
