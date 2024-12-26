@@ -230,8 +230,7 @@ DE_T *addWord(const char *w) {
 DE_T *findWord(const char *w) {
 	if (!w) { nextWord(); w = wd; }
 	if (isTemp(w)) { return &tmpWords[w[1]-'0']; }
-	int len = strLen(w);
-	int cw = last;
+	int len = strLen(w), cw = last;
 	while (cw < MEM_SZ) {
 		DE_T *dp = (DE_T*)&memory[cw];
 		if ((len == dp->len) && strEqI(dp->nm, w)) { return dp; }
