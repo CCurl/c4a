@@ -41,7 +41,7 @@
   - c4a is simple enough that it should be easy to migrate it to any platform
 
 ### Development boards via the Arduino IDE:
-- I use the Arduino IDE v2.0
+- I use the Arduino IDE v2.x
 - There is a c4a.ino file
 - File `c4a.h` controls parameters for the target board
 - Edit the section where `IS_BOARD` is defined to set the configuration for the board
@@ -139,6 +139,14 @@ Note that there are also additional words for the return stack. <br/>
 | `t@-` | (--N) | N: copy of T-TOS, then decrement T-TOS. |
 | `t>`  | (--N) | Pop N from the T stack. |
 | tdrop | (--)  | Drop T-TOS |
+
+## Temporary words
+c4a provides 10 temporary words, 't0' .. 't9'.
+- They are case-sensitive.
+- - 'T0' is NOT a temporary word, but 't0' is.
+- They do not take valuable dictionary space.
+- They can be used to improve factoring, or as variable or constant names.
+- They cannot be made IMMEDIATE or INLINE.
 
 ## c4a WORD-CODE primitives
 Stack effect notation conventions:
