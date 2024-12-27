@@ -202,24 +202,24 @@ int isTemp(const char *w) {
 	return ((w[0]=='t') && btwi(w[1],'0','9') && (w[2]==0)) ? 1 : 0;
 }
 
-DE_T *addWord(const char *w) {
-	if (!w) {
-		nextWord();
-		if (NAME_LEN < strLen(wd)) { zTypeF("-trunc:[%s]-",wd); wd[NAME_LEN]=0; }
-		w = wd;
-	}
-	if (NAME_LEN < strLen(w)) { zTypeF("-len:[%s]-",w); }
-
+DE_T *addWord(char *w) {
+	if (!w) { nextWord(); w = wd; }
+	if (w[0] == 0) { return 0; }
 	if (isTemp(w)) {
 		tmpWords[w[1]-'0'].xt = here;
 		return &tmpWords[w[1]-'0'];
 	}
+	int len = strLen(w);
+	if (NAME_LEN < len) {
+		zTypeF("-trunc:[%s]-",wd);
+		wd[NAME_LEN] = 0;
+		len = NAME_LEN;
+	}
 	last -= sizeof(DE_T);
-	int ln = strLen(w);
 	DE_T *dp = (DE_T*)&memory[last];
 	dp->xt = here;
 	dp->flg = 0;
-	dp->len = ln;
+	dp->len = len;
 	strCpy(dp->nm, w);
 	// zTypeF("\n-add:%d,%d,[%s],(%d)-\n", last, dp->len, dp->nm, dp->xt);
 	return dp;
@@ -450,7 +450,7 @@ void zTypeF(const char *fmt, ...) {
 }
 
 void defineNum(const char *name, cell val) {
-	DE_T *dp = addWord(name);
+	DE_T *dp = addWord((char*)name);
 	compileNum(val);
 	if (btwi(val, 0, NUM_MASK)) { dp->flg=_INLINE; }
 	comma(EXIT);
@@ -458,7 +458,7 @@ void defineNum(const char *name, cell val) {
 
 void baseSys() {
 	for (int i = 0; prims[i].name; i++) {
-		DE_T *w = addWord(prims[i].name);
+		DE_T *w = addWord((char*)prims[i].name);
 		w->xt = prims[i].op;
 		w->flg = prims[i].fl;
 	}
@@ -500,17 +500,17 @@ void baseSys() {
 	defineNum("base",     BA);
 	defineNum("state",    SA);
 	defineNum("cell",     CELL_SZ);
-	sys_load();
 }
 
 void c4Init() {
 	code = (wc_t*)&memory[0];
+	vhere = (cell)&code[CODE_SLOTS];
 	here = BYE+1;
 	last = MEM_SZ;
 	base = 10;
 	state = INTERP;
 	dsp = rsp = inSp = block = 0;
-	vhere = (cell)&memory[(CODE_SLOTS+1)*WC_SZ];
 	fileInit();
 	baseSys();
+	sys_load();
 }

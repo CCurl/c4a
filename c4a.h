@@ -1,7 +1,7 @@
 #ifndef __C4_H__
 #define __C4_H__
 
-#define VERSION   20241225
+#define VERSION   20241227
 #define _SYS_LOAD_
 
 #ifdef _MSC_VER
@@ -27,7 +27,7 @@
   #define TSTK_SZ           64 // 'A' and 'T' stacks
   #define FSTK_SZ            8 // Files stack
   #define NAME_LEN          15 // To make dict-entry size 20 (15+1+1+1+2)
-  #define CODE_SLOTS    0xDFFF // $E000 and larger are inline numbers
+  #define CODE_SLOTS    0xE000 // $E000 and larger are inline numbers
   #define BLOCK_CACHE_SZ    16 // Each block is 1024 bytes
   #define BLOCK_MAX       1023 // Maximum block
   #define FILE_PC
@@ -41,7 +41,7 @@
   #define TSTK_SZ           64 // 'A' and 'T' stacks
   #define FSTK_SZ            8 // Files stack
   #define NAME_LEN          15 // To make dict-entry size 20 (15+1+1+1+2)
-  #define CODE_SLOTS    0xDFFF // $E000 and larger are inline numbers
+  #define CODE_SLOTS    0xE000 // $E000 and larger are inline numbers
   #define BLOCK_CACHE_SZ    16 // Each block is 1024 bytes
   #define BLOCK_MAX        255 // Maximum block
   // #define FILE_NONE
@@ -66,7 +66,7 @@ enum { DSPA=0, RSPA, LSPA, TSPA, ASPA, HA, BA, SA, INSPA };
 
 typedef CELL_T cell;
 typedef WC_T wc_t;
-typedef unsigned char byte;
+typedef uint8_t byte;
 typedef struct { wc_t xt; byte flg, len; char nm[NAME_LEN+1]; } DE_T;
 typedef struct { wc_t op; const char *name; byte fl; } PRIM_T;
 typedef struct { uint16_t num, seq, flags; char data[BLOCK_SZ]; } CACHE_T;
