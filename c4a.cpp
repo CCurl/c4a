@@ -228,11 +228,17 @@ DE_T *addWord(const char *w) {
 DE_T *findWord(const char *w) {
 	if (!w) { nextWord(); w = wd; }
 	if (isTemp(w)) { return &tmpWords[w[1]-'0']; }
-	int len = strLen(w), cw = last;
-	while (cw < MEM_SZ) {
-		DE_T *dp = (DE_T*)&memory[cw];
+	int len = strLen(w);
+	DE_T *dp = (DE_T*)&memory[MEM_SZ];
+	// Check primitives first
+	while ((--dp)->xt < BYE) {
 		if ((len == dp->len) && strEqI(dp->nm, w)) { return dp; }
-		cw += sizeof(DE_T);
+	}
+	// Now non-primitives
+	dp = (DE_T*)&memory[last];
+	while (BYE <= dp->xt) {
+		if ((len == dp->len) && strEqI(dp->nm, w)) { return dp; }
+		dp++;
 	}
 	return (DE_T*)0;
 }

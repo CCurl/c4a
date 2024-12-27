@@ -38,17 +38,15 @@ void sys_load() {
     outer(": else (jmp) , here swap 0 , here swap wc! ; immediate");
     outer(": then here swap wc! ; immediate");
 
-    outer(": hex     $10 base! ;");
-    outer(": binary  %10 base! ;");
-    outer(": decimal #10 base! ;");
-    outer(": ?dup -if dup then ;");
-    outer(": nip swap drop ;        : tuck swap over ;");
-    outer(": 2dup over over ;       : 2drop drop drop ;");
-    outer(": rot >r swap r> swap ;  : -rot swap >r swap r> ;");
-    outer(": 0< 0 < ;            : 0> 0 > ;");
-    outer(": <= > 0= ;           : >= < 0= ;      : <> = 0= ;");
-    outer(": 2+ 1+ 1+ ;          : 2* dup + ;     : 2/ 2 / ;");
-    outer(": cells cell * ;      : chars ;        : cell+ cell + ;");
+    outer(": hex     $10 base! ;   : binary  %10 base! ;");
+    outer(": decimal #10 base! ;   : ?dup -if dup then ;");
+    outer(": rot >r swap r> swap ; : -rot swap >r swap r> ;");
+    outer(": nip swap drop ;  : tuck swap over ;");
+    outer(": 2dup over over ; : 2drop drop drop ;");
+    outer(": 0< 0 < ;         : 0> 0 > ;");
+    outer(": <= > 0= ;        : >= < 0= ;    : <> = 0= ;");
+    outer(": 2+ 1+ 1+ ;       : 2* dup + ;   : 2/ 2 / ;");
+    outer(": cells cell * ;   : chars ;      : cell+ cell + ;");
     outer(": min ( a b--c ) 2dup > if swap then drop ;");
     outer(": max ( a b--c ) 2dup < if swap then drop ;");
     outer(": btwi ( n l h--f ) >r over >  swap r> >  or 0= ;");
