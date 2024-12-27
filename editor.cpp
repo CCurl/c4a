@@ -25,8 +25,8 @@ enum { NORMAL=1, INSERT, REPLACE, QUIT };
 enum { Up=7240, Dn=7248, Rt=7245, Lt=7243, Home=7239, PgUp=7241, PgDn=7249,
     End=7247, Ins=7250, Del=7251, CHome=7287 };
 
-static cell line, off, edMode, isDirty, isShow, block;
-static char edBuf[BLOCK_SZ], yanked[NUM_COLS+1], *curLine;
+static cell line, off, edMode, isDirty, isShow;
+static char edBuf[BLOCK_SZ], yanked[NUM_COLS+1];
 
 static void GotoXY(int x, int y) { zTypeF("\x1B[%d;%dH", y, x); }
 static void CLS() { zType("\x1B[2J"); GotoXY(1, 1); }
@@ -42,13 +42,12 @@ static void normalMode()  { edMode=NORMAL;  }
 static void insertMode()  { edMode=INSERT;  }
 static void replaceMode() { edMode=REPLACE; }
 static void toggleInsert() { (edMode==INSERT) ? normalMode() : insertMode(); }
-static int winKey() { return (224 << 5) ^ key(); }
 static void Green() { FG(40); }
 static void Red() { FG(203); }
 static void Yellow() { FG(226); }
 static void White() { FG(255); }
-
-static void setBlock(int blk) { block=MAX(MIN(blk,BLOCK_MAX),0); storeWC(BLKA, block); }
+static void setBlock(int blk) { block=MAX(MIN(blk,BLOCK_MAX),0); }
+static int winKey() { return (224 << 5) ^ key(); }
 
 static int vtKey() {
     int y = key();
@@ -159,26 +158,22 @@ static void clrToEOL(int l, int o) {
     DIRTY;
 }
 
-static void deleteLine(int l) {
-    for (int r=l; r<MAX_LINE; r++) {
-        char *f = &EDCH(r+1, 0);
-        char *t = &EDCH(r, 0);
-        for (int c=0; c<NUM_COLS; c++) { *(t++) = *(f++); }
-    }
-    clrToEOL(MAX_LINE, 0);
+static void copyLine(char *from, char *to, int nullTerm) {
+    for (int c=0; c<NUM_COLS; c++) { *(to++) = *(from++); }
+    if (nullTerm) { *to = 0; }
 }
 
-static void yankLine(int l) {
-    char *f = &EDCH(l, 0);
-    char *t = &yanked[0];
-    for (int c=0; c<NUM_COLS; c++) { *(t++) = *(f++); }
-    *t = 0;
+static void yankLine(int lineNum, char *to) {
+    copyLine(&EDCH(lineNum, 0), to, 1);
 }
 
 static void putLine(int l) {
-    char *f = &yanked[0];
-    char *t = &EDCH(l, 0);
-    for (int c=0; c<NUM_COLS; c++) { *(t++) = *(f++); }
+    copyLine(yanked, &EDCH(l, 0), 0);
+}
+
+static void deleteLine(int l) {
+    for (int r=l; r<MAX_LINE; r++) { copyLine(&EDCH(r+1, 0), &EDCH(r, 0), 0); }
+    clrToEOL(MAX_LINE, 0);
 }
 
 static void insertSpace(int toEnd) {
@@ -256,7 +251,7 @@ static int doInsertReplace(char c) {
 
 static void edDelX(int c) {
     if (c==0) { c = key(); }
-    if (c=='d') { yankLine(line); deleteLine(line); }
+    if (c=='d') { yankLine(line, yanked); deleteLine(line); }
     else if (c=='w') { deleteWord(); }
     else if (c=='.') { deleteChar(0); }
     else if (c=='x') { deleteChar(0); }
@@ -310,9 +305,7 @@ static void toText() {
     if (fh) {
         outputFp = fh;
         for (int r=0; r<NUM_LINES; r++ ) {
-            char *f = &EDCH(r,0);
-            for (int r=0; r<NUM_COLS; r++ ) { x[r] = f[r]; }
-            x[MAX_COL+1] = 0;
+            yankLine(r, x);
             if (x[MAX_COL]==0) { x[MAX_COL] = 32; }
             for (int r=MAX_COL; 0 <= r; r-- ) {
                 if (x[r]==32) { x[r] = 0; }
@@ -436,7 +429,7 @@ static int processEditorChar(int c) {
         BCASE 'W': moveWord(0);
         BCASE 'x': edDelX(c);
         BCASE 'X': edDelX(c);
-        BCASE 'Y': yankLine(line);
+        BCASE 'Y': yankLine(line, yanked);
         BCASE 'Z': edDelX(c);
     }
     return 1;
@@ -482,7 +475,6 @@ void editBlock(cell blk) {
         showEditor();
         showFooter();
         showCursor();
-        curLine = &EDCH(line,0);
         edBuf[BLOCK_SZ-1]=0;
         processEditorChar(edKey());
     }

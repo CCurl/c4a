@@ -18,6 +18,5 @@ cell fileWrite(char *buf, int sz, cell fh) { return fwrite(buf, 1, sz, makeOut(f
 cell fileSeek(cell fh, cell pos) { return fseek((FILE*)fh,pos,SEEK_SET) ? 1 : 0; }
 cell filePos(cell fh) { return ftell((FILE*)fh); }
 void fileInit() { blockInit(); }
-void fileExit() { flushBlocks(0); }
 
 #endif // FILE_PC
