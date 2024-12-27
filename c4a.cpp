@@ -443,6 +443,13 @@ void zTypeF(const char *fmt, ...) {
 	zType(buf);
 }
 
+void defineNum(const char *name, cell val) {
+	addWord(name);
+	compileNum(val);
+	if (btwi(val, 0, NUM_MASK)) { DE_T *dp = (DE_T*)&memory[last]; dp->flg=_INLINE; }
+	comma(EXIT);
+}
+
 void baseSys() {
 	for (int i = 0; prims[i].name; i++) {
 		DE_T *w = addWord(prims[i].name);
@@ -450,44 +457,43 @@ void baseSys() {
 		w->flg = prims[i].fl;
 	}
 
-	const char *addrFmt = ": %s $%lx ; inline";
-	outerF(addrFmt, "mem-sz",  MEM_SZ);
-	outerF(addrFmt, "code-sz", CODE_SLOTS);
-	outerF(addrFmt, "de-sz",   sizeof(DE_T));
-	outerF(addrFmt, "dstk-sz", STK_SZ+1);
-	outerF(addrFmt, "tstk-sz", TSTK_SZ+1);
-	outerF(addrFmt, "wc-sz",   WC_SZ);
-	outerF(addrFmt, "(dsp)",   DSPA);
-	outerF(addrFmt, "(rsp)",   RSPA);
-	outerF(addrFmt, "(lsp)",   LSPA);
-	outerF(addrFmt, "(tsp)",   TSPA);
-	outerF(addrFmt, "(asp)",   ASPA);
+	defineNum("mem-sz",  MEM_SZ);
+	defineNum("code-sz", CODE_SLOTS);
+	defineNum("de-sz",   sizeof(DE_T));
+	defineNum("dstk-sz", STK_SZ+1);
+	defineNum("tstk-sz", TSTK_SZ+1);
+	defineNum("wc-sz",   WC_SZ);
+	defineNum("(dsp)",   DSPA);
+	defineNum("(rsp)",   RSPA);
+	defineNum("(lsp)",   LSPA);
+	defineNum("(tsp)",   TSPA);
+	defineNum("(asp)",   ASPA);
 
-	outerF(addrFmt, "dstk",    &dstk[0]);
-	outerF(addrFmt, "rstk",    &rstk[0]);
-	outerF(addrFmt, "tstk",    &tstk[0]);
-	outerF(addrFmt, "astk",    &astk[0]);
-	outerF(addrFmt, "memory",  &memory[0]);
-	outerF(addrFmt, "vars",    vhere);
-	outerF(addrFmt, ">in",     &toIn);
-	outerF(addrFmt, "wd",      &wd[0]);
-	outerF(addrFmt, "block",   &block);
-	outerF(addrFmt, "(vhere)", &vhere);
-	outerF(addrFmt, "(output-fp)", &outputFp);
+	defineNum("dstk",        (cell)&dstk[0]);
+	defineNum("rstk",        (cell)&rstk[0]);
+	defineNum("tstk",        (cell)&tstk[0]);
+	defineNum("astk",        (cell)&astk[0]);
+	defineNum("memory",      (cell)&memory[0]);
+	defineNum(">in",         (cell)&toIn);
+	defineNum("wd",          (cell)&wd[0]);
+	defineNum("block",       (cell)&block);
+	defineNum("(vhere)",     (cell)&vhere);
+	defineNum("(output-fp)", (cell)&outputFp);
+	defineNum("(last)",      (cell)&last);
 
-	outerF(addrFmt, "version",  VERSION);
-	outerF(addrFmt, "(lit)",    LIT);
-	outerF(addrFmt, "(jmp)",    JMP);
-	outerF(addrFmt, "(jmpz)",   JMPZ);
-	outerF(addrFmt, "(njmpz)",  NJMPZ);
-	outerF(addrFmt, "(jmpnz)",  JMPNZ);
-	outerF(addrFmt, "(njmpnz)", NJMPNZ);
-	outerF(addrFmt, "(exit)",   EXIT);
-	outerF(addrFmt, "(here)",   HA);
-	outerF(addrFmt, "(last)",   &last);
-	outerF(addrFmt, "base",     BA);
-	outerF(addrFmt, "state",    SA);
-	outerF(addrFmt, "cell",     CELL_SZ);
+	defineNum("version",  VERSION);
+	defineNum("(lit)",    LIT);
+	defineNum("(jmp)",    JMP);
+	defineNum("(jmpz)",   JMPZ);
+	defineNum("(njmpz)",  NJMPZ);
+	defineNum("(jmpnz)",  JMPNZ);
+	defineNum("(njmpnz)", NJMPNZ);
+	defineNum("(exit)",   EXIT);
+	defineNum("(here)",   HA);
+	defineNum("vars",     vhere);
+	defineNum("base",     BA);
+	defineNum("state",    SA);
+	defineNum("cell",     CELL_SZ);
 	sys_load();
 }
 
