@@ -444,9 +444,9 @@ void zTypeF(const char *fmt, ...) {
 }
 
 void defineNum(const char *name, cell val) {
-	addWord(name);
+	DE_T *dp = addWord(name);
 	compileNum(val);
-	if (btwi(val, 0, NUM_MASK)) { DE_T *dp = (DE_T*)&memory[last]; dp->flg=_INLINE; }
+	if (btwi(val, 0, NUM_MASK)) { dp->flg=_INLINE; }
 	comma(EXIT);
 }
 
