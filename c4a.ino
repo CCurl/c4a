@@ -16,7 +16,7 @@
 #else
     void serialInit() { }
     void emit(char c) {}
-    void zType(char *s) {}
+    void zType(const char *s) {}
     int qKey() { return 0; }
     int key() { return 0; }
 #endif
@@ -26,29 +26,29 @@ void ttyMode(int isRaw) {}
 
 // Cells are always 32-bit on dev boards (no 64-bit)
 #define S1(x, y) (*(byte*)(x)=((y)&0xFF))
-void store32(cell l, cell v) {
-    if (((cell)l & 0x03) == 0) { *(cell*)l = v; }
+void store32(cell loc, cell val) {
+    if (((cell)loc & 0x03) == 0) { *(cell*)loc = val; }
     else {
-        S1(l,v); S1(l+1,v>>8); S1(l+2,v>>16); S1(l+3,v>>24);
+        S1(loc,val); S1(loc+1,val>>8); S1(loc+2,val>>16); S1(loc+3,val>>24);
     }
 }
 
-void store16(cell l, cell v) {
-    if (((cell)l & 0x03) == 0) { *(short*)l = (short)v; }
+void store16(cell loc, cell val) {
+    if (((cell)loc & 0x03) == 0) { *(short*)loc = (short)val; }
     else {
-        S1(l,v); S1(l+1,v>>8);;
+        S1(loc,val); S1(loc+1,val>>8);;
     }
 }
 
 #define F1(x, y) (*(byte*)(x)<<y)
-cell fetch32(cell l) {
-    if (((cell)l & 0x03) == 0) { return *(cell*)l; }
-    return F1(l,0) | F1(l+1,8) | F1(l+2,16) | F1(l+3,24);
+cell fetch32(cell loc) {
+    if (((cell)loc & 0x03) == 0) { return *(cell*)loc; }
+    return F1(loc,0) | F1(loc+1,8) | F1(loc+2,16) | F1(loc+3,24);
 }
 
-cell fetch16(cell l) {
-    if (((cell)l & 0x03) == 0) { return *(short*)l; }
-    return F1(l,0) | F1(l+1,8);
+cell fetch16(cell loc) {
+    if (((cell)loc & 0x03) == 0) { return *(short*)loc; }
+    return F1(loc,0) | F1(loc+1,8);
 }
 
 char *in, tib[128];
@@ -74,7 +74,7 @@ void loop() {
   }
 
   if (c==9) { c = 32; }
-  if (c==13) {
+  if (c==EOL_CHAR) {
       *(in) = 0;
       emit(32); outer(tib);
       ok();

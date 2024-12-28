@@ -30,11 +30,12 @@
   #define CODE_SLOTS    0xE000 // $E000 and larger are inline numbers
   #define BLOCK_CACHE_SZ    16 // Each block is 1024 bytes
   #define BLOCK_MAX       1023 // Maximum block
+  #define EOL_CHAR          13 // Carriage Return
   #define FILE_PC
 #else
   #include <Arduino.h>
   #define IS_BOARD           1 // This must be a devdelopment board
-  #define MEM_SZ      400*1024 // These are for a RPi PICO 2 (2350)
+  #define MEM_SZ      464*1024 // These are for a RPi PICO 2 (2350)
   #define STK_SZ            64 // Data stack
   #define RSTK_SZ           64 // Return stack
   #define LSTK_SZ           45 // 15 nested loops (3 entries per loop)
@@ -44,6 +45,7 @@
   #define CODE_SLOTS    0xE000 // $E000 and larger are inline numbers
   #define BLOCK_CACHE_SZ    16 // Each block is 1024 bytes
   #define BLOCK_MAX        255 // Maximum block
+  #define EOL_CHAR          13 // Some people prefer to use 10
   // #define FILE_NONE
   #define FILE_PICO
   // #define FILE_TEENSY
@@ -57,9 +59,9 @@
 #define CELL_SZ       4
 #define WC_T          uint16_t
 #define WC_SZ         2
-#define BLOCK_SZ      1024
 #define NUM_BITS      0xE000
 #define NUM_MASK      0x1FFF
+#define BLOCK_SZ      1024
 
 enum { COMPILE=1, DEFINE=2, INTERP=3, COMMENT=4 };
 enum { DSPA=0, RSPA, LSPA, TSPA, ASPA, HA, BA, SA, INSPA };

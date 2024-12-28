@@ -238,7 +238,7 @@ static void replace1() {
 }
 
 static int doInsertReplace(char c) {
-    if (c==13) {
+    if (c==EOL_CHAR) {
         if (edMode == INSERT) { insertLine(line+1, off); }
         mv(1, -NUM_COLS);
         return 1;
@@ -265,7 +265,7 @@ static int edReadLine(char *buf, int sz) {
     CursorOn();
     while (len<(sz-1)) {
         char c = key();
-        if (c == 13) { break; }
+        if (c == EOL_CHAR) { break; }
         if (c ==  3) { len=0; break; }
         if (c == 27) { len=0; break; }
         if (((c==127) || (c==8)) && (0<len)) { --len; zType("\x08 \x08"); }
@@ -347,7 +347,7 @@ static void doCTL(int c) {
         mv(0, -1); if (edMode == INSERT) { deleteChar(0); }
         return;
     }
-    if (c == 13) {      // <CR>
+    if (c == EOL_CHAR) {      // <CR>
         doInsertReplace(c);
         return;
     }
