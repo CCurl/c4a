@@ -1,7 +1,7 @@
 #ifndef __C4_H__
 #define __C4_H__
 
-#define VERSION   20241227
+#define VERSION   20241231
 #define _SYS_LOAD_
 
 #ifdef _MSC_VER
