@@ -31,6 +31,10 @@
   #define BLOCK_CACHE_SZ    16 // Each block is 1024 bytes
   #define BLOCK_MAX       1023 // Maximum block
   #define EOL_CHAR          13 // Carriage Return
+  #define FL_READ         "rb"
+  #define FL_RW           "r+b"
+  #define FL_WRITE        "wb"
+  #define FL_APPEND       "ab"
   #define FILE_PC
 #else
   #include <Arduino.h>
@@ -46,6 +50,10 @@
   #define BLOCK_CACHE_SZ    16 // Each block is 1024 bytes
   #define BLOCK_MAX        255 // Maximum block
   #define EOL_CHAR          13 // Some people prefer to use 10
+  #define FL_READ          "r"
+  #define FL_RW            "r+"
+  #define FL_WRITE         "w"
+  #define FL_APPEND        "a"
   // #define FILE_NONE
   #define FILE_PICO
   // #define FILE_TEENSY

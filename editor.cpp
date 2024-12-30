@@ -301,7 +301,7 @@ static void gotoBlock(int blk) {
 static void toText() {
     char x[NUM_COLS+1];
     sprintf(x,"block-%03d.fth",block);
-    cell fh = fileOpen(x, "wb");
+    cell fh = fileOpen(x, FL_WRITE);
     if (fh) {
         outputFp = fh;
         for (int r=0; r<NUM_LINES; r++ ) {
@@ -322,7 +322,7 @@ static void toText() {
 static void toBlock() {
     char x[BLOCK_SZ+1];
     sprintf(x,"block-%03d.fth",block);
-    cell fh = fileOpen(x, "rb");
+    cell fh = fileOpen(x, FL_READ);
     if (fh) {
         for (int i=0; i<BLOCK_SZ; i++ ) { edBuf[i]=32; }
         int n = fileRead(x, BLOCK_SZ, fh); toCmd(); zTypeF("%d chars", n);
