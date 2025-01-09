@@ -238,7 +238,7 @@ static void replace1() {
 }
 
 static int doInsertReplace(char c) {
-    if (c==13) {
+    if (c==EOL_CHAR) {
         if (edMode == INSERT) { insertLine(line+1, off); }
         mv(1, -NUM_COLS);
         return 1;
@@ -265,7 +265,7 @@ static int edReadLine(char *buf, int sz) {
     CursorOn();
     while (len<(sz-1)) {
         char c = key();
-        if (c == 13) { break; }
+        if (c == EOL_CHAR) { break; }
         if (c ==  3) { len=0; break; }
         if (c == 27) { len=0; break; }
         if (((c==127) || (c==8)) && (0<len)) { --len; zType("\x08 \x08"); }
@@ -301,7 +301,7 @@ static void gotoBlock(int blk) {
 static void toText() {
     char x[NUM_COLS+1];
     sprintf(x,"block-%03d.fth",block);
-    cell fh = fileOpen(x, "wb");
+    cell fh = fileOpen(x, FL_WRITE);
     if (fh) {
         outputFp = fh;
         for (int r=0; r<NUM_LINES; r++ ) {
@@ -322,7 +322,7 @@ static void toText() {
 static void toBlock() {
     char x[BLOCK_SZ+1];
     sprintf(x,"block-%03d.fth",block);
-    cell fh = fileOpen(x, "rb");
+    cell fh = fileOpen(x, FL_READ);
     if (fh) {
         for (int i=0; i<BLOCK_SZ; i++ ) { edBuf[i]=32; }
         int n = fileRead(x, BLOCK_SZ, fh); toCmd(); zTypeF("%d chars", n);
@@ -347,7 +347,7 @@ static void doCTL(int c) {
         mv(0, -1); if (edMode == INSERT) { deleteChar(0); }
         return;
     }
-    if (c == 13) {      // <CR>
+    if (c == EOL_CHAR) {      // <CR>
         doInsertReplace(c);
         return;
     }

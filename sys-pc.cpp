@@ -72,7 +72,7 @@ void REP() {
 void loadArgument(const char *arg) {
     char fn[32];
     strCpy(fn, arg);
-    cell tmp = fileOpen(fn, "rb");
+    cell tmp = fileOpen(fn, FL_READ);
     if (tmp) { inputFp = tmp; }
 }
 

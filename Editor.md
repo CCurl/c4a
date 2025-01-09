@@ -19,7 +19,7 @@ There are 4 modes in the editor:
 | [ctrl]+b  | Insert tag: DEFINE |
 | [ctrl]+c  | Insert tag: INTERP |
 | [ctrl]+d  | Insert tag: COMMENT |
-| [ctrl]+e  | Execute the current line |
+| [ctrl]+e  | Send the current line to the outer interpreter |
 | [ctrl]+h  | Left 1 char (and delete it if in INSERT mode) |
 | [ctrl]+i  | Right 8 chars (also [tab]) |
 | [ctrl]+j  | Down 1 line |
@@ -109,4 +109,4 @@ COMMAND mode is invoked when pressing ':' in NORMAL mode.
 | wq      | Write the current block and quit (same as ':w' ':q') |
 | q       | Quit, if the current block has NOT changed |
 | q!      | Quit, even if the current block has changed |
-| ![any]  | Send [any] to the c4 outer interpreter |
+| ![any]  | Send [any] to the c4a outer interpreter |
