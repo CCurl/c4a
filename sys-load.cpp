@@ -8,15 +8,15 @@ void sys_load() {
 void sys_load() {
     outer("( Comments are free/built-in )");
     outer(": ->memory memory + ;");
-    outer(": here  (here)  wc@ ;");
+    outer(": here  (here)  @ ;");
     outer(": last  (last)  @ ;");
-    outer(": base@ base    wc@ ;");
-    outer(": base! base    wc! ;");
+    outer(": base@ base    @ ;");
+    outer(": base! base    ! ;");
     outer(": vhere (vhere) @ ;");
     outer(": allot vhere + (vhere) ! ;");
-    outer(": 0sp  0 (dsp)  wc! ;");
-    outer(": 0rsp 0 (rsp)  wc! ;");
-    outer(": , here  dup 1+ (here) wc! wc! ;");
+    outer(": 0sp  0 (dsp)  ! ;");
+    outer(": 0rsp 0 (rsp)  ! ;");
+    outer(": , here  dup 1+ (here) ! wc! ;");
     outer(": v, vhere dup cell + (vhere) ! ! ;");
     outer(": vc, vhere dup 1+ (vhere) ! c! ;");
 
@@ -85,11 +85,11 @@ void sys_load() {
     outer(": .version version <# # # #. # # #. #s #> ztype ;");
 
     outer(": ? ( addr-- ) @ . ;");
-    outer(": .s '(' emit space (dsp) wc@ 1- ?dup");
+    outer(": .s '(' emit space (dsp) @ 1- ?dup");
     outer("    if for i 1+ cells dstk + @ . next then ')' emit ;");
 
-    outer(": [[ vhere >t here >t 1 state wc! ;");
-    outer(": ]] (exit) , 0 state wc! t@ (here) wc! t> >r t> (vhere) ! ; immediate");
+    outer(": [[ vhere >t here >t 1 state ! ;");
+    outer(": ]] (exit) , 0 state wc! t@ (here) ! t> >r t> (vhere) ! ; immediate");
 
     outer("mem-sz 1- ->memory const dict-end");
     outer(": ->xt     @ ;");
@@ -108,10 +108,10 @@ void sys_load() {
     outer("          dup ->name ztype tab a@+ 9 > if cr 0 a! then de-sz +");
     outer("      next drop adrop ;");
 
-    outer("cell var t0  cell var t1");
-    outer(": marker here 20 wc! last t0 ! vhere t1 ! ;");
-    outer(": forget 20 wc@ (here) wc! t0 @ (last) ! t1 @ (vhere) ! ;");
-    outer(": fgl last dup de-sz + (last) ! ->memory ->xt (here) wc! ;");
+    outer("cell var t0  cell var t1  cell var t2");
+    outer(": marker here t0 ! last t2 ! vhere t2 ! ;");
+    outer(": forget t0 @ (here) ! t1 @ (last) ! t2 @ (vhere) ! ;");
+    outer(": fgl last dup de-sz + (last) ! ->memory ->xt (here) ! ;");
 
 #ifdef FILE_PC
     outer(": fopen-r ( fn--fh )  z\" rb\" fopen ;");

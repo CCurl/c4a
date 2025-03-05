@@ -1,14 +1,21 @@
 #include "c4a.h"
 
-#define dsp           code[DSPA]
-#define rsp           code[RSPA]
-#define lsp           code[LSPA]
-#define tsp           code[TSPA]
-#define asp           code[ASPA]
-#define here          code[HA]
-#define base          code[BA]
-#define state         code[SA]
-#define inSp          code[INSPA]
+#define SP(x)         sys->stks[x].sp
+#define STK(x)        sys->stks[x].stk
+
+#define dsp           SP(0)
+#define rsp           SP(1)
+#define asp           SP(2)
+#define bsp           SP(3)
+#define tsp           SP(4)
+#define lsp           SP(5)
+
+#define dstk          STK(0)
+#define rstk          STK(1)
+#define astk          STK(2)
+#define bstk          STK(3)
+#define tstk          STK(4)
+#define lstk          STK(5)
 
 #define TOS           dstk[dsp]	
 #define NOS           dstk[dsp-1]
@@ -20,10 +27,12 @@
 
 byte memory[MEM_SZ+1];
 wc_t *code = (wc_t*)&memory[0];
-cell lstk[LSTK_SZ+1], rstk[RSTK_SZ+1], dstk[STK_SZ+1];
-cell tstk[TSTK_SZ+1], astk[TSTK_SZ+1], vhere, last, block;
+cell here, base, state, inSp, last;
+cell vhere, block;
 DE_T tmpWords[10];
 char wd[32], *toIn, *inStk[FSTK_SZ+1];
+SYS_T procs[8], *sys=&procs[0];
+cell cycles, numTasks, curTask;
 
 #define PRIMS_BASE \
 	X(EXIT,    "exit",      0, if (0<rsp) { pc = (wc_t)rpop(); } else { return; } ) \
@@ -65,20 +74,27 @@ char wd[32], *toIn, *inStk[FSTK_SZ+1];
 	X(RATD,    "r@-",       0, push(rstk[rsp]--); ) \
 	X(RFROM,   "r>",        0, push(rpop()); ) \
 	X(RDROP,   "rdrop",     0, rpop(); ) \
-	X(TTO,     ">t",        0, t=pop(); if (tsp < TSTK_SZ) { tstk[++tsp]=t; }; ) \
+	X(TTO,     ">t",        0, t=pop(); if (tsp < STK_SZ) { tstk[++tsp]=t; }; ) \
 	X(TSTO,    "t!",        0, tstk[tsp] = pop(); ) \
 	X(TAT,     "t@",        0, push(tstk[tsp]); ) \
 	X(TATI,    "t@+",       0, push(tstk[tsp]++); ) \
 	X(TATD,    "t@-",       0, push(tstk[tsp]--); ) \
 	X(TFROM,   "t>",        0, push((0 < tsp) ? tstk[tsp--] : 0); ) \
 	X(TDROP,   "tdrop",     0, if (0 < tsp) { tsp--; } ) \
-	X(TOA,     ">a",        0, t=pop(); if (asp < TSTK_SZ) { astk[++asp] = t; } ) \
+	X(TOA,     ">a",        0, t=pop(); if (asp < STK_SZ) { astk[++asp] = t; } ) \
 	X(ASET,    "a!",        0, astk[asp]=pop(); ) \
 	X(AGET,    "a@",        0, push(astk[asp]); ) \
 	X(AGETI,   "a@+",       0, push(astk[asp]++); ) \
 	X(AGETD,   "a@-",       0, push(astk[asp]--); ) \
 	X(AFROM,   "a>",        0, push((0 < asp) ? astk[asp--] : 0); ) \
 	X(ADROP,   "adrop",     0, if (0 < asp) { asp--; } ) \
+	X(BTO,     ">b",        0, t=pop(); if (bsp < STK_SZ) { bstk[++bsp]=t; }; ) \
+	X(BSET,    "b!",        0, bstk[bsp]=pop(); ) \
+	X(BGET,    "b@",        0, push(bstk[bsp]); ) \
+	X(BGETI,   "b@+",       0, push(bstk[bsp]++); ) \
+	X(BGETD,   "b@-",       0, push(bstk[bsp]--); ) \
+	X(BFROM,   "b>",        0, push((0 < bsp) ? astk[bsp--] : 0); ) \
+	X(BDROP,   "bdrop",     0, if (0 < bsp) { bsp--; } ) \
 	X(EMIT,    "emit",      0, emit((char)pop()); ) \
 	X(KEY,     "key",       0, push(key()); ) \
 	X(QKEY,    "?key",      0, push(qKey()); ) \
@@ -146,13 +162,13 @@ enum _PRIM  {
 };
 
 #undef X
-#define X(op, name, imm, code) { op, name, imm },
+#define X(op, name, imm, code) { name, op, imm, 0 },
 
 PRIM_T prims[] = { PRIMS_BASE PRIMS_FILE PRIMS_SYSTEM {0, 0, 0}};
 
 void push(cell x) { if (dsp < STK_SZ) { dstk[++dsp] = x; } }
 cell pop() { return (0<dsp) ? dstk[dsp--] : 0; }
-void rpush(cell x) { if (rsp < RSTK_SZ) { rstk[++rsp] = x; } }
+void rpush(cell x) { if (rsp < STK_SZ) { rstk[++rsp] = x; } }
 cell rpop() { return (0<rsp) ? rstk[rsp--] : 0; }
 void inPush(char *in) { if (inSp < FSTK_SZ) { inStk[++inSp] = in; } }
 char *inPop() { return (0 < inSp) ? inStk[inSp--] : 0; }
@@ -275,7 +291,7 @@ void doSee() {
 			BCASE NJMPZ:  zTypeF("njmpz $%04lX (-IF?)", (long)x);     i++;
 			BCASE JMPNZ:  zTypeF("jmpnz $%04lX (WHILE?)", (long)x);   i++; break;
 			BCASE NJMPNZ: zTypeF("njmpnz $%04lX (-WHILE?)", (long)x); i++; break;
-			default: x = findXT(op); 
+			default: x = findXT((wc_t)op); 
 				zType(x ? ((DE_T*)&memory[x])->nm : "<unknown>");
 		}
 	}
@@ -330,13 +346,22 @@ void quote() {
 	}
 }
 
+wc_t switchTasks(wc_t pc) {
+	if (numTasks == 0) { return pc; }
+	sys[curTask].pc = pc;
+	if (++curTask >= numTasks) { curTask = 0; }
+	cycles = 0;
+	return sys[curTask].pc;
+}
+
 #undef X
 #define X(op, name, imm, code) NCASE op: code
 
 void inner(wc_t start) {
 	cell t, n;
 	wc_t pc = start, wc;
-	next:
+next:
+	if (numTasks) { if (++cycles > 100) { pc = switchTasks(pc); } }
 	wc = code[pc++];
 	switch(wc) {
 		case  STOP:   return;
@@ -463,22 +488,30 @@ void baseSys() {
 		w->flg = prims[i].fl;
 	}
 
-	defineNum("mem-sz",  MEM_SZ);
-	defineNum("code-sz", CODE_SLOTS);
-	defineNum("de-sz",   sizeof(DE_T));
-	defineNum("dstk-sz", STK_SZ+1);
-	defineNum("tstk-sz", TSTK_SZ+1);
-	defineNum("wc-sz",   WC_SZ);
-	defineNum("(dsp)",   DSPA);
-	defineNum("(rsp)",   RSPA);
-	defineNum("(lsp)",   LSPA);
-	defineNum("(tsp)",   TSPA);
-	defineNum("(asp)",   ASPA);
+	defineNum("mem-sz",   MEM_SZ);
+	defineNum("code-sz",  CODE_SLOTS);
+	defineNum("de-sz",    sizeof(DE_T));
+	defineNum("dstk-sz",  STK_SZ+1);
+	defineNum("wc-sz",    WC_SZ);
+	defineNum("sys",      (cell)sys);
+	defineNum("tasks-sz", TASKS_SZ);
+	defineNum("task#",    (cell)&curTask);
+	defineNum("#tasks",   (cell)&numTasks);
 
-	defineNum("dstk",        (cell)&dstk[0]);
-	defineNum("rstk",        (cell)&rstk[0]);
-	defineNum("tstk",        (cell)&tstk[0]);
-	defineNum("astk",        (cell)&astk[0]);
+	defineNum("(dsp)",   (cell)&dsp);
+	defineNum("(rsp)",   (cell)&rsp);
+	defineNum("(asp)",   (cell)&asp);
+	defineNum("(bsp)",   (cell)&bsp);
+	defineNum("(tsp)",   (cell)&tsp);
+	defineNum("(lsp)",   (cell)&lsp);
+	
+	defineNum("dstk",    (cell)&dstk[0]);
+	defineNum("rstk",    (cell)&rstk[0]);
+	defineNum("astk",    (cell)&astk[0]);
+	defineNum("bstk",    (cell)&bstk[0]);
+	defineNum("tstk",    (cell)&tstk[0]);
+	defineNum("lstk",    (cell)&lstk[0]);
+
 	defineNum("memory",      (cell)&memory[0]);
 	defineNum(">in",         (cell)&toIn);
 	defineNum("wd",          (cell)&wd[0]);
@@ -495,10 +528,10 @@ void baseSys() {
 	defineNum("(jmpnz)",  JMPNZ);
 	defineNum("(njmpnz)", NJMPNZ);
 	defineNum("(exit)",   EXIT);
-	defineNum("(here)",   HA);
+	defineNum("(here)",   (cell)&here);
 	defineNum("vars",     vhere);
-	defineNum("base",     BA);
-	defineNum("state",    SA);
+	defineNum("base",     (cell)&base);
+	defineNum("state",    (cell)&state);
 	defineNum("cell",     CELL_SZ);
 }
 
@@ -509,7 +542,7 @@ void c4Init() {
 	last = MEM_SZ;
 	base = 10;
 	state = INTERP;
-	dsp = rsp = inSp = block = 0;
+	dsp = rsp = inSp = block = numTasks = 0;
 	fileInit();
 	baseSys();
 	sys_load();

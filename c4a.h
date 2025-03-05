@@ -1,7 +1,7 @@
 #ifndef __C4_H__
 #define __C4_H__
 
-#define VERSION   20241231
+#define VERSION   20250304
 #define _SYS_LOAD_
 
 #ifdef _MSC_VER
@@ -21,13 +21,10 @@
 
 #ifdef IS_PC
   #define MEM_SZ     1024*1024 // Could be much bigger
-  #define STK_SZ            64 // Data stack
-  #define RSTK_SZ           64 // Return stack
-  #define LSTK_SZ           45 // 15 nested loops (3 entries per loop)
-  #define TSTK_SZ           64 // 'A' and 'T' stacks
+  #define STK_SZ            31 // Data stack
   #define FSTK_SZ            8 // Files stack
   #define NAME_LEN          15 // To make dict-entry size 20 (15+1+1+1+2)
-  #define CODE_SLOTS    0xE000 // $E000 and larger are inline numbers
+  #define CODE_SLOTS    0xF000 // $F000 and larger are inline numbers
   #define BLOCK_CACHE_SZ    16 // Each block is 1024 bytes
   #define BLOCK_MAX       1023 // Maximum block
   #define EOL_CHAR          13 // Carriage Return
@@ -67,19 +64,21 @@
 #define CELL_SZ       4
 #define WC_T          uint16_t
 #define WC_SZ         2
-#define NUM_BITS      0xE000
-#define NUM_MASK      0x1FFF
+#define NUM_BITS      0xF000
+#define NUM_MASK      0x0FFF
 #define BLOCK_SZ      1024
+#define TASKS_SZ      8
 
 enum { COMPILE=1, DEFINE=2, INTERP=3, COMMENT=4 };
-enum { DSPA=0, RSPA, LSPA, TSPA, ASPA, HA, BA, SA, INSPA };
 
 typedef CELL_T cell;
 typedef WC_T wc_t;
 typedef uint8_t byte;
 typedef struct { wc_t xt; byte flg, len; char nm[NAME_LEN+1]; } DE_T;
-typedef struct { wc_t op; const char *name; byte fl; } PRIM_T;
+typedef struct { const char *name; wc_t op; byte fl; byte pad; } PRIM_T;
 typedef struct { uint16_t num, seq, flags; char data[BLOCK_SZ]; } CACHE_T;
+typedef struct { char sp; cell stk[STK_SZ+1]; } STK_T;
+typedef struct { STK_T stks[6]; wc_t pc, base; } SYS_T;
 
 // These are defined by c4.cpp
 extern void c4Init();
