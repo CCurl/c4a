@@ -1,7 +1,7 @@
 #include "c4a.h"
 
-#define SP(x)         sys->stks[x].sp
-#define STK(x)        sys->stks[x].stk
+#define SP(x)         task->stks[x].sp
+#define STK(x)        task->stks[x].stk
 
 #define dsp           SP(0)
 #define rsp           SP(1)
@@ -10,12 +10,12 @@
 #define tsp           SP(4)
 #define lsp           SP(5)
 
-#define dstk          STK(0)
-#define rstk          STK(1)
-#define astk          STK(2)
-#define bstk          STK(3)
-#define tstk          STK(4)
-#define lstk          STK(5)
+#define dstk          STK(0)    // Data stack
+#define rstk          STK(1)    // Return stack
+#define astk          STK(2)    // A stack
+#define bstk          STK(3)    // B stack
+#define tstk          STK(4)    // T stack
+#define lstk          STK(5)    // Loop stack
 
 #define TOS           dstk[dsp]	
 #define NOS           dstk[dsp-1]
@@ -31,7 +31,7 @@ cell here, base, state, inSp, last;
 cell vhere, block;
 DE_T tmpWords[10];
 char wd[32], *toIn, *inStk[FSTK_SZ+1];
-SYS_T procs[8], *sys=&procs[0];
+TASK_T tasks[8], *task;
 cell cycles, numTasks, curTask;
 
 #define PRIMS_BASE \
@@ -348,10 +348,10 @@ void quote() {
 
 wc_t switchTasks(wc_t pc) {
 	if (numTasks == 0) { return pc; }
-	sys[curTask].pc = pc;
+	task[curTask].pc = pc;
 	if (++curTask >= numTasks) { curTask = 0; }
 	cycles = 0;
-	return sys[curTask].pc;
+	return task[curTask].pc;
 }
 
 #undef X
@@ -361,7 +361,7 @@ void inner(wc_t start) {
 	cell t, n;
 	wc_t pc = start, wc;
 next:
-	if (numTasks) { if (++cycles > 100) { pc = switchTasks(pc); } }
+	if (numTasks) { if (++cycles > TASK_CYCLES) { pc = switchTasks(pc); } }
 	wc = code[pc++];
 	switch(wc) {
 		case  STOP:   return;
@@ -493,7 +493,8 @@ void baseSys() {
 	defineNum("de-sz",    sizeof(DE_T));
 	defineNum("dstk-sz",  STK_SZ+1);
 	defineNum("wc-sz",    WC_SZ);
-	defineNum("sys",      (cell)sys);
+
+	defineNum("tasks",    (cell)&tasks[0]);
 	defineNum("tasks-sz", TASKS_SZ);
 	defineNum("task#",    (cell)&curTask);
 	defineNum("#tasks",   (cell)&numTasks);
@@ -542,6 +543,7 @@ void c4Init() {
 	last = MEM_SZ;
 	base = 10;
 	state = INTERP;
+	task = &tasks[0];
 	dsp = rsp = inSp = block = numTasks = 0;
 	fileInit();
 	baseSys();
