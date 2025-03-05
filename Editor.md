@@ -60,7 +60,6 @@ There are 4 modes in the editor:
 | g    | Goto the top-left of the screen |
 | G    | Goto the bottom-left of the screen |
 | h    | Left 1 char |
-| H    | Toggle between current block and help block (block+1) |
 | i    | Insert: change to INSERT mode |
 | I    | Insert: goto the beginning of the line and change to INSERT mode (same as '_i') |
 | j    | Down 1 line |

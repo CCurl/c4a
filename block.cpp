@@ -132,5 +132,6 @@ char *blockAddr(cell blk) { return &findBlock(blk)->data[0]; }
 void blockLoadNext(int blk) { toIn=blockAddr(blk); prepForLoad(); }
 void blockLoad(int blk) { inPush(toIn); blockLoadNext(blk); }
 void blockIsDirty(int blk) { findBlock(blk)->flags |= BLOCK_DIRTY; }
+void blockIsClean(int blk) { findBlock(blk)->flags &= ~BLOCK_DIRTY; }
 
 #endif // FILE_NONE

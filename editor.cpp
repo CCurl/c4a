@@ -7,7 +7,7 @@
 void editBlock(cell blk) { zType("-no edit-"); }
 #else
 
-#define NUM_LINES     16
+#define NUM_LINES     32
 #define NUM_COLS      64
 #define MAX_LINE      (NUM_LINES-1)
 #define MAX_COL       (NUM_COLS-1)
@@ -407,7 +407,6 @@ static int processEditorChar(int c) {
         BCASE 'g': mv(-NUM_LINES,-NUM_COLS);
         BCASE 'G': mv(NUM_LINES,-NUM_COLS);
         BCASE 'h': mv(0,-1);
-        BCASE 'H': gotoBlock((block & 0x01) ? block+1 : block-1);
         BCASE 'i': insertMode();
         BCASE 'I': mv(0, -NUM_COLS); insertMode();
         BCASE 'j': mv(1, 0);

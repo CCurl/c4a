@@ -131,6 +131,7 @@ extern void sys_load();
   extern void blockInit();
   extern char *blockAddr(cell blk);
   extern void blockIsDirty(int blk);
+  extern void blockIsClean(int blk);
   extern void blockLoad(int blk);
   extern void blockLoadNext(int blk);
   extern void dumpCache();

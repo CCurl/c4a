@@ -89,7 +89,7 @@ void sys_load() {
     outer("    if for i 1+ cells dstk + @ . next then ')' emit ;");
 
     outer(": [[ vhere >t here >t 1 state ! ;");
-    outer(": ]] (exit) , 0 state wc! t@ (here) ! t> >r t> (vhere) ! ; immediate");
+    outer(": ]] (exit) , 0 state ! t@ (here) ! t> >r t> (vhere) ! ; immediate");
 
     outer("mem-sz 1- ->memory const dict-end");
     outer(": ->xt     w@ ;");

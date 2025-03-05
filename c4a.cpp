@@ -134,6 +134,8 @@ wc_t tasks[TASKS_SZ+1], curTask, numTasks;
 	X(NXTBLK,  "load-next",   0, t=pop(); blockLoadNext((int)t); ) \
 	X(BCACHE,  "blocks",      0, dumpCache(); ) \
 	X(BADDR,   "block-addr",  0, t=pop(); push((cell)blockAddr(t)); ) \
+	X(BDIRTY,  "block-dirty", 0, t=pop(); blockIsDirty((int)t); ) \
+	X(BCLEAN,  "block-clean", 0, t=pop(); blockIsClean((int)t); ) \
 	X(FLUSH,   "flush",       0, flushBlocks(pop()); ) \
 	X(FLBLK,   "flush-block", 0, t=pop(); n=pop(); flushBlock(n, 0, t); ) \
 	X(EDIT,    "edit",        0, t=pop(); editBlock(t); )
@@ -506,6 +508,7 @@ void baseSys() {
 	}
 
 	defineNum("mem-sz",   MEM_SZ);
+	defineNum("block-sz", BLOCK_SZ);
 	defineNum("code-sz",  CODE_SLOTS);
 	defineNum("de-sz",    sizeof(DE_T));
 	defineNum("dstk-sz",  STK_SZ+1);
