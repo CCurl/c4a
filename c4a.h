@@ -67,8 +67,6 @@
 #define NUM_BITS      0xF000
 #define NUM_MASK      0x0FFF
 #define BLOCK_SZ      1024
-#define TASKS_SZ      8
-#define TASK_CYCLES   1000
 
 enum { COMPILE=1, DEFINE=2, INTERP=3, COMMENT=4 };
 
@@ -79,7 +77,10 @@ typedef struct { wc_t xt; byte flg, len; char nm[NAME_LEN+1]; } DE_T;
 typedef struct { const char *name; wc_t op; byte fl; byte pad; } PRIM_T;
 typedef struct { uint16_t num, seq, flags; char data[BLOCK_SZ]; } CACHE_T;
 typedef struct { char sp; cell stk[STK_SZ+1]; } STK_T;
-typedef struct { STK_T stks[6]; wc_t pc, base; } TASK_T;
+
+#define TASKS_SZ      7
+// #define TASK_CYCLES   1000
+// typedef struct { STK_T stks[6]; wc_t pc, base; } TASK_T;
 
 // These are defined by c4.cpp
 extern void c4Init();

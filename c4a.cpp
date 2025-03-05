@@ -1,21 +1,20 @@
 #include "c4a.h"
 
-#define SP(x)         task->stks[x].sp
-#define STK(x)        task->stks[x].stk
-
-#define dsp           SP(0)
-#define rsp           SP(1)
-#define asp           SP(2)
-#define bsp           SP(3)
-#define tsp           SP(4)
-#define lsp           SP(5)
-
+#define STK(x)        stks[x].stk
 #define dstk          STK(0)    // Data stack
 #define rstk          STK(1)    // Return stack
 #define astk          STK(2)    // A stack
 #define bstk          STK(3)    // B stack
 #define tstk          STK(4)    // T stack
 #define lstk          STK(5)    // Loop stack
+
+#define SP(x)         stks[x].sp
+#define dsp           SP(0)
+#define rsp           SP(1)
+#define asp           SP(2)
+#define bsp           SP(3)
+#define tsp           SP(4)
+#define lsp           SP(5)
 
 #define TOS           dstk[dsp]	
 #define NOS           dstk[dsp-1]
@@ -31,8 +30,8 @@ cell here, base, state, inSp, last;
 cell vhere, block;
 DE_T tmpWords[10];
 char wd[32], *toIn, *inStk[FSTK_SZ+1];
-TASK_T tasks[8], *task;
-cell cycles, numTasks, curTask;
+STK_T stks[6];
+wc_t tasks[TASKS_SZ+1], curTask, numTasks;
 
 #define PRIMS_BASE \
 	X(EXIT,    "exit",      0, if (0<rsp) { pc = (wc_t)rpop(); } else { return; } ) \
@@ -115,7 +114,10 @@ cell cycles, numTasks, curTask;
 	X(SLEN,    "s-len",     0, TOS = strLen((char*)TOS); ) \
 	X(ZQUOTE,  "z\"",       1, quote(); ) \
 	X(DOTQT,   ".\"",       1, quote(); (state==COMPILE) ? comma(FTYPE) : fType((char*)pop()); ) \
-	X(FIND,    "find",      0, { DE_T *dp=findWord(0); push(dp?dp->xt:0); push((cell)dp); } )
+	X(FIND,    "find",      0, { DE_T *dp=findWord(0); push(dp?dp->xt:0); push((cell)dp); } ) \
+	X(ADDTASK, "add-task",  0, TOS = addTask(TOS); ) \
+	X(DELTASK, "del-task",  0, delTask(pop()); ) \
+	X(YIELD,   "yield",     0, pc = nextTask(pc); )
 
 #ifndef FILE_NONE
 #define PRIMS_FILE \
@@ -346,12 +348,28 @@ void quote() {
 	}
 }
 
-wc_t switchTasks(wc_t pc) {
-	if (numTasks == 0) { return pc; }
-	task[curTask].pc = pc;
-	if (++curTask >= numTasks) { curTask = 0; }
-	cycles = 0;
-	return task[curTask].pc;
+cell addTask(cell xt) {
+	if (numTasks < TASKS_SZ) { tasks[++numTasks] = (wc_t)xt; }
+	else { zType("-tasks-full-"); }
+	return numTasks;
+}
+
+void delTask(cell taskNum) {
+	if (numTasks == 0) { zType("-no-tasks-"); return; }
+	if (taskNum < 1) { zType("-sys-task-"); return; }
+	if (numTasks < taskNum) { zType("-task-range-"); return; }
+	for (int i = taskNum; i < numTasks; i++) { tasks[i] = tasks[i + 1]; }
+	tasks[numTasks--] = 0;
+	if (taskNum <= curTask) { curTask--; }
+}
+
+wc_t nextTask(wc_t pc) {
+	if (numTasks) {
+		tasks[curTask] = pc;
+		curTask = (curTask < numTasks) ? curTask+1 : 0;
+		return tasks[curTask];
+	}
+	return pc;
 }
 
 #undef X
@@ -361,7 +379,6 @@ void inner(wc_t start) {
 	cell t, n;
 	wc_t pc = start, wc;
 next:
-	if (numTasks) { if (++cycles > TASK_CYCLES) { pc = switchTasks(pc); } }
 	wc = code[pc++];
 	switch(wc) {
 		case  STOP:   return;
@@ -493,11 +510,8 @@ void baseSys() {
 	defineNum("de-sz",    sizeof(DE_T));
 	defineNum("dstk-sz",  STK_SZ+1);
 	defineNum("wc-sz",    WC_SZ);
-
-	defineNum("tasks",    (cell)&tasks[0]);
-	defineNum("tasks-sz", TASKS_SZ);
-	defineNum("task#",    (cell)&curTask);
-	defineNum("#tasks",   (cell)&numTasks);
+	defineNum("cur-task", (cell)&curTask);
+	defineNum("num-tasks",(cell)&numTasks);
 
 	defineNum("(dsp)",   (cell)&dsp);
 	defineNum("(rsp)",   (cell)&rsp);
@@ -543,8 +557,8 @@ void c4Init() {
 	last = MEM_SZ;
 	base = 10;
 	state = INTERP;
-	task = &tasks[0];
-	dsp = rsp = inSp = block = numTasks = 0;
+	dsp = rsp = inSp = block = 0;
+	curTask = numTasks = 0;
 	fileInit();
 	baseSys();
 	sys_load();

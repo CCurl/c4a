@@ -92,7 +92,7 @@ void sys_load() {
     outer(": ]] (exit) , 0 state wc! t@ (here) ! t> >r t> (vhere) ! ; immediate");
 
     outer("mem-sz 1- ->memory const dict-end");
-    outer(": ->xt     @ ;");
+    outer(": ->xt     w@ ;");
     outer(": ->flags  wc-sz + c@ ;");
     outer(": ->len    wc-sz + 1+ c@ ;");
     outer(": ->name   wc-sz + 2+ ;");
@@ -109,7 +109,7 @@ void sys_load() {
     outer("      next drop adrop ;");
 
     outer("cell var t0  cell var t1  cell var t2");
-    outer(": marker here t0 ! last t2 ! vhere t2 ! ;");
+    outer(": marker here t0 ! last t1 ! vhere t2 ! ;");
     outer(": forget t0 @ (here) ! t1 @ (last) ! t2 @ (vhere) ! ;");
     outer(": fgl last dup de-sz + (last) ! ->memory ->xt (here) ! ;");
 
