@@ -82,7 +82,7 @@ typedef struct { char sp; cell stk[STK_SZ+1]; } STK_T;
 // #define TASK_CYCLES   1000
 // typedef struct { STK_T stks[6]; wc_t pc, base; } TASK_T;
 
-// These are defined by c4.cpp
+// These are defined by c4a.cpp
 extern void c4Init();
 extern void push(cell x);
 extern cell pop();
@@ -101,7 +101,7 @@ extern void outerF(const char *fmt, ...);
 extern void ok();
 extern cell block;
 
-// c4.cpp needs these to be defined
+// c4a.cpp needs these to be defined
 extern cell inputFp, outputFp;
 extern cell fetch16(cell loc);
 extern cell fetch32(cell loc);
@@ -130,10 +130,10 @@ extern void sys_load();
   // ... and these - blocks
   extern void blockInit();
   extern char *blockAddr(cell blk);
-  extern void blockIsDirty(int blk);
-  extern void blockIsClean(int blk);
-  extern void blockLoad(int blk);
-  extern void blockLoadNext(int blk);
+  extern void blockIsDirty(cell blk);
+  extern void blockIsClean(cell blk);
+  extern void blockLoad(cell blk);
+  extern void blockLoadNext(cell blk);
   extern void dumpCache();
   extern void editBlock(cell blk);
   extern void flushBlock(cell blk, CACHE_T *p, cell clear);

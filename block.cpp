@@ -5,6 +5,7 @@
 #define BLOCK_DIRTY     0x01
 #define BLOCK_CLEAN     0xFE
 #define BLOCK_FREE      0xFFFF
+#define BLOCK_FN        "blocks.fth"
 
 CACHE_T blockCache[BLOCK_CACHE_SZ];
 static uint16_t seq;
@@ -45,7 +46,7 @@ void blockInit() {
 static void readBlock(CACHE_T *p) {
     // dumpCacheEntry("read", p);
     for (int i=0; i<BLOCK_SZ; i++) { p->data[i] = 0; }
-    cell fh=fileOpen("blocks.fth",FL_READ);
+    cell fh=fileOpen(BLOCK_FN,FL_READ);
     if (fh) {
         cell req = p->num*BLOCK_SZ;
         fileSeek(fh, req);
@@ -58,14 +59,14 @@ static void readBlock(CACHE_T *p) {
     p->flags = 0;
 }
 
-static cell extendBlockFile(cell fh, cell req) {
+static cell extendBlockFile(cell fh, cell reqSz) {
     cell sz = fileSize(fh);
-    if (req <= sz) { return fh; }
+    if (reqSz <= sz) { return fh; }
     char buf[BLOCK_SZ];
     for (int i=0; i<BLOCK_SZ; i++) { buf[i] = 0; }
     fileClose(fh);
-    fh = fileOpen("blocks.fth", FL_APPEND);
-    while (sz < req) {
+    fh = fileOpen(BLOCK_FN, FL_APPEND);
+    while (sz < reqSz) {
         if (fileWrite(buf, BLOCK_SZ, fh) < BLOCK_SZ) {
             fileClose(fh);
             return 0;
@@ -73,13 +74,13 @@ static cell extendBlockFile(cell fh, cell req) {
         sz += BLOCK_SZ;
     }
     fileClose(fh);
-    return fileOpen("blocks.fth", FL_RW);
+    return fileOpen(BLOCK_FN, FL_RW);
 }
 
 static void writeBlock(CACHE_T *p) {
     dumpCacheEntry("write", p);
-    cell fh=fileOpen("blocks.fth",FL_RW);
-    if (!fh) { fh=fileOpen("blocks.fth", FL_WRITE); }
+    cell fh=fileOpen(BLOCK_FN,FL_RW);
+    if (!fh) { fh=fileOpen(BLOCK_FN, FL_WRITE); }
     if (!fh) { zType("-can't open blocks.fth-"); return; }
     cell req = p->num*BLOCK_SZ;
     fh = extendBlockFile(fh, req);
@@ -90,7 +91,7 @@ static void writeBlock(CACHE_T *p) {
     p->flags &= BLOCK_CLEAN;
 }
 
-static CACHE_T *findBlock(int blk) {
+static CACHE_T *findBlock(cell blk) {
     // zTypeF("find: %d", blk);
     if (BLOCK_MAX < blk) { zType("-block# too high!-\n"); return 0; }
     for (int i=0; i<BLOCK_CACHE_SZ; i++) {
@@ -129,9 +130,9 @@ void flushBlocks(cell clear) {
 
 static void prepForLoad() { toIn[BLOCK_SZ-1]=0; changeState(INTERP); }
 char *blockAddr(cell blk) { return &findBlock(blk)->data[0]; }
-void blockLoadNext(int blk) { toIn=blockAddr(blk); prepForLoad(); }
-void blockLoad(int blk) { inPush(toIn); blockLoadNext(blk); }
-void blockIsDirty(int blk) { findBlock(blk)->flags |= BLOCK_DIRTY; }
-void blockIsClean(int blk) { findBlock(blk)->flags &= ~BLOCK_DIRTY; }
+void blockLoadNext(cell blk) { toIn=blockAddr(blk); prepForLoad(); }
+void blockLoad(cell blk) { inPush(toIn); blockLoadNext(blk); }
+void blockIsDirty(cell blk) { findBlock(blk)->flags |= BLOCK_DIRTY; }
+void blockIsClean(cell blk) { findBlock(blk)->flags &= BLOCK_CLEAN; }
 
 #endif // FILE_NONE
