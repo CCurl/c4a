@@ -548,7 +548,10 @@ void baseSys() {
 void c4Init() {
 	code = (wc_t*)&memory[0];
 	vhere = (cell)&code[CODE_SLOTS];
-	for (int i = 1; i < TASKS_SZ; i++) { tasks[i].status = 0; }
+	for (int i = 0; i < TASKS_SZ; i++) {
+		tasks[i].status = 0;
+		for (int j = 0; j < 6; j++) { tasks[i].stks[j].sp = 0; }
+	}
 	tasks[0].status = 1;
 	nextTask(0);
 	here = BYE+1;
