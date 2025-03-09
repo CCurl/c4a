@@ -23,6 +23,7 @@
   #define MEM_SZ     1024*1024 // Could be much bigger
   #define STK_SZ            31 // Data stack
   #define FSTK_SZ            8 // Files stack
+  #define TASKS_SZ           8 // Number of tasks
   #define NAME_LEN          15 // To make dict-entry size 20 (15+1+1+1+2)
   #define CODE_SLOTS    0xF000 // $F000 and larger are inline numbers
   #define BLOCK_CACHE_SZ    16 // Each block is 1024 bytes
@@ -42,6 +43,7 @@
   #define LSTK_SZ           45 // 15 nested loops (3 entries per loop)
   #define TSTK_SZ           64 // 'A' and 'T' stacks
   #define FSTK_SZ            8 // Files stack
+  #define TASKS_SZ           8 // Number of tasks
   #define NAME_LEN          15 // To make dict-entry size 20 (15+1+1+1+2)
   #define CODE_SLOTS    0xE000 // $E000 and larger are inline numbers
   #define BLOCK_CACHE_SZ    16 // Each block is 1024 bytes
@@ -67,6 +69,14 @@
 #define NUM_BITS      0xF000
 #define NUM_MASK      0x0FFF
 #define BLOCK_SZ      1024
+#define STK_DATA      0
+#define STK_RETN      1
+#define STK_ASTK      2
+#define STK_BSTK      3
+#define STK_TSTK      4
+#define STK_LSTK      5
+#define TASK_MAX      (TASKS_SZ-1)
+
 
 enum { COMPILE=1, DEFINE=2, INTERP=3, COMMENT=4 };
 
@@ -76,11 +86,10 @@ typedef uint8_t byte;
 typedef struct { wc_t xt; byte flg, len; char nm[NAME_LEN+1]; } DE_T;
 typedef struct { const char *name; wc_t op; byte fl; byte pad; } PRIM_T;
 typedef struct { uint16_t num, seq, flags; char data[BLOCK_SZ]; } CACHE_T;
-typedef struct { char sp; cell stk[STK_SZ+1]; } STK_T;
+typedef struct { cell sp; cell stk[STK_SZ+1]; } STK_T;
 
-#define TASKS_SZ      7
 // #define TASK_CYCLES   1000
-// typedef struct { STK_T stks[6]; wc_t pc, base; } TASK_T;
+typedef struct { STK_T stks[6]; wc_t pc, base; int status; } TASK_T;
 
 // These are defined by c4a.cpp
 extern void c4Init();

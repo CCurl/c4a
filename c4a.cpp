@@ -1,20 +1,7 @@
 #include "c4a.h"
 
-#define STK(x)        stks[x].stk
-#define dstk          STK(0)    // Data stack
-#define rstk          STK(1)    // Return stack
-#define astk          STK(2)    // A stack
-#define bstk          STK(3)    // B stack
-#define tstk          STK(4)    // T stack
-#define lstk          STK(5)    // Loop stack
-
-#define SP(x)         stks[x].sp
-#define dsp           SP(0)
-#define rsp           SP(1)
-#define asp           SP(2)
-#define bsp           SP(3)
-#define tsp           SP(4)
-#define lsp           SP(5)
+#define STK(x)        tasks[curTask].stks[x].stk
+#define SP(x)         tasks[curTask].stks[x].sp
 
 #define TOS           dstk[dsp]	
 #define NOS           dstk[dsp-1]
@@ -27,11 +14,13 @@
 byte memory[MEM_SZ+1];
 wc_t *code = (wc_t*)&memory[0];
 cell here, base, state, inSp, last;
-cell vhere, block;
+cell vhere, block, curTask, numTasks;
+cell *dstk, *rstk, *astk, *bstk, *tstk, *lstk;
+cell dsp, rsp, asp, bsp, tsp, lsp;
 DE_T tmpWords[10];
 char wd[32], *toIn, *inStk[FSTK_SZ+1];
-STK_T stks[6];
-wc_t tasks[TASKS_SZ+1], curTask, numTasks;
+// STK_T stks[6];
+TASK_T tasks[TASKS_SZ];
 
 #define PRIMS_BASE \
 	X(EXIT,    "exit",      0, if (0<rsp) { pc = (wc_t)rpop(); } else { return; } ) \
@@ -351,27 +340,30 @@ void quote() {
 }
 
 cell addTask(cell xt) {
-	if (numTasks < TASKS_SZ) { tasks[++numTasks] = (wc_t)xt; }
-	else { zType("-tasks-full-"); }
-	return numTasks;
+	for (int i = 1; i < TASKS_SZ; i++) {
+		if (tasks[i].status == 0) { tasks[i].pc = xt; tasks[i].status = 1; return i; }
+	}
+	zType("-tasks-full-");
+	return 0;
 }
 
 void delTask(cell taskNum) {
-	if (numTasks == 0) { zType("-no-tasks-"); return; }
 	if (taskNum < 1) { zType("-sys-task-"); return; }
-	if (numTasks < taskNum) { zType("-task-range-"); return; }
-	for (int i = taskNum; i < numTasks; i++) { tasks[i] = tasks[i + 1]; }
-	tasks[numTasks--] = 0;
-	if (taskNum <= curTask) { curTask--; }
+	if (TASK_MAX < taskNum) { zType("-task-range-"); return; }
+	tasks[taskNum].status = 0;
+	curTask = 0;
 }
 
 wc_t nextTask(wc_t pc) {
-	if (numTasks) {
-		tasks[curTask] = pc;
-		curTask = (curTask < numTasks) ? curTask+1 : 0;
-		return tasks[curTask];
-	}
-	return pc;
+	cell nt = 0;
+	for (int i = curTask + 1; i < TASKS_SZ; i++) { if (tasks[i].status == 1) { nt = i; break; } }
+	for (int i = 0; i < curTask; i++) { if (tasks[i].status == 1) { nt = i; break; } }
+	tasks[curTask].pc = pc;
+	SP(STK_DATA) = dsp; SP(STK_RETN) = rsp; SP(STK_ASTK) = asp; SP(STK_BSTK) = bsp; SP(STK_TSTK) = tsp; SP(STK_LSTK) = lsp;
+	curTask = nt;
+	dsp = SP(STK_DATA);   rsp = SP(STK_RETN);   asp = SP(STK_ASTK);   bsp = SP(STK_BSTK);   tsp = SP(STK_TSTK);   lsp = SP(STK_LSTK);
+	dstk = STK(STK_DATA); rstk = STK(STK_RETN); astk = STK(STK_ASTK); bstk = STK(STK_BSTK); tstk = STK(STK_TSTK); lstk = STK(STK_LSTK);
+	return tasks[curTask].pc;
 }
 
 #undef X
@@ -556,12 +548,14 @@ void baseSys() {
 void c4Init() {
 	code = (wc_t*)&memory[0];
 	vhere = (cell)&code[CODE_SLOTS];
+	for (int i = 1; i < TASKS_SZ; i++) { tasks[i].status = 0; }
+	tasks[0].status = 1;
+	nextTask(0);
 	here = BYE+1;
 	last = MEM_SZ;
 	base = 10;
 	state = INTERP;
-	dsp = rsp = inSp = block = 0;
-	curTask = numTasks = 0;
+	inSp = block = 0;
 	fileInit();
 	baseSys();
 	sys_load();
