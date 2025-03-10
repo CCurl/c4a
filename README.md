@@ -1,9 +1,9 @@
 # c4a: a Forth system for PCs and Arduino, inspired by ColorForth and Tachyon
 
 ## ColorForth's influence on c4a
-- c4a supports control characters in the whitespace that change the state.<br/>
-- c4a has 4 states: INTERPRET, COMPILE, DEFINE, AND COMMENT,<br/>
-- c4a also supports the standard state-change words.<br/>
+- c4a supports control characters in the whitespace that change the state. <br/>
+- c4a has 4 states: INTERPRET, COMPILE, DEFINE, AND COMMENT, <br/>
+- c4a also supports the standard state-change words. <br/>
 
 | Ascii | Word  | State | Description|
 |:--    |:--    |:--    |:-- |
@@ -14,8 +14,8 @@
 |       |  (    |   4   | Comment, save current state |
 |       |  )    |       | End comment, restores saved state |
 
-**NOTE**: In the DEFINE state, c4a changes the state to COMPILE after adding the next word.<br/>
-**NOTE**: Unlike ColorForth, ';' compiles EXIT and then changes the state to INTERPRET.<br/>
+**NOTE**: In the DEFINE state, c4a changes the state to COMPILE after adding the next word. <br/>
+**NOTE**: Unlike ColorForth, ';' compiles EXIT and then changes the state to INTERPRET. <br/>
 
 ## Tachyon's influence on c4a
 - In c4a, a program is a sequence of WORD-CODEs. <br/>
@@ -80,18 +80,19 @@ c4a provides a single memory area. See 'mem-sz' (MEM_SZ in c4a.h) for its size.
 | tstk-sz | (--N) | N: size in CELLs of the A and T stacks |
 | wc-sz   | (--N) | N: size in BYTEs of a WORD-CODE |
 | de-sz   | (--N) | N: size in BYTEs of a dictionary entry |
-| (dsp)   | (--N) | N: CODE slot for the data stack pointer |
-| (rsp)   | (--N) | N: CODE slot for the return stack pointer |
-| (lsp)   | (--N) | N: CODE slot for the loop stack pointer |
-| (tsp)   | (--N) | N: CODE slot for the T stack pointer |
-| (asp)   | (--N) | N: CODE slot for the A stack pointer |
-| (here)  | (--N) | N: CODE slot for the HERE variable |
-| (last)  | (--N) | N: CODE slot for the LAST variable |
-| base    | (--N) | N: CODE slot for the BASE variable |
-| state   | (--N) | N: CODE slot for the STATE variable |
+| (dsp)   | (--N) | N: Address of the data stack pointer |
+| (rsp)   | (--N) | N: Address of the return stack pointer |
+| (lsp)   | (--N) | N: Address of the loop stack pointer |
+| (asp)   | (--N) | N: Address of the A stack pointer |
+| (bsp)   | (--N) | N: Address of the B stack pointer |
+| (tsp)   | (--N) | N: Address of the T stack pointer |
+| (here)  | (--N) | N: Address of the HERE variable |
+| (last)  | (--N) | N: Address of the LAST variable |
+| base    | (--N) | N: Address of the BASE variable |
+| state   | (--N) | N: Address of the STATE variable |
 
 ## c4a Strings
-Strings in c4a are NULL-terminated with no count byte.<br/>
+Strings in c4a are NULL-terminated with no count byte. <br/>
 
 ## Format specifiers in `ftype` and `."`
 Similar to the printf() function in C, c4a supports formatted output using '%'. <br/>
@@ -111,10 +112,12 @@ For example `: ascii dup dup dup ." char: %c, decimal: #%d, binary: %%%b, hex: $
 | %x     | (N--) | Print TOS in base 16. |
 | %[x]   | (--)  | EMIT [x]. |
 
-## The A stack
-c4a includes an A stack. <br/>
-This is somewhat similar to ColorForth's operations for 'a', but in c4a, it is a stack.<br/>
-The size of the A stack is configurable (see `tstk-sz`).<br/>
+## The A, B, and T stacks
+c4a includes A, B, and T stacks. <br/>
+These are somewhat similar to ColorForth's operations for a and b, but in c4a, they are stacks. <br/>
+The size of the stacks is configurable (see `stk-sz`). <br/>
+The words below are available for all 3 stacks. <br/>
+Note that there are also additional words `r!` `r@+` and `r@-` for the return stack. <br/>
 
 | WORD  | STACK | DESCRIPTION |
 |:--    |:--    |:-- |
@@ -126,27 +129,20 @@ The size of the A stack is configurable (see `tstk-sz`).<br/>
 | `a>`  | (--N) | Pop N from the A stack. |
 | adrop | (--)  | Drop A-TOS |
 
-## The T Stack
-c4a includes a T stack, with the same operations as the A stack. <br/>
-Note that there are also additional words for the return stack. <br/>
-
-| WORD  | STACK | DESCRIPTION |
-|:--    |:--    |:-- |
-| `>t`  | (N--) | Push N onto the T stack. |
-| `t!`  | (N--) | Set T-TOS to N. |
-| `t@`  | (--N) | N: copy of T-TOS. |
-| `t@+` | (--N) | N: copy of T-TOS, then increment T-TOS. |
-| `t@-` | (--N) | N: copy of T-TOS, then decrement T-TOS. |
-| `t>`  | (--N) | Pop N from the T stack. |
-| tdrop | (--)  | Drop T-TOS |
-
 ## Temporary words
 c4a provides 10 temporary words, 't0' .. 't9'.
 - They are case-sensitive.
-- - 'T0' is NOT a temporary word, but 't0' is.
+- - 't0' is a temporary word; 'T0' is NOT.
 - They do not take valuable dictionary space.
 - They can be used to improve factoring, or as variable or constant names.
-- They cannot be made IMMEDIATE or INLINE.
+- t0:t5 are normal words, t6:t9 are INLINE.
+
+## Tasks
+- c4a supports simple a very simple cooperative multi-tasking system.
+- The task system is not preemptive.
+- Words `add-task (xt--n)`, `yield (--)`, `del-task (n--)` are provided.
+- Each task has its own data stack, return stack, and loop stack.
+- The A, B, and T stacks are shared by all tasks.
 
 ## c4a WORD-CODE primitives
 Stack effect notation conventions:
@@ -268,5 +264,5 @@ The primitives:
 | bye         | (--)         | PC ONLY: Exit c4a |
 
 ## c4a default words
-Default words are defined in function `sys_load()` in file sys-load.cpp.<br/>
+Default words are defined in function `sys_load()` in file sys-load.cpp. <br/>
 For details, or to add or change the default words, modify that function.

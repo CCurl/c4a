@@ -15,11 +15,11 @@ byte memory[MEM_SZ+1];
 wc_t *code = (wc_t*)&memory[0];
 cell here, base, state, inSp, last;
 cell vhere, block, curTask, numTasks;
-cell *dstk, *rstk, *astk, *bstk, *tstk, *lstk;
+cell *dstk, *rstk, *lstk;
 cell dsp, rsp, asp, bsp, tsp, lsp;
 DE_T tmpWords[10];
 char wd[32], *toIn, *inStk[FSTK_SZ+1];
-// STK_T stks[6];
+cell astk[STK_SZ+1], bstk[STK_SZ+1], tstk[STK_SZ+1];
 TASK_T tasks[TASKS_SZ];
 
 #define PRIMS_BASE \
@@ -359,10 +359,10 @@ wc_t nextTask(wc_t pc) {
 	for (int i = curTask + 1; i < TASKS_SZ; i++) { if (tasks[i].status == 1) { nt = i; break; } }
 	for (int i = 0; i < curTask; i++) { if (tasks[i].status == 1) { nt = i; break; } }
 	tasks[curTask].pc = pc;
-	SP(STK_DATA) = dsp; SP(STK_RETN) = rsp; SP(STK_ASTK) = asp; SP(STK_BSTK) = bsp; SP(STK_TSTK) = tsp; SP(STK_LSTK) = lsp;
+	SP(STK_DATA) = dsp;   SP(STK_RETN) = rsp;   SP(STK_LSTK) = lsp;
 	curTask = nt;
-	dsp = SP(STK_DATA);   rsp = SP(STK_RETN);   asp = SP(STK_ASTK);   bsp = SP(STK_BSTK);   tsp = SP(STK_TSTK);   lsp = SP(STK_LSTK);
-	dstk = STK(STK_DATA); rstk = STK(STK_RETN); astk = STK(STK_ASTK); bstk = STK(STK_BSTK); tstk = STK(STK_TSTK); lstk = STK(STK_LSTK);
+	dsp = SP(STK_DATA);   rsp = SP(STK_RETN);   lsp = SP(STK_LSTK);
+	dstk = STK(STK_DATA); rstk = STK(STK_RETN); lstk = STK(STK_LSTK);
 	return tasks[curTask].pc;
 }
 
@@ -559,6 +559,7 @@ void c4Init() {
 	base = 10;
 	state = INTERP;
 	inSp = block = 0;
+	for (int i = 6; i <= 9; i++) { tmpWords[i].flg = _INLINE; }
 	fileInit();
 	baseSys();
 	sys_load();

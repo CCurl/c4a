@@ -71,10 +71,10 @@
 #define BLOCK_SZ      1024
 #define STK_DATA      0
 #define STK_RETN      1
-#define STK_ASTK      2
-#define STK_BSTK      3
-#define STK_TSTK      4
-#define STK_LSTK      5
+#define STK_LSTK      2
+// #define STK_ASTK      3
+// #define STK_BSTK      4
+// #define STK_TSTK      5
 #define TASK_MAX      (TASKS_SZ-1)
 
 
@@ -89,7 +89,7 @@ typedef struct { uint16_t num, seq, flags; char data[BLOCK_SZ]; } CACHE_T;
 typedef struct { cell sp; cell stk[STK_SZ+1]; } STK_T;
 
 // #define TASK_CYCLES   1000
-typedef struct { STK_T stks[6]; wc_t pc, base; int status; } TASK_T;
+typedef struct { STK_T stks[3]; wc_t pc, base; int status; } TASK_T;
 
 // These are defined by c4a.cpp
 extern void c4Init();
