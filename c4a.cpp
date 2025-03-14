@@ -3,7 +3,7 @@
 #define STK(x)        tasks[curTask].stks[x].stk
 #define SP(x)         tasks[curTask].stks[x].sp
 
-#define TOS           dstk[dsp]	
+#define TOS           dstk[dsp]
 #define NOS           dstk[dsp-1]
 #define L0            lstk[lsp]
 #define L1            lstk[lsp-1]
@@ -14,12 +14,12 @@
 byte memory[MEM_SZ+1];
 wc_t *code = (wc_t*)&memory[0];
 cell here, base, state, inSp, last;
-cell vhere, block, curTask, numTasks;
+cell vhere, block, curTask;
 cell *dstk, *rstk, *lstk;
-cell dsp, rsp, asp, bsp, tsp, lsp;
+cell dsp, rsp, lsp, asp, bsp, tsp;
+cell astk[STK_SZ+1], bstk[STK_SZ+1], tstk[STK_SZ+1];
 DE_T tmpWords[10];
 char wd[32], *toIn, *inStk[FSTK_SZ+1];
-cell astk[STK_SZ+1], bstk[STK_SZ+1], tstk[STK_SZ+1];
 TASK_T tasks[TASKS_SZ];
 
 #define PRIMS_BASE \
@@ -356,13 +356,14 @@ void delTask(cell taskNum) {
 
 wc_t nextTask(wc_t pc) {
 	cell nt = 0;
-	for (int i = curTask + 1; i < TASKS_SZ; i++) { if (tasks[i].status == 1) { nt = i; break; } }
+	for (int i = curTask+1; i < TASKS_SZ; i++) { if (tasks[i].status == 1) { nt = i; break; } }
 	for (int i = 0; i < curTask; i++) { if (tasks[i].status == 1) { nt = i; break; } }
 	tasks[curTask].pc = pc;
-	SP(STK_DATA) = dsp;   SP(STK_RETN) = rsp;   SP(STK_LSTK) = lsp;
+	SP(STK_DATA) = dsp; SP(STK_RETN) = rsp; SP(STK_LSTK) = lsp;
 	curTask = nt;
-	dsp = SP(STK_DATA);   rsp = SP(STK_RETN);   lsp = SP(STK_LSTK);
-	dstk = STK(STK_DATA); rstk = STK(STK_RETN); lstk = STK(STK_LSTK);
+	dsp = SP(STK_DATA); dstk = STK(STK_DATA);
+	rsp = SP(STK_RETN); rstk = STK(STK_RETN);
+	lsp = SP(STK_LSTK); lstk = STK(STK_LSTK);
 	return tasks[curTask].pc;
 }
 
@@ -506,7 +507,6 @@ void baseSys() {
 	defineNum("dstk-sz",  STK_SZ+1);
 	defineNum("wc-sz",    WC_SZ);
 	defineNum("cur-task", (cell)&curTask);
-	defineNum("num-tasks",(cell)&numTasks);
 
 	defineNum("(dsp)",   (cell)&dsp);
 	defineNum("(rsp)",   (cell)&rsp);
@@ -558,7 +558,7 @@ void c4Init() {
 	last = MEM_SZ;
 	base = 10;
 	state = INTERP;
-	inSp = block = 0;
+	inSp = block = asp = bsp = tsp = 0;
 	for (int i = 6; i <= 9; i++) { tmpWords[i].flg = _INLINE; }
 	fileInit();
 	baseSys();

@@ -14,3 +14,19 @@
 s-catn(dst n--dst)<# #s #> s-cat ; s-scatnswap s-catn ;
 s-rtrim(str--str)dup >r s-end 1- >t
  begint@ r@ < @t 32 > oriftdrop r> exitthen0 !t-again;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

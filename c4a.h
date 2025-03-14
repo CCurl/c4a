@@ -68,7 +68,9 @@
 #define WC_SZ         2
 #define NUM_BITS      0xF000
 #define NUM_MASK      0x0FFF
-#define BLOCK_SZ      1024
+#define NUM_LINES     32
+#define NUM_COLS      64
+#define BLOCK_SZ      (NUM_LINES*NUM_COLS)
 #define STK_DATA      0
 #define STK_RETN      1
 #define STK_LSTK      2
