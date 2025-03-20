@@ -5,7 +5,7 @@
 rbforget 1 load ;       edblock @ edit ;
 lsz" ls -l" system ;    lgz" lazygit" system ;
 
-." c4a - " green .version white
+green ." c4a - v" .version white
 2 block !
 
 

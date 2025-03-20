@@ -1,7 +1,7 @@
 #ifndef __C4_H__
 #define __C4_H__
 
-#define VERSION   20250304
+#define VERSION   20250319
 #define _SYS_LOAD_
 
 #ifdef _MSC_VER
@@ -24,10 +24,10 @@
   #define STK_SZ            31 // Data stack
   #define FSTK_SZ            8 // Files stack
   #define TASKS_SZ           8 // Number of tasks
-  #define NAME_LEN          15 // To make dict-entry size 20 (15+1+1+1+2)
+  #define NAME_LEN          11 // To make dict-entry size 16 (2+1+1+11+1)
   #define CODE_SLOTS    0xF000 // $F000 and larger are inline numbers
-  #define BLOCK_CACHE_SZ    16 // Each block is 1024 bytes
-  #define BLOCK_MAX       1023 // Maximum block
+  #define BLOCK_CACHE_SZ    16 // Entries of type CACHE_T
+  #define BLOCK_MAX       1023 // Maximum block number
   #define EOL_CHAR          13 // Carriage Return
   #define FL_READ         "rb"
   #define FL_RW           "r+b"
@@ -44,10 +44,10 @@
   #define TSTK_SZ           64 // 'A' and 'T' stacks
   #define FSTK_SZ            8 // Files stack
   #define TASKS_SZ           8 // Number of tasks
-  #define NAME_LEN          15 // To make dict-entry size 20 (15+1+1+1+2)
+  #define NAME_LEN          11 // To make dict-entry size 16 (2+1+1+11+1)
   #define CODE_SLOTS    0xE000 // $E000 and larger are inline numbers
-  #define BLOCK_CACHE_SZ    16 // Each block is 1024 bytes
-  #define BLOCK_MAX        255 // Maximum block
+  #define BLOCK_CACHE_SZ    16 // Entries of type CACHE_T
+  #define BLOCK_MAX        255 // Maximum block number
   #define EOL_CHAR          13 // Some people prefer to use 10
   #define FL_READ          "r"
   #define FL_RW            "r+"
@@ -74,11 +74,7 @@
 #define STK_DATA      0
 #define STK_RETN      1
 #define STK_LSTK      2
-// #define STK_ASTK      3
-// #define STK_BSTK      4
-// #define STK_TSTK      5
 #define TASK_MAX      (TASKS_SZ-1)
-
 
 enum { COMPILE=1, DEFINE=2, INTERP=3, COMMENT=4 };
 

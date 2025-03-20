@@ -214,6 +214,7 @@ int isTemp(const char *w) {
 DE_T *addWord(char *w) {
 	if (!w) { nextWord(); w = wd; }
 	if (w[0] == 0) { return 0; }
+	if (NAME_LEN < strLen(wd)) { zTypeF("-wd/len:%s-\n", wd); wd[NAME_LEN]=0; }
 	if (isTemp(w)) {
 		tmpWords[w[1]-'0'].xt = here;
 		return &tmpWords[w[1]-'0'];
