@@ -62,7 +62,7 @@ TASK_T tasks[TASKS_SZ];
 	X(RATD,    "r@-",       0, push(rstk[rsp]--); ) \
 	X(RFROM,   "r>",        0, push(rpop()); ) \
 	X(RDROP,   "rdrop",     0, rpop(); ) \
-	X(TTO,     ">t",        0, t=pop(); if (tsp < STK_SZ) { tstk[++tsp]=t; }; ) \
+	X(TOT,     ">t",        0, t=pop(); if (tsp < STK_SZ) { tstk[++tsp]=t; }; ) \
 	X(TSTO,    "t!",        0, tstk[tsp] = pop(); ) \
 	X(TAT,     "t@",        0, push(tstk[tsp]); ) \
 	X(TATI,    "t@+",       0, push(tstk[tsp]++); ) \
@@ -76,7 +76,7 @@ TASK_T tasks[TASKS_SZ];
 	X(AGETD,   "a@-",       0, push(astk[asp]--); ) \
 	X(AFROM,   "a>",        0, push((0 < asp) ? astk[asp--] : 0); ) \
 	X(ADROP,   "adrop",     0, if (0 < asp) { asp--; } ) \
-	X(BTO,     ">b",        0, t=pop(); if (bsp < STK_SZ) { bstk[++bsp]=t; }; ) \
+	X(TOB,     ">b",        0, t=pop(); if (bsp < STK_SZ) { bstk[++bsp]=t; }; ) \
 	X(BSET,    "b!",        0, bstk[bsp]=pop(); ) \
 	X(BGET,    "b@",        0, push(bstk[bsp]); ) \
 	X(BGETI,   "b@+",       0, push(bstk[bsp]++); ) \
@@ -550,7 +550,7 @@ void c4Init() {
 	vhere = (cell)&code[CODE_SLOTS];
 	for (int i = 0; i < TASKS_SZ; i++) {
 		tasks[i].status = 0;
-		for (int j = 0; j < 6; j++) { tasks[i].stks[j].sp = 0; }
+		for (int j = 0; j < 3; j++) { tasks[i].stks[j].sp = 0; }
 	}
 	tasks[0].status = 1;
 	nextTask(0);
