@@ -1,7 +1,7 @@
-#ifndef __C4_H__
-#define __C4_H__
+#ifndef __C4A_H__
+#define __C4A_H__
 
-#define VERSION   20241231
+#define VERSION   20250407
 #define _SYS_LOAD_
 
 #ifdef _MSC_VER
@@ -139,4 +139,4 @@ extern void sys_load();
   #define EDITOR
 #endif // FILE_NONE
 
-#endif //  __C4_H__
+#endif //  __C4A_H__

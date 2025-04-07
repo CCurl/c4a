@@ -258,22 +258,22 @@ void doSee() {
 	if (!dp) { zTypeF("-nf:%s-", wd); return; }
 	if (dp->xt <= BYE) { zTypeF("%s is a primitive (#%ld/$%lX).\r\n", wd, dp->xt, dp->xt); return; }
 	cell x = (cell)dp-(cell)memory;
-	int i = dp->xt, stop = (lastWord < dp) ? (dp-1)->xt : here;
+	wc_t i = dp->xt, stop = (lastWord < dp) ? (dp-1)->xt : here;
 	zTypeF("\r\n%04lX: %s (%04lX to %04lX)", (long)x, dp->nm, (long)dp->xt, (long)stop-1);
 	while (i < stop) {
-		long op = code[i++];
+		wc_t op = code[i++];
 		zTypeF("\r\n%04X: %04X\t", i-1, op);
-		if (op & NUM_BITS) { op &= NUM_MASK; zTypeF("num #%ld ($%lx)", op, op); continue; }
+		if (op & NUM_BITS) { op &= NUM_MASK; zTypeF("num #%ld ($%lX)", op, op); continue; }
 		x = code[i];
 		switch (op) {
 			case  STOP: zType("stop"); i++;
 			BCASE LIT: x = fetch32((cell)&code[i]);
 				zTypeF("lit #%zd ($%zX)", (size_t)x, (size_t)x);
 				i += (CELL_SZ/WC_SZ);
-			BCASE JMP:    zTypeF("jmp $%04lX", (long)x);             i++;
+			BCASE JMP:    zTypeF("jmp $%04lX", (long)x);              i++;
 			BCASE JMPZ:   zTypeF("jmpz $%04lX (IF?)", (long)x);       i++;
 			BCASE NJMPZ:  zTypeF("njmpz $%04lX (-IF?)", (long)x);     i++;
-			BCASE JMPNZ:  zTypeF("jmpnz $%04lX (WHILE?)", (long)x);   i++; break;
+			BCASE JMPNZ:  zTypeF("jmpnz $%04lX (WHILE?)", (long)x);   i++;
 			BCASE NJMPNZ: zTypeF("njmpnz $%04lX (-WHILE?)", (long)x); i++; break;
 			default: x = findXT(op); 
 				zType(x ? ((DE_T*)&memory[x])->nm : "<unknown>");
