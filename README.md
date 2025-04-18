@@ -149,6 +149,11 @@ c4a provides 10 temporary words, 't0' .. 't9'.
 - They cannot be made IMMEDIATE or INLINE.
 
 ## c4a WORD-CODE primitives
+NOTE: Since c4a is intended for dev boards, it has more primitives than needed.</br>
+      This is primarily because there is more program memory than RAM.</br>
+      It also makes the system faster.</br>
+      Lastly, it makes it less necessary to load screens.</br>
+
 Stack effect notation conventions:
 
 | TERM     | DESCRIPTION |

@@ -44,6 +44,8 @@ char wd[32], *toIn, *inStk[FSTK_SZ+1];
 	X(MUL,     "*",         0, t=pop(); TOS *= t; ) \
 	X(DIV,     "/",         0, t=pop(); TOS /= t; ) \
 	X(SLMOD,   "/mod",      0, t=TOS; n = NOS; TOS = n/t; NOS = n%t; ) \
+	X(LSHIFT,  "<<",        0, t=pop(); TOS = (TOS << t); ) \
+	X(RSHIFT,  ">>",        0, t=pop(); TOS = (TOS >> t); ) \
 	X(INCR,    "1+",        0, ++TOS; ) \
 	X(DECR,    "1-",        0, --TOS; ) \
 	X(LT,      "<",         0, t=pop(); TOS = (TOS < t); ) \
@@ -93,10 +95,18 @@ char wd[32], *toIn, *inStk[FSTK_SZ+1];
 	X(SEE,     "see",       0, doSee(); ) \
 	X(ZTYPE,   "ztype",     0, zType((char*)pop()); ) \
 	X(FTYPE,   "ftype",     0, fType((char*)pop()); ) \
+	X(SLEN,    "s-len",     0, TOS = strLen((char*)TOS); ) \
 	X(SCPY,    "s-cpy",     0, t=pop(); strCpy((char*)TOS, (char*)t); ) \
+	X(SCAT,    "s-cat",     0, t=pop(); strCat((char*)TOS, (char*)t); ) \
 	X(SEQ,     "s-eq",      0, t=pop(); TOS = strEq((char*)TOS, (char*)t); ) \
 	X(SEQI,    "s-eqi",     0, t=pop(); TOS = strEqI((char*)TOS, (char*)t); ) \
-	X(SLEN,    "s-len",     0, TOS = strLen((char*)TOS); ) \
+	X(LTRIM,   "s-ltrim",   0, TOS = (cell)lTrim((char *)TOS); ) \
+	X(RTRIM,   "s-rtrim",   0, rTrim((char *)TOS); ) \
+	X(FILL,    "fill",      0, t=pop(); n=pop(); fill((byte *)pop(), n, (byte)t); ) \
+	X(CMOVE,   "cmove",     0, t=pop(); n=pop(); cmove((byte*)pop(), (byte *)n, t); ) \
+	X(CMOVEL,  "cmove>",    0, t=pop(); n=pop(); cmovel((byte*)pop(), (byte *)n, t); ) \
+	X(LOWER,   "lower",     0, TOS = lower((char)TOS); ) \
+	X(UPPER,   "upper",     0, TOS = upper((char)TOS); ) \
 	X(ZQUOTE,  "z\"",       1, quote(); ) \
 	X(DOTQT,   ".\"",       1, quote(); (state==COMPILE) ? comma(FTYPE) : fType((char*)pop()); ) \
 	X(FIND,    "find",      0, { DE_T *dp=findWord(0); push(dp?dp->xt:0); push((cell)dp); } )
@@ -156,12 +166,20 @@ void rpush(cell x) { if (rsp < RSTK_SZ) { rstk[++rsp] = x; } }
 cell rpop() { return (0<rsp) ? rstk[rsp--] : 0; }
 void inPush(char *in) { if (inSp < FSTK_SZ) { inStk[++inSp] = in; } }
 char *inPop() { return (0 < inSp) ? inStk[inSp--] : 0; }
-int  lower(const char c) { return btwi(c, 'A', 'Z') ? c + 32 : c; }
-int  strLen(const char *s) { int l = 0; while (s[l]) { l++; } return l; }
 void comma(cell x) { code[here++] = (wc_t)x; }
 void commaCell(cell n) { store32((cell)&code[here], n); here += (CELL_SZ/WC_SZ); }
 int  changeState(int x) { state = x; return x; }
 void ok() { if (state==0) { state=INTERP; } zType((state==INTERP) ? " ok\r\n" : "... "); }
+int  lower(const char c) { return btwi(c, 'A', 'Z') ? c + 32 : c; }
+int  upper(const char c) { return btwi(c, 'a', 'z') ? c - 32 : c; }
+int  strLen(const char *s) { int l = 0; while (s[l]) { l++; } return l; }
+void fill(byte *dst, cell num, byte ch) { while (0 < num--) { *(dst++) = ch; } }
+void cmove(byte *src, byte *dst, cell num) { while (0 < num--) { *(dst++) = *(src++); } }
+void cmovel(byte *src, byte *dst, cell num) {
+	dst += (num-1);
+	src += (num-1);
+	while (0 < num--) { *(dst--) = *(src--); }
+}
 
 int strEqI(const char *s, const char *d) {
 	while (lower(*s) == lower(*d)) { if (*s == 0) { return 1; } s++; d++; }
@@ -172,10 +190,26 @@ int strEq(const char *s, const char *d) {
 	while (*s == *d) { if (*s == 0) { return 1; } s++; d++; }
 	return 0;
 }
-
+	
 void strCpy(char *d, const char *s) {
 	while (*s) { *(d++) = *(s++); }
 	*(d) = 0;
+}
+
+void strCat(char *d, const char *s) {
+	d += strLen(d);
+	while (*s) { *(d++) = *(s++); }
+	*(d) = 0;
+}
+
+char *lTrim(char *dst) {
+	while ((*dst) && (*dst < 33)) { ++dst; }
+	return dst;
+}
+
+void rTrim(char *dst) {
+	char *cp = dst + strLen(dst);
+	while ((dst <= cp) && (*cp < 33)) { *(cp--) = 0; }
 }
 
 int getWord() {
@@ -377,7 +411,6 @@ int isNum(const char *w, int b) {
 		else return 0;
 		c = lower(*(w++));
 	}
-	if (isNeg) { n = -n; }
 	push(isNeg ? -n : n);
 	return 1;
 }
