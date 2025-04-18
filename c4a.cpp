@@ -294,7 +294,13 @@ void fType(const char *s) {
 		if (c=='%') {
 			c = *(s++);
 			switch (c) {
-				case  'b': iToA(pop(),2);
+				case  'B': Blue();
+				BCASE 'G': Green();
+				BCASE 'P': Purple();
+				BCASE 'R': Red();
+				BCASE 'W': White();
+				BCASE 'Y': Yellow();
+				BCASE 'b': iToA(pop(),2);
 				BCASE 'c': emit((char)pop());
 				BCASE 'd': iToA(pop(),10);
 				BCASE 'e': emit(27);

@@ -3,6 +3,14 @@
 #include "c4a.h"
 #include <string.h>
 
+void FG(int fg) { zTypeF("\x1B[38;5;%dm", fg); }
+void Blue() { FG(38); }
+void Green() { FG(40); }
+void Purple() { FG(213); }
+void Red() { FG(203); }
+void White() { FG(231); }
+void Yellow() { FG(226); }
+
 #ifndef EDITOR
 void editBlock(cell blk) { zType("-no edit-"); }
 #else
@@ -39,7 +47,6 @@ static void CursorBlock() { zType("\x1B[2 q"); }
 static void CursorOn() { zType("\x1B[?25h"); }
 static void CursorOff() { zType("\x1B[?25l"); }
 static void showCursor() { GotoXY(off+2, line+2); CursorOn(); CursorBlock(); }
-static void FG(int fg) { zTypeF("\x1B[38;5;%dm", fg); }
 static void toFooter() { GotoXY(1, NUM_LINES+3); }
 static void toCmd() { GotoXY(1, NUM_LINES+4); }
 static void normalMode()  { edMode=NORMAL;  }
@@ -47,11 +54,6 @@ static void insertMode()  { edMode=INSERT;  }
 static void replaceMode() { edMode=REPLACE; }
 static void toggleInsert() { (edMode==INSERT) ? normalMode() : insertMode(); }
 static void setBlock(int blk) { block = MAX(MIN(blk, BLOCK_MAX), 0); }
-static void Green() { FG(40); }
-static void Red() { FG(203); }
-static void Yellow() { FG(226); }
-static void White() { FG(231); }
-static void Purple() { FG(213); }
 static int  winKey() { return (224 << 5) ^ key(); }
 static int  winFKey() { return 0xF00 + key() - 58; }
 

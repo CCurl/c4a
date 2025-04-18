@@ -113,6 +113,12 @@ extern int  key();
 extern int  qKey();
 extern cell timer();
 extern void sys_load();
+extern void Blue();
+extern void Green();
+extern void Purple();
+extern void Red();
+extern void White();
+extern void Yellow();
 
 #ifndef FILE_NONE
   extern void fileInit();
