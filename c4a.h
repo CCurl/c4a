@@ -1,7 +1,7 @@
-#ifndef __C4_H__
-#define __C4_H__
+#ifndef __C4A_H__
+#define __C4A_H__
 
-#define VERSION   20250319
+#define VERSION   20250419
 #define _SYS_LOAD_
 
 #ifdef _MSC_VER
@@ -19,36 +19,51 @@
 #include <stdint.h>
 #include <time.h>
 
+#define btwi(n,l,h)   ((l<=n) && (n<=h))
+#define _IMMED        1
+#define _INLINE       2
+
+#define CELL_T           int32_t
+#define CELL_SZ             4
+#define WC_T             uint16_t
+#define WC_SZ               2
+#define NUM_BITS       0xF000
+#define NUM_MASK       0x0FFF
+#define NUM_LINES          24
+#define NUM_COLS           80
+#define BLOCK_SZ   (NUM_LINES*NUM_COLS)
+#define STK_DATA            0
+#define STK_RETN            1
+#define STK_LSTK            2
+#define TASK_MAX      (TASKS_SZ-1)
+
 #ifdef IS_PC
   #define MEM_SZ     1024*1024 // Could be much bigger
+  #define CODE_SLOTS  NUM_BITS // Values larger are inline numbers
   #define STK_SZ            31 // Data stack
   #define FSTK_SZ            8 // Files stack
   #define TASKS_SZ           8 // Number of tasks
-  #define NAME_LEN          11 // To make dict-entry size 16 (2+1+1+11+1)
-  #define CODE_SLOTS    0xF000 // $F000 and larger are inline numbers
+  #define NAME_LEN          11 // Size of dict-entry is (LEN+1+1+1+2)
   #define BLOCK_CACHE_SZ    16 // Entries of type CACHE_T
-  #define BLOCK_MAX       1023 // Maximum block number
+  #define BLOCK_MAX         99 // Maximum block
   #define EOL_CHAR          13 // Carriage Return
-  #define FL_READ         "rb"
-  #define FL_RW           "r+b"
-  #define FL_WRITE        "wb"
-  #define FL_APPEND       "ab"
+  #define FL_READ           "rb"
+  #define FL_RW             "r+b"
+  #define FL_WRITE          "wb"
+  #define FL_APPEND         "ab"
   #define FILE_PC
 #else
   #include <Arduino.h>
   #define IS_BOARD           1 // This must be a devdelopment board
-  #define MEM_SZ      464*1024 // These are for a RPi PICO 2 (2350)
-  #define STK_SZ            64 // Data stack
-  #define RSTK_SZ           64 // Return stack
-  #define LSTK_SZ           45 // 15 nested loops (3 entries per loop)
-  #define TSTK_SZ           64 // 'A' and 'T' stacks
+  #define MEM_SZ      400*1024 // Based on RPi PICO
+  #define CODE_SLOTS  NUM_BITS // Values larger are inline numbers
+  #define STK_SZ            31 // Data stack
   #define FSTK_SZ            8 // Files stack
   #define TASKS_SZ           8 // Number of tasks
-  #define NAME_LEN          11 // To make dict-entry size 16 (2+1+1+11+1)
-  #define CODE_SLOTS    0xE000 // $E000 and larger are inline numbers
+  #define NAME_LEN          11 // Size of dict-entry is (LEN+1+1+1+2)
   #define BLOCK_CACHE_SZ    16 // Entries of type CACHE_T
-  #define BLOCK_MAX        255 // Maximum block number
-  #define EOL_CHAR          13 // Some people prefer to use 10
+  #define BLOCK_MAX         99 // Maximum block
+  #define EOL_CHAR          13 // Carriage Return
   #define FL_READ          "r"
   #define FL_RW            "r+"
   #define FL_WRITE         "w"
@@ -57,24 +72,6 @@
   #define FILE_PICO
   // #define FILE_TEENSY
 #endif
-
-#define btwi(n,l,h)   ((l<=n) && (n<=h))
-#define _IMMED        1
-#define _INLINE       2
-
-#define CELL_T        int32_t
-#define CELL_SZ       4
-#define WC_T          uint16_t
-#define WC_SZ         2
-#define NUM_BITS      0xF000
-#define NUM_MASK      0x0FFF
-#define NUM_LINES     32
-#define NUM_COLS      64
-#define BLOCK_SZ      (NUM_LINES*NUM_COLS)
-#define STK_DATA      0
-#define STK_RETN      1
-#define STK_LSTK      2
-#define TASK_MAX      (TASKS_SZ-1)
 
 enum { COMPILE=1, DEFINE=2, INTERP=3, COMMENT=4 };
 
@@ -121,6 +118,12 @@ extern int  key();
 extern int  qKey();
 extern cell timer();
 extern void sys_load();
+extern void Blue();
+extern void Green();
+extern void Purple();
+extern void Red();
+extern void White();
+extern void Yellow();
 
 #ifndef FILE_NONE
   extern void fileInit();
@@ -146,6 +149,17 @@ extern void sys_load();
   extern void flushBlock(cell blk, CACHE_T *p, cell clear);
   extern void flushBlocks(cell clear);
   #define EDITOR
+  #ifdef FILE_PC
+    #define FL_READ    "rb"
+    #define FL_RW      "r+b"
+    #define FL_WRITE   "wb"
+    #define FL_APPEND  "ab"
+  #else
+    #define FL_READ    "r"
+    #define FL_RW      "r+"
+    #define FL_WRITE   "w"
+    #define FL_APPEND  "a"
+  #endif
 #endif // FILE_NONE
 
-#endif //  __C4_H__
+#endif //  __C4A_H__

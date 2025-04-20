@@ -6,7 +6,6 @@
 .NWB(num width base--)base@ >t base! t0 t> base! ;
 .hex(n--)#2 #16 .NWB ; .hex4 (n--) #4 #16 .NWB ;
 .bin(n--)#8  #2 .NWB ; .bin16(n--)#16  #2 .NWB ;
-<<(x--y)for 2* next ;  >>(x--y)for 2/ next ;
 aemit(ch--)dup #32 < if drop '.' then emit ;
 t0(addr--)>a $10 for @a+ aemit next adrop ;
 dump(addr n--)swap >a 0 >t for
@@ -14,19 +13,4 @@
    t@ $10 =if0 t! a@ $10 - space space t0then
    next atdrop ;
 align(a1--a2)#4 over #3 and - #3 and + ;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

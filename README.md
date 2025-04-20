@@ -25,10 +25,14 @@
 - If the top 3 bits are set, it is 13-bit unsigned literal, 0-$1FFF. <br/>
 - If it is between [BYE], and $E000, it is the code address of a word to execute. <br/>
 
-## CELLs in c4a
-- A **CELL** in c4a is 32-bits.
-- For PCs, only 32-bit platforms are supported.
-- For 64-bit systems, see c4: https://github.com/CCurl/c4.
+## Development board considerations
+- c4a is intended to be used with development boards via the Arduino IDE.
+- However, it can be built for PCs as well for testing.
+- I am not aware of 64-bit dev boards.
+- So a **CELL** in c4a is 32-bits.
+- C4A has more built-in than does C4, for the following reasons:
+- - Program flash is generally larger than RAM, and much of it is unused.
+- - To give C4A more functionality out of the box.
 
 ## Building c4a
  
@@ -69,6 +73,8 @@ c4a provides a single memory area. See 'mem-sz' (MEM_SZ in c4a.h) for its size.
   - `vhere` is the absolute address of the first free byte the VARS area.
 - The DICT is at the end of the memory. 'last' grows toward the beginning of the memory.
   - `last` is an offset into the memory area.
+  - A dictionary entry is [xt:2][flags:1][len:1][name:NAME_LEN][0:1]
+  - The default NAME_LEN is 11 (see c4a.h), so the de-sz is 16.
 - Use `->memory` to turn an offset into an address.
 
 | WORD    | STACK | DESCRIPTION |
@@ -145,6 +151,11 @@ c4a provides 10 temporary words, 't0' .. 't9'.
 - The A, B, and T stacks are shared by all tasks.
 
 ## c4a WORD-CODE primitives
+NOTE: Since c4a is intended for dev boards, it has more primitives than needed.</br>
+      This is primarily because there is more program memory than RAM.</br>
+      It also makes the system faster.</br>
+      Lastly, it makes it less necessary to load screens.</br>
+
 Stack effect notation conventions:
 
 | TERM     | DESCRIPTION |
