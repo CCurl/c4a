@@ -355,16 +355,20 @@ void delTask(cell taskNum) {
 	curTask = 0;
 }
 
+void setTask(cell tsk) {
+	curTask = tsk;
+	dsp = SP(STK_DATA); dstk = STK(STK_DATA);
+	rsp = SP(STK_RETN); rstk = STK(STK_RETN);
+	lsp = SP(STK_LSTK); lstk = STK(STK_LSTK);
+}
+
 wc_t nextTask(wc_t pc) {
 	cell nt = 0;
 	for (int i = curTask+1; i < TASKS_SZ; i++) { if (tasks[i].status == 1) { nt = i; break; } }
 	for (int i = 0; i < curTask; i++) { if (tasks[i].status == 1) { nt = i; break; } }
 	tasks[curTask].pc = pc;
 	SP(STK_DATA) = dsp; SP(STK_RETN) = rsp; SP(STK_LSTK) = lsp;
-	curTask = nt;
-	dsp = SP(STK_DATA); dstk = STK(STK_DATA);
-	rsp = SP(STK_RETN); rstk = STK(STK_RETN);
-	lsp = SP(STK_LSTK); lstk = STK(STK_LSTK);
+	setTask(nt);
 	return tasks[curTask].pc;
 }
 
@@ -554,7 +558,7 @@ void c4Init() {
 		for (int j = 0; j < 3; j++) { tasks[i].stks[j].sp = 0; }
 	}
 	tasks[0].status = 1;
-	nextTask(0);
+	setTask(0);
 	here = BYE+1;
 	last = MEM_SZ;
 	base = 10;
