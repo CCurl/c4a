@@ -10,18 +10,6 @@ CACHE_T blockCache[BLOCK_CACHE_SZ];
 static uint16_t seq;
 extern char *toIn;
 
-#ifdef FILE_PC
-  #define FL_READ    "rb"
-  #define FL_RW      "r+b"
-  #define FL_WRITE   "wb"
-  #define FL_APPEND  "ab"
-#else
-  #define FL_READ    "r"
-  #define FL_RW      "r+"
-  #define FL_WRITE   "w"
-  #define FL_APPEND  "a"
-#endif
-
 static void dumpCacheEntry(const char *msg, CACHE_T *p) {
     zTypeF("%s: blk:%u, seq:%u, flgs:%u\r\n",msg, p->num, p->seq, p->flags);
 }

@@ -15,8 +15,6 @@ void Yellow() { FG(226); }
 void editBlock(cell blk) { zType("-no edit-"); }
 #else
 
-#define NUM_LINES     16
-#define NUM_COLS      64
 #define MAX_LINE      (NUM_LINES-1)
 #define MAX_COL       (NUM_COLS-1)
 #define EDCH(r,c)     edBuf[((r)*NUM_COLS)+(c)]
@@ -455,6 +453,8 @@ static int processEditorChar(int c) {
         BCASE 'r': replace1();
         BCASE 'R': replaceMode();
         BCASE 'S': gotoBlock(lastBlock);
+        BCASE 't': toText();
+        BCASE 'T': toBlock();
         BCASE 'w': moveWord(1);
         BCASE 'W': moveWord(0);
         BCASE 'x': edDelX(c);

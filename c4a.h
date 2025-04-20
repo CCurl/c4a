@@ -1,7 +1,7 @@
 #ifndef __C4A_H__
 #define __C4A_H__
 
-#define VERSION   20250417
+#define VERSION   20250419
 #define _SYS_LOAD_
 
 #ifdef _MSC_VER
@@ -26,15 +26,15 @@
   #define LSTK_SZ           45 // 15 nested loops (3 entries per loop)
   #define TSTK_SZ           64 // 'A' and 'T' stacks
   #define FSTK_SZ            8 // Files stack
-  #define NAME_LEN          15 // To make dict-entry size 20 (15+1+1+1+2)
+  #define NAME_LEN          11 // Size of dict-entry is (LEN+1+1+1+2)
   #define CODE_SLOTS    0xE000 // $E000 and larger are inline numbers
-  #define BLOCK_CACHE_SZ    16 // Each block is 1024 bytes
-  #define BLOCK_MAX       1023 // Maximum block
+  #define BLOCK_CACHE_SZ    16 // Blocks in memory
+  #define BLOCK_MAX         99 // Maximum block
   #define EOL_CHAR          13 // Carriage Return
-  #define FL_READ         "rb"
-  #define FL_RW           "r+b"
-  #define FL_WRITE        "wb"
-  #define FL_APPEND       "ab"
+  #define FL_READ           "rb"
+  #define FL_RW             "r+b"
+  #define FL_WRITE          "wb"
+  #define FL_APPEND         "ab"
   #define FILE_PC
 #else
   #include <Arduino.h>
@@ -45,10 +45,10 @@
   #define LSTK_SZ           45 // 15 nested loops (3 entries per loop)
   #define TSTK_SZ           64 // 'A' and 'T' stacks
   #define FSTK_SZ            8 // Files stack
-  #define NAME_LEN          15 // To make dict-entry size 20 (15+1+1+1+2)
+  #define NAME_LEN          11 // Size of dict-entry is (LEN+1+1+1+2)
   #define CODE_SLOTS    0xE000 // $E000 and larger are inline numbers
-  #define BLOCK_CACHE_SZ    16 // Each block is 1024 bytes
-  #define BLOCK_MAX        255 // Maximum block
+  #define BLOCK_CACHE_SZ    16 // Blocks in memory
+  #define BLOCK_MAX         99 // Maximum block
   #define EOL_CHAR          13 // Some people prefer to use 10
   #define FL_READ          "r"
   #define FL_RW            "r+"
@@ -69,7 +69,9 @@
 #define WC_SZ         2
 #define NUM_BITS      0xE000
 #define NUM_MASK      0x1FFF
-#define BLOCK_SZ      1024
+#define NUM_COLS      80
+#define NUM_LINES     24
+#define BLOCK_SZ      (NUM_LINES*NUM_COLS)
 
 enum { COMPILE=1, DEFINE=2, INTERP=3, COMMENT=4 };
 enum { DSPA=0, RSPA, LSPA, TSPA, ASPA, HA, BA, SA, INSPA };
@@ -143,6 +145,17 @@ extern void Yellow();
   extern void flushBlock(cell blk, CACHE_T *p, cell clear);
   extern void flushBlocks(cell clear);
   #define EDITOR
+  #ifdef FILE_PC
+    #define FL_READ    "rb"
+    #define FL_RW      "r+b"
+    #define FL_WRITE   "wb"
+    #define FL_APPEND  "ab"
+  #else
+    #define FL_READ    "r"
+    #define FL_RW      "r+"
+    #define FL_WRITE   "w"
+    #define FL_APPEND  "a"
+  #endif
 #endif // FILE_NONE
 
 #endif //  __C4A_H__
