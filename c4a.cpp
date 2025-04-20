@@ -116,6 +116,7 @@ TASK_T tasks[TASKS_SZ];
 	X(FIND,    "find",      0, { DE_T *dp=findWord(0); push(dp?dp->xt:0); push((cell)dp); } ) \
 	X(ADDTASK, "add-task",  0, TOS = addTask(TOS); ) \
 	X(DELTASK, "del-task",  0, delTask(pop()); ) \
+	X(TASKS,   ".tasks",    0, dumpTasks(); ) \
 	X(YIELD,   "yield",     0, pc = nextTask(pc); )
 
 #ifndef FILE_NONE
@@ -395,7 +396,22 @@ void delTask(cell taskNum) {
 	curTask = 0;
 }
 
+void dumpTasks() {
+	zType("Tasks\n");
+	zType("## PC   St DSP RSP LSP\n");
+	zType("------- -- --- --- ---\n");
+	for (int i = 0; i < TASKS_SZ; i++) {
+		TASK_T *t = &tasks[i];
+		zTypeF("%2d %04X %2d", i, t->pc, t->status);
+		zTypeF(" %3d %3d %3d", t->stks[0].sp, t->stks[1].sp, t->stks[2].sp);
+		zType("\n");
+	}
+}
+
 void setTask(cell tsk) {
+	SP(STK_DATA) = dsp;
+	SP(STK_RETN) = rsp;
+	SP(STK_LSTK) = lsp;
 	curTask = tsk;
 	dsp = SP(STK_DATA); dstk = STK(STK_DATA);
 	rsp = SP(STK_RETN); rstk = STK(STK_RETN);
@@ -404,10 +420,8 @@ void setTask(cell tsk) {
 
 wc_t nextTask(wc_t pc) {
 	cell nt = 0;
-	for (int i = curTask+1; i < TASKS_SZ; i++) { if (tasks[i].status == 1) { nt = i; break; } }
-	for (int i = 0; i < curTask; i++) { if (tasks[i].status == 1) { nt = i; break; } }
 	tasks[curTask].pc = pc;
-	SP(STK_DATA) = dsp; SP(STK_RETN) = rsp; SP(STK_LSTK) = lsp;
+	for (int i = curTask+1; i < TASKS_SZ; i++) { if (tasks[i].status == 1) { nt = i; break; } }
 	setTask(nt);
 	return tasks[curTask].pc;
 }
@@ -550,6 +564,7 @@ void baseSys() {
 	defineNum("de-sz",    sizeof(DE_T));
 	defineNum("dstk-sz",  STK_SZ+1);
 	defineNum("wc-sz",    WC_SZ);
+	defineNum("tasks-sz", TASKS_SZ);
 	defineNum("cur-task", (cell)&curTask);
 
 	defineNum("(dsp)",   (cell)&dsp);
