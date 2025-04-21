@@ -7,21 +7,13 @@ void sys_load() {
 #else
 void sys_load() {
     outer("( Comments are free/built-in )");
-    outer(": ->memory memory + ;");
-    outer(": here  (here)  @ ;");
-    outer(": last  (last)  @ ;");
     outer(": base@ base    @ ;");
     outer(": base! base    ! ;");
-    outer(": vhere (vhere) @ ;");
-    outer(": allot vhere + (vhere) ! ;");
     outer(": 0sp  0 (dsp)  ! ;");
     outer(": 0rsp 0 (rsp)  ! ;");
-    outer(": , here  dup 1+ (here) ! wc! ;");
     outer(": v, vhere dup cell + (vhere) ! ! ;");
     outer(": vc, vhere dup 1+ (vhere) ! c! ;");
 
-    outer(": const  addword lit, (exit) , ;");
-    outer(": var    vhere const allot ;");
     outer(": create addword vhere lit, ;");
     outer(": does> (jmp) , r> , ;");
 
@@ -41,18 +33,7 @@ void sys_load() {
     outer(": hex     $10 base! ;   : binary  %10 base! ;");
     outer(": decimal #10 base! ;   : ?dup -if dup then ;");
     outer(": rot >r swap r> swap ; : -rot swap >r swap r> ;");
-    outer(": nip swap drop ;  : tuck swap over ;");
-    outer(": 2dup over over ; : 2drop drop drop ;");
-    outer(": 0< 0 < ;         : 0> 0 > ;");
-    outer(": <= > 0= ;        : >= < 0= ;    : <> = 0= ;");
-    outer(": 2+ 1+ 1+ ;       : 2* dup + ;   : 2/ 2 / ;");
-    outer(": cells cell * ;   : chars ;      : cell+ cell + ;");
-    outer(": min ( a b--c ) 2dup > if swap then drop ;");
-    outer(": max ( a b--c ) 2dup < if swap then drop ;");
     outer(": btwi ( n l h--f ) >r over >  swap r> >  or 0= ;");
-    outer(": negate com 1+ ;");
-    outer(": abs  dup 0< if negate then ;");
-    outer(": mod /mod drop ;");
     outer(": +! tuck  @ + swap ! ;");
     outer(": execute ( a-- ) >r ;");
 
@@ -65,11 +46,6 @@ void sys_load() {
     outer(": @t+ t@+ c@ ;    : !t+ t@+ c! ;");
     outer(": @t- t@- c@ ;    : !t- t@- c! ;");
     outer(": t+  t@+ drop ;  : t-  t@- drop ;");
-
-    outer(": bl 32 ; inline");
-    outer(": space bl emit ;");
-    outer(": cr 13 emit 10 emit ;");
-    outer(": tab 9 emit ;");
 
     outer("40 var #buf");
     outer(": <# ( n1--n2 ) #buf 39 + >t 0 !t- dup 0 < >a abs ;");

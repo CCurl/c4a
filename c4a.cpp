@@ -1,8 +1,5 @@
 #include "c4a.h"
 
-#define STK(x)        tasks[curTask].stks[x].stk
-#define SP(x)         tasks[curTask].stks[x].sp
-
 #define TOS           dstk[dsp]
 #define NOS           dstk[dsp-1]
 #define L0            lstk[lsp]
@@ -10,6 +7,8 @@
 #define L2            lstk[lsp-2]
 #define NCASE         goto next; case
 #define BCASE         break; case
+#define STK(x)        tasks[curTask].stks[x].stk
+#define SP(x)         tasks[curTask].stks[x].sp
 
 byte memory[MEM_SZ+1];
 wc_t *code = (wc_t*)&memory[0];
@@ -27,7 +26,11 @@ TASK_T tasks[TASKS_SZ];
 	X(DUP,     "dup",       0, t=TOS; push(t); ) \
 	X(SWAP,    "swap",      0, t=TOS; TOS=NOS; NOS=t; ) \
 	X(DROP,    "drop",      0, pop(); ) \
+	X(DUP2,    "2dup",      0, t=TOS; n=NOS; push(n); push(t); ) \
+	X(DROP2,   "2drop",     0, pop(); pop(); ) \
 	X(OVER,    "over",      0, t=NOS; push(t); ) \
+	X(NIP,     "nip",       0, t=pop(); TOS=t; ) \
+	X(TUCK,    "tuck",      0, t=TOS; TOS=NOS; NOS=t; push(t); ) \
 	X(FET8,    "c@",        0, TOS = *(byte *)TOS; ) \
 	X(FET16,   "w@",        0, TOS = fetch16(TOS); ) \
 	X(FET32,   "@",         0, TOS = fetch32(TOS); ) \
@@ -35,24 +38,40 @@ TASK_T tasks[TASKS_SZ];
 	X(STO8,    "c!",        0, t=pop(); n=pop(); *(byte*)t=(byte)n; ) \
 	X(STO16,   "w!",        0, t=pop(); n=pop(); store16(t, n); ) \
 	X(STO32,   "!",         0, t=pop(); n=pop(); store32(t, n); ) \
-	X(STOWC,   "wc!",       0, t=pop(); n=pop(); code[(wc_t)t] = (wc_t)n; ) \
+	X(STOWC,   "wc!",       0, t=pop(); n=pop(); code[(wc_t)t] = (wc_t)n; )
+
+#define PRIMS_MATH \
 	X(ADD,     "+",         0, t=pop(); TOS += t; ) \
 	X(SUB,     "-",         0, t=pop(); TOS -= t; ) \
 	X(MUL,     "*",         0, t=pop(); TOS *= t; ) \
 	X(DIV,     "/",         0, t=pop(); TOS /= t; ) \
+	X(MOD,     "mod",       0, t=pop(); TOS %= t; ) \
 	X(SLMOD,   "/mod",      0, t=TOS; n = NOS; TOS = n/t; NOS = n%t; ) \
 	X(LSHIFT,  "<<",        0, t=pop(); TOS = (TOS << t); ) \
 	X(RSHIFT,  ">>",        0, t=pop(); TOS = (TOS >> t); ) \
 	X(INCR,    "1+",        0, ++TOS; ) \
 	X(DECR,    "1-",        0, --TOS; ) \
+	X(INCR2,   "2+",        0, TOS += 2; ) \
+	X(MULT2,   "2*",        0, TOS *= 2; ) \
+	X(DIV2,    "2/",        0, TOS /= 2; ) \
+	X(CELLS,   "cells",     0, TOS *= CELL_SZ; ) \
+	X(CELLPL,  "cell+",     0, TOS += CELL_SZ; ) \
 	X(LT,      "<",         0, t=pop(); TOS = (TOS < t); ) \
+	X(LTEQ,    "<=",        0, t=pop(); TOS = (TOS <= t); ) \
 	X(EQ,      "=",         0, t=pop(); TOS = (TOS == t); ) \
+	X(GTEQ,    ">=",        0, t=pop(); TOS = (TOS >= t); ) \
 	X(GT,      ">",         0, t=pop(); TOS = (TOS > t); ) \
 	X(EQ0,     "0=",        0, TOS = (TOS == 0) ? 1 : 0; ) \
 	X(AND,     "and",       0, t=pop(); TOS &= t; ) \
 	X(OR,      "or",        0, t=pop(); TOS |= t; ) \
 	X(XOR,     "xor",       0, t=pop(); TOS ^= t; ) \
 	X(COM,     "com",       0, TOS = ~TOS; ) \
+	X(MIN_C4,  "min",       0, t=pop(); if (t < TOS) { TOS = t; } ) \
+	X(MAX_C4,  "max",       0, t=pop(); if (t > TOS) { TOS = t; } ) \
+	X(NEGATE,  "negate",    0, TOS = -TOS; ) \
+	X(ABS,     "abs",       0, if (TOS < 0) { TOS = -TOS; } )
+
+#define PRIMS_OTHER \
 	X(FOR,     "for",       0, lsp+=3; L2=pc; L0=0; L1=pop(); ) \
 	X(INDEX,   "i",         0, push(L0); ) \
 	X(NEXT,    "next",      0, if (++L0<L1) { pc=(wc_t)L2; } else { lsp=(lsp<3) ? 0 : lsp-3; } ) \
@@ -85,20 +104,8 @@ TASK_T tasks[TASKS_SZ];
 	X(BGETD,   "b@-",       0, push(bstk[bsp]--); ) \
 	X(BFROM,   "b>",        0, push((0 < bsp) ? astk[bsp--] : 0); ) \
 	X(BDROP,   "bdrop",     0, if (0 < bsp) { bsp--; } ) \
-	X(EMIT,    "emit",      0, emit((char)pop()); ) \
-	X(KEY,     "key",       0, push(key()); ) \
-	X(QKEY,    "?key",      0, push(qKey()); ) \
-	X(SEMI,    ";",         1, comma(EXIT); state=INTERP; ) \
-	X(LITC,    "lit,",      0, compileNum(pop()); ) \
-	X(NEXTWD,  "next-wd",   0, push(nextWord()); ) \
-	X(IMMED,   "immediate", 0, { last->flg =_IMMED; } ) \
-	X(INLINE,  "inline",    0, { last->flg =_INLINE; } ) \
-	X(OUTER,   "outer",     0, outer((char*)pop()); ) \
-	X(ADDWORD, "addword",   0, addWord(0); ) \
-	X(CLK,     "timer",     0, push(timer()); ) \
-	X(SEE,     "see",       0, doSee(); ) \
-	X(ZTYPE,   "ztype",     0, zType((char*)pop()); ) \
-	X(FTYPE,   "ftype",     0, fType((char*)pop()); ) \
+
+#define PRIMS_STRING \
 	X(SLEN,    "s-len",     0, TOS = strLen((char*)TOS); ) \
 	X(SCPY,    "s-cpy",     0, t=pop(); strCpy((char*)TOS, (char*)t); ) \
 	X(SCAT,    "s-cat",     0, t=pop(); strCat((char*)TOS, (char*)t); ) \
@@ -112,12 +119,7 @@ TASK_T tasks[TASKS_SZ];
 	X(LOWER,   "lower",     0, TOS = lower((char)TOS); ) \
 	X(UPPER,   "upper",     0, TOS = upper((char)TOS); ) \
 	X(ZQUOTE,  "z\"",       1, quote(); ) \
-	X(DOTQT,   ".\"",       1, quote(); (state==COMPILE) ? comma(FTYPE) : fType((char*)pop()); ) \
-	X(FIND,    "find",      0, { DE_T *dp=findWord(0); push(dp?dp->xt:0); push((cell)dp); } ) \
-	X(ADDTASK, "add-task",  0, TOS = addTask(TOS); ) \
-	X(DELTASK, "del-task",  0, delTask(pop()); ) \
-	X(TASKS,   ".tasks",    0, dumpTasks(); ) \
-	X(YIELD,   "yield",     0, pc = nextTask(pc); )
+	X(DOTQT,   ".\"",       1, quote(); (state==COMPILE) ? comma(FTYPE) : fType((char*)pop()); )
 
 #ifndef FILE_NONE
 #define PRIMS_FILE \
@@ -143,10 +145,43 @@ TASK_T tasks[TASKS_SZ];
     #define PRIMS_FILE
 #endif // FILE_NONE
 
+#define PRIMS_C4A \
+	X(EMIT,    "emit",      0, emit((char)pop()); ) \
+	X(KEY,     "key",       0, push(key()); ) \
+	X(QKEY,    "?key",      0, push(qKey()); ) \
+	X(SEMI,    ";",         1, comma(EXIT); state=INTERP; ) \
+	X(ZTYPE,   "ztype",     0, zType((char*)pop()); ) \
+	X(FTYPE,   "ftype",     0, fType((char*)pop()); ) \
+	X(LITC,    "lit,",      0, compileNum(pop()); ) \
+	X(COMMA,   ",",         0, comma(pop()); ) \
+	X(CONST,   "const",     0, addWord(0); compileNum(pop()); comma(EXIT); ) \
+	X(VAR,     "var",       0, addWord(0); compileNum(vhere); comma(EXIT); vhere += pop(); ) \
+	X(NEXTWD,  "next-wd",   0, push(nextWord()); ) \
+	X(IMMED,   "immediate", 0, last->flg =_IMMED; ) \
+	X(INLINE,  "inline",    0, last->flg =_INLINE; ) \
+	X(OUTER,   "outer",     0, outer((char*)pop()); ) \
+	X(ADDWORD, "addword",   0, addWord(0); ) \
+	X(CLK,     "timer",     0, push(timer()); ) \
+	X(SEE,     "see",       0, doSee(); ) \
+	X(FIND,    "find",      0, { DE_T *dp=findWord(0); push(dp?dp->xt:0); push((cell)dp); } ) \
+	X(ADDTASK, "add-task",  0, TOS = addTask(TOS); ) \
+	X(DELTASK, "del-task",  0, delTask(pop()); ) \
+	X(TASKS,   ".tasks",    0, dumpTasks(); ) \
+	X(YIELD,   "yield",     0, pc = nextTask(pc); ) \
+	X(TOMEM,   "->memory",  0, TOS += (cell)memory; ) \
+	X(HERE,    "here",      0, push(here); ) \
+	X(LAST,    "last",      0, push((cell)last); ) \
+	X(VHERE,   "vhere",     0, push(vhere); ) \
+	X(ALLOT,   "allot",     0, vhere += pop(); ) \
+	X(BLANK,   "bl",        0, push(32); ) \
+	X(TAB,     "tab",       0, emit(9); ) \
+	X(CR,      "cr",        0, emit(13); emit(10); ) \
+	X(SPACE,   "space",     0, emit(32); )
+
 #ifdef IS_PC
   #define PRIMS_SYSTEM \
-	X(SYSTEM,  "system", 0, t=pop(); ttyMode(0); system((char*)t); ) \
-	X(BYE,     "bye",    0, ttyMode(0); flushBlocks(0); exit(0); )
+	X(SYSTEM,  "system",    0, t=pop(); ttyMode(0); system((char*)t); ) \
+	X(BYE,     "bye",       0, ttyMode(0); flushBlocks(0); exit(0); )
 #else // Must be a dev board ...
   #define PRIMS_SYSTEM \
 	X(POPENI,  "pin-input",  0, pinMode(pop(), INPUT); ) \
@@ -159,16 +194,18 @@ TASK_T tasks[TASKS_SZ];
 	X(BYE,     "bye",        0, ttyMode(0); )
 #endif // IS_PC
 
+#define PRIMS_ALL PRIMS_BASE PRIMS_MATH PRIMS_OTHER PRIMS_STRING PRIMS_FILE PRIMS_C4A PRIMS_SYSTEM
+
 #define X(op, name, imm, cod) op,
 
 enum _PRIM  {
-	STOP, LIT, JMP, JMPZ, NJMPZ, JMPNZ, NJMPNZ, PRIMS_BASE PRIMS_FILE PRIMS_SYSTEM
+	STOP, LIT, JMP, JMPZ, NJMPZ, JMPNZ, NJMPNZ, PRIMS_ALL
 };
 
 #undef X
 #define X(op, name, imm, code) { name, op, imm, 0 },
 
-PRIM_T prims[] = { PRIMS_BASE PRIMS_FILE PRIMS_SYSTEM {0, 0, 0}};
+PRIM_T prims[] = { PRIMS_ALL {0, 0, 0}};
 
 void push(cell x) { if (dsp < STK_SZ) { dstk[++dsp] = x; } }
 cell pop() { return (0<dsp) ? dstk[dsp--] : 0; }
@@ -437,7 +474,7 @@ next:
 		NCASE NJMPZ:  if (TOS==0) { pc=code[pc]; } else { ++pc; }
 		NCASE JMPNZ:  if (pop()) { pc=code[pc]; } else { ++pc; }
 		NCASE NJMPNZ: if (TOS) { pc=code[pc]; } else { ++pc; }
-		PRIMS_BASE PRIMS_FILE PRIMS_SYSTEM
+		PRIMS_ALL
 		goto next; default:
 			if ((wc & NUM_BITS) == NUM_BITS) { push(wc & NUM_MASK); goto next; }
 			if (code[pc] != EXIT) { rpush(pc); }
