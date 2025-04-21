@@ -37,10 +37,6 @@ void sys_load() {
     outer(": +! tuck  @ + swap ! ;");
     outer(": execute ( a-- ) >r ;");
 
-    outer(": @a  a@  c@ ;    : !a  a@  c! ;");
-    outer(": @a+ a@+ c@ ;    : !a+ a@+ c! ;");
-    outer(": @a- a@- c@ ;    : !a- a@- c! ;");
-    outer(": a+  a@+ drop ;  : a-  a@- drop ;");
     outer(": atdrop adrop tdrop ;");
     outer(": @t  t@  c@ ;    : !t  t@  c! ;");
     outer(": @t+ t@+ c@ ;    : !t+ t@+ c! ;");

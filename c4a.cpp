@@ -35,10 +35,12 @@ TASK_T tasks[TASKS_SZ];
 	X(FET16,   "w@",        0, TOS = fetch16(TOS); ) \
 	X(FET32,   "@",         0, TOS = fetch32(TOS); ) \
 	X(FETWC,   "wc@",       0, TOS = code[(wc_t)TOS]; ) \
+	X(FETCV,   "cv@",       0, TOS = fetch32((cell)&code[(wc_t)TOS*2]); ) \
 	X(STO8,    "c!",        0, t=pop(); n=pop(); *(byte*)t=(byte)n; ) \
 	X(STO16,   "w!",        0, t=pop(); n=pop(); store16(t, n); ) \
 	X(STO32,   "!",         0, t=pop(); n=pop(); store32(t, n); ) \
-	X(STOWC,   "wc!",       0, t=pop(); n=pop(); code[(wc_t)t] = (wc_t)n; )
+	X(STOWC,   "wc!",       0, t=pop(); n=pop(); code[(wc_t)t] = (wc_t)n; ) \
+	X(STOCV,   "cv!",       0, t=pop(); n=pop(); store32((cell)&code[(wc_t)t*2], n); )
 
 #define PRIMS_MATH \
 	X(ADD,     "+",         0, t=pop(); TOS += t; ) \
@@ -95,6 +97,12 @@ TASK_T tasks[TASKS_SZ];
 	X(AGET,    "a@",        0, push(astk[asp]); ) \
 	X(AGETI,   "a@+",       0, push(astk[asp]++); ) \
 	X(AGETD,   "a@-",       0, push(astk[asp]--); ) \
+	X(AFET,    "@a",        0, t=astk[asp];   push(*(byte*)t); ) \
+	X(AFETI,   "@a+",       0, t=astk[asp]++; push(*(byte*)t); ) \
+	X(AFETD,   "@a-",       0, t=astk[asp]--; push(*(byte*)t); ) \
+	X(ASTO,    "!a",        0, t=astk[asp];   n=pop(); *(byte*)t=(byte)n; ) \
+	X(ASTOI,   "!a+",       0, t=astk[asp]++; n=pop(); *(byte*)t=(byte)n; ) \
+	X(ASTOD,   "!a-",       0, t=astk[asp]--; n=pop(); *(byte*)t=(byte)n; ) \
 	X(AFROM,   "a>",        0, push((0 < asp) ? astk[asp--] : 0); ) \
 	X(ADROP,   "adrop",     0, if (0 < asp) { asp--; } ) \
 	X(TOB,     ">b",        0, t=pop(); if (bsp < STK_SZ) { bstk[++bsp]=t; }; ) \
@@ -102,6 +110,12 @@ TASK_T tasks[TASKS_SZ];
 	X(BGET,    "b@",        0, push(bstk[bsp]); ) \
 	X(BGETI,   "b@+",       0, push(bstk[bsp]++); ) \
 	X(BGETD,   "b@-",       0, push(bstk[bsp]--); ) \
+	X(BFET,    "@b",        0, t=bstk[bsp];   push(*(byte*)t); ) \
+	X(BFETI,   "@b+",       0, t=bstk[bsp]++; push(*(byte*)t); ) \
+	X(BFETD,   "@b-",       0, t=bstk[bsp]--; push(*(byte*)t); ) \
+	X(BSTO,    "!b",        0, t=bstk[bsp];   n=pop(); *(byte*)t=(byte)n; ) \
+	X(BSTOI,   "!b+",       0, t=bstk[bsp]++; n=pop(); *(byte*)t=(byte)n; ) \
+	X(BSTOD,   "!b-",       0, t=bstk[bsp]--; n=pop(); *(byte*)t=(byte)n; ) \
 	X(BFROM,   "b>",        0, push((0 < bsp) ? astk[bsp--] : 0); ) \
 	X(BDROP,   "bdrop",     0, if (0 < bsp) { bsp--; } ) \
 
