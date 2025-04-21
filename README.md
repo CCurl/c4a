@@ -64,10 +64,12 @@ c4a provides a single memory area. See 'mem-sz' (MEM_SZ in c4a.h) for its size.
 - The CODE area is an aray of WORD-CODEs starting at the beginning of the memory.
   - `here` is an offset into the CODE area.
   - The size of the CODE area is `code-sz`. See CODE_SZ in c4a.h.
-  - **NOTE**: Use `wc@` and `wc!` to get and set WORD-CODE values in the code area.
+  - **NOTE**: Use `wc@` and `wc!` to get and set 16-bit values in the code area.
+  - **NOTE**: Use `cv@` and `cv!` to get and set 32-bit values in the code area.
   - **NOTE**: CODE slots 0-25 (`0 wc@ .. 25 wc@`) are reserved for c4a system values.
-  - **NOTE**: CODE slots 26-[BYE] (`26 wc@` .. `[BYE] wc@`) are unused by c4a.
-  - **NOTE**: So c4a provides space for about 75 'free' 16-bit variables.
+  - **NOTE**: CODE slots 26-(BYE) are unused by c4a.
+  - **NOTE**: Using `wc@` and `wc!`, c4a provides storage space for many 16-bit variables.
+  - **NOTE**: Using `cv@` and `cv!`, c4a provides storage space for many 32-bit variables.
   - **NOTE**: These are free for the user/application to use as desired.
 - The VARS area is defined to begin at address `code-sz wc-sz * memory +`.
   - `vhere` is the absolute address of the first free byte the VARS area.
@@ -190,10 +192,12 @@ The primitives:
 | c@          | (A--C)       | C: the CHAR at absolute address A |
 | w@          | (A--W)       | W: the WORD at absolute address A |
 | wc@         | (N--WC)      | WC: the WORD-CODE in CODE slot N |
+| cv@         | (N--)        | Code-Variable: Fetch a 32-bit value from CODE slots N/N+1 |
 | !           | (N A--)      | Store CELL N to absolute address A |
 | c!          | (C A--)      | Store CHAR C to absolute address A |
 | w!          | (W A--)      | Store WORD W to absolute address A |
 | wc!         | (WC N--)     | Store WORD-CODE WC to CODE slot N |
+| cv!         | (N--)        | Code-Variable: Store a 32-bit value to CODE slots N/N+1 |
 | +           | (X Y--N)     | N: X + Y |
 | -           | (X Y--N)     | N: X - Y |
 | *           | (X Y--N)     | N: X * Y |

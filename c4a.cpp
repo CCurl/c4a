@@ -35,12 +35,12 @@ TASK_T tasks[TASKS_SZ];
 	X(FET16,   "w@",        0, TOS = fetch16(TOS); ) \
 	X(FET32,   "@",         0, TOS = fetch32(TOS); ) \
 	X(FETWC,   "wc@",       0, TOS = code[(wc_t)TOS]; ) \
-	X(FETCV,   "cv@",       0, TOS = fetch32((cell)&code[(wc_t)TOS*2]); ) \
+	X(FETCV,   "cv@",       0, TOS = fetch32((cell)&code[(wc_t)TOS]); ) \
 	X(STO8,    "c!",        0, t=pop(); n=pop(); *(byte*)t=(byte)n; ) \
 	X(STO16,   "w!",        0, t=pop(); n=pop(); store16(t, n); ) \
 	X(STO32,   "!",         0, t=pop(); n=pop(); store32(t, n); ) \
 	X(STOWC,   "wc!",       0, t=pop(); n=pop(); code[(wc_t)t] = (wc_t)n; ) \
-	X(STOCV,   "cv!",       0, t=pop(); n=pop(); store32((cell)&code[(wc_t)t*2], n); )
+	X(STOCV,   "cv!",       0, t=pop(); n=pop(); store32((cell)&code[(wc_t)t], n); )
 
 #define PRIMS_MATH \
 	X(ADD,     "+",         0, t=pop(); TOS += t; ) \
