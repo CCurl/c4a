@@ -13,12 +13,12 @@
 
 byte memory[MEM_SZ+1];
 wc_t *code = (wc_t*)&memory[0];
-cell here, base, state, inSp, last;
+cell here, base, state, inSp;
 cell vhere, block, curTask;
 cell *dstk, *rstk, *lstk;
 cell dsp, rsp, lsp, asp, bsp, tsp;
 cell astk[STK_SZ+1], bstk[STK_SZ+1], tstk[STK_SZ+1];
-DE_T tmpWords[10];
+DE_T tmpWords[10], *last;
 char wd[32], *toIn, *inStk[FSTK_SZ+1];
 TASK_T tasks[TASKS_SZ];
 
@@ -91,8 +91,8 @@ TASK_T tasks[TASKS_SZ];
 	X(SEMI,    ";",         1, comma(EXIT); state=INTERP; ) \
 	X(LITC,    "lit,",      0, compileNum(pop()); ) \
 	X(NEXTWD,  "next-wd",   0, push(nextWord()); ) \
-	X(IMMED,   "immediate", 0, { DE_T *dp = (DE_T*)&memory[last]; dp->flg=_IMMED; } ) \
-	X(INLINE,  "inline",    0, { DE_T *dp = (DE_T*)&memory[last]; dp->flg=_INLINE; } ) \
+	X(IMMED,   "immediate", 0, { last->flg =_IMMED; } ) \
+	X(INLINE,  "inline",    0, { last->flg =_INLINE; } ) \
 	X(OUTER,   "outer",     0, outer((char*)pop()); ) \
 	X(ADDWORD, "addword",   0, addWord(0); ) \
 	X(CLK,     "timer",     0, push(timer()); ) \
@@ -106,7 +106,7 @@ TASK_T tasks[TASKS_SZ];
 	X(SEQI,    "s-eqi",     0, t=pop(); TOS = strEqI((char*)TOS, (char*)t); ) \
 	X(LTRIM,   "s-ltrim",   0, TOS = (cell)lTrim((char *)TOS); ) \
 	X(RTRIM,   "s-rtrim",   0, rTrim((char *)TOS); ) \
-	X(FILL,    "fill",      0, t=pop(); n=pop(); fill((byte *)pop(), n, (byte)t); ) \
+	X(FILL,    "fill",      0, t=pop(); n=pop(); fill((byte*)pop(), n, (byte)t); ) \
 	X(CMOVE,   "cmove",     0, t=pop(); n=pop(); cmove((byte*)pop(), (byte *)n, t); ) \
 	X(CMOVEL,  "cmove>",    0, t=pop(); n=pop(); cmovel((byte*)pop(), (byte *)n, t); ) \
 	X(LOWER,   "lower",     0, TOS = lower((char)TOS); ) \
@@ -207,9 +207,7 @@ void strCpy(char *d, const char *s) {
 }
 
 void strCat(char *d, const char *s) {
-	d += strLen(d);
-	while (*s) { *(d++) = *(s++); }
-	*(d) = 0;
+	strCpy(d + strLen(d), s);
 }
 
 char *lTrim(char *dst) {
@@ -260,8 +258,7 @@ DE_T *addWord(char *w) {
 		wd[NAME_LEN] = 0;
 		len = NAME_LEN;
 	}
-	last -= sizeof(DE_T);
-	DE_T *dp = (DE_T*)&memory[last];
+	DE_T *dp = --last;
 	dp->xt = here;
 	dp->flg = 0;
 	dp->len = len;
@@ -280,7 +277,7 @@ DE_T *findWord(const char *w) {
 		if ((len == dp->len) && strEqI(dp->nm, w)) { return dp; }
 	}
 	// Now non-primitives
-	dp = (DE_T*)&memory[last];
+	dp = last;
 	while (BYE <= dp->xt) {
 		if ((len == dp->len) && strEqI(dp->nm, w)) { return dp; }
 		dp++;
@@ -288,23 +285,22 @@ DE_T *findWord(const char *w) {
 	return (DE_T*)0;
 }
 
-int findXT(wc_t xt) {
-	cell cw = last;
-	while (cw < MEM_SZ) {
-		DE_T *dp = (DE_T*)&memory[cw];
-		if (dp->xt == xt) { return cw; }
-		cw += sizeof(DE_T);
+cell findXT(wc_t xt) {
+	DE_T *dp = last, *end = (DE_T*)&memory[MEM_SZ];
+	while (dp < end) {
+		if (dp->xt == xt) { return (cell)dp; }
+		dp++;
 	}
 	return 0;
 }
 
 void doSee() {
-	DE_T *dp = findWord(0), *lastWord = (DE_T*)&memory[last];
+	DE_T *dp = findWord(0);
 	if (!dp) { zTypeF("-nf:%s-", wd); return; }
 	if (dp->xt <= BYE) { zTypeF("%s is a primitive (#%ld/$%lX).\r\n", wd, dp->xt, dp->xt); return; }
-	cell x = (cell)dp-(cell)memory;
-	wc_t i = dp->xt, stop = (lastWord < dp) ? (dp-1)->xt : here;
-	zTypeF("\r\n%04lX: %s (%04lX to %04lX)", (long)x, dp->nm, (long)dp->xt, (long)stop-1);
+	cell x = (cell)dp;
+	wc_t i = dp->xt, stop = (last < dp) ? (dp-1)->xt : here;
+	zTypeF("\r\n%08lX: %s (%04lX to %04lX)", (long)x, dp->nm, (long)dp->xt, (long)stop-1);
 	while (i < stop) {
 		wc_t op = code[i++];
 		zTypeF("\r\n%04X: %04X\t", i-1, op);
@@ -321,15 +317,15 @@ void doSee() {
 			BCASE JMPNZ:  zTypeF("jmpnz $%04lX (WHILE?)", (long)x);   i++;
 			BCASE NJMPNZ: zTypeF("njmpnz $%04lX (-WHILE?)", (long)x); i++; break;
 			default: x = findXT((wc_t)op); 
-				zType(x ? ((DE_T*)&memory[x])->nm : "<unknown>");
+				zType(x ? ((DE_T*)x)->nm : "<unknown>");
 		}
 	}
 }
 
 void iToA(cell n, cell b) {
-	if (n<0) { emit('-'); n = -n; }
-	if (b<=n) { iToA(n/b, b); }
-	n %= b; if (9<n) { n += 7; }
+	if (n < 0) { emit('-'); n = -n; }
+	if (b <= n) { iToA(n/b, b); }
+	n %= b; if (9 < n) { n += 7; }
 	emit('0'+(char)n);
 }
 
@@ -367,7 +363,7 @@ void compileNum(cell num) {
 }
 
 void quote() {
-	char *vh=(char*)vhere;
+	char *vh = (char*)vhere;
 	if (*toIn) { ++toIn; }
 	while (*toIn) {
 		if (*toIn == '"') { ++toIn; break; }
@@ -397,9 +393,8 @@ void delTask(cell taskNum) {
 }
 
 void dumpTasks() {
-	zType("Tasks\n");
-	zType("## PC   St DSP RSP LSP\n");
-	zType("------- -- --- --- ---\n");
+	zType(" # PC   St DSP RSP LSP\n");
+	zType("-- ---- -- --- --- ---\n");
 	for (int i = 0; i < TASKS_SZ; i++) {
 		TASK_T *t = &tasks[i];
 		zTypeF("%2d %04X %2d", i, t->pc, t->status);
@@ -607,14 +602,11 @@ void baseSys() {
 void c4Init() {
 	code = (wc_t*)&memory[0];
 	vhere = (cell)&code[CODE_SLOTS];
-	for (int i = 0; i < TASKS_SZ; i++) {
-		tasks[i].status = 0;
-		for (int j = 0; j < 3; j++) { tasks[i].stks[j].sp = 0; }
-	}
+	fill((byte *)tasks, sizeof(tasks), 0);
 	tasks[0].status = 1;
 	setTask(0);
 	here = BYE+1;
-	last = MEM_SZ;
+	last = (DE_T*)&memory[MEM_SZ];
 	base = 10;
 	state = INTERP;
 	inSp = block = asp = bsp = tsp = 0;

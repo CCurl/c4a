@@ -97,14 +97,14 @@ void sys_load() {
     outer(": ->len    wc-sz + 1+ c@ ;");
     outer(": ->name   wc-sz + 2+ ;");
 
-    outer(": words last ->memory >a 0 >t 0 >r");
+    outer(": words last >a 0 >t 0 >r");
     outer("    begin");
     outer("      a@ ->name ztype r@ 1+ r!");
     outer("      a@ ->len dup 7 > t@ + t! 14 > t@ + t!");
     outer("      t@+ 9 > if cr 0 t! else tab then");
     outer("      a@ de-sz + a! a@ dict-end <");
     outer("    while tdrop adrop r> .\"  (%d words)\" ;");
-    outer(": words-n ( n-- )  0 >a last ->memory swap for");
+    outer(": words-n ( n-- )  0 >a last swap for");
     outer("          dup ->name ztype tab a@+ 9 > if cr 0 a! then de-sz +");
     outer("      next drop adrop ;");
 

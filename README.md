@@ -72,7 +72,7 @@ c4a provides a single memory area. See 'mem-sz' (MEM_SZ in c4a.h) for its size.
 - The VARS area is defined to begin at address `code-sz wc-sz * memory +`.
   - `vhere` is the absolute address of the first free byte the VARS area.
 - The DICT is at the end of the memory. 'last' grows toward the beginning of the memory.
-  - `last` is an offset into the memory area.
+  - `last` is the address of the most recently created word.
   - A dictionary entry is [xt:2][flags:1][len:1][name:NAME_LEN][0:1]
   - The default NAME_LEN is 11 (see c4a.h), so the de-sz is 16.
 - Use `->memory` to turn an offset into an address.

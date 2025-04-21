@@ -1,7 +1,7 @@
 #ifndef __C4A_H__
 #define __C4A_H__
 
-#define VERSION   20250419
+#define VERSION   20250420
 #define _SYS_LOAD_
 
 #ifdef _MSC_VER
@@ -19,10 +19,19 @@
 #include <stdint.h>
 #include <time.h>
 
-#define btwi(n,l,h)   ((l<=n) && (n<=h))
-#define _IMMED        1
-#define _INLINE       2
+// Change these for the system/board
+// These work for the RPi Pico
+#define MEM_SZ      400*1024
+#define CODE_SLOTS  NUM_BITS // Values larger are inline numbers
+#define STK_SZ            31 // Data stack size
+#define FSTK_SZ            8 // Files stack size
+#define TASKS_SZ           8 // Number of tasks
+#define NAME_LEN          11 // Size of dict-entry is (LEN+1+1+1+2)
+#define BLOCK_CACHE_SZ    16 // Entries of type CACHE_T
+#define BLOCK_MAX         99 // Maximum block
+#define EOL_CHAR          13 // Carriage Return
 
+// System defines
 #define CELL_T           int32_t
 #define CELL_SZ             4
 #define WC_T             uint16_t
@@ -36,45 +45,11 @@
 #define STK_RETN            1
 #define STK_LSTK            2
 #define TASK_MAX      (TASKS_SZ-1)
-
-#ifdef IS_PC
-  #define MEM_SZ     1024*1024 // Could be much bigger
-  #define CODE_SLOTS  NUM_BITS // Values larger are inline numbers
-  #define STK_SZ            31 // Data stack
-  #define FSTK_SZ            8 // Files stack
-  #define TASKS_SZ           8 // Number of tasks
-  #define NAME_LEN          11 // Size of dict-entry is (LEN+1+1+1+2)
-  #define BLOCK_CACHE_SZ    16 // Entries of type CACHE_T
-  #define BLOCK_MAX         99 // Maximum block
-  #define EOL_CHAR          13 // Carriage Return
-  #define FL_READ           "rb"
-  #define FL_RW             "r+b"
-  #define FL_WRITE          "wb"
-  #define FL_APPEND         "ab"
-  #define FILE_PC
-#else
-  #include <Arduino.h>
-  #define IS_BOARD           1 // This must be a devdelopment board
-  #define MEM_SZ      400*1024 // Based on RPi PICO
-  #define CODE_SLOTS  NUM_BITS // Values larger are inline numbers
-  #define STK_SZ            31 // Data stack
-  #define FSTK_SZ            8 // Files stack
-  #define TASKS_SZ           8 // Number of tasks
-  #define NAME_LEN          11 // Size of dict-entry is (LEN+1+1+1+2)
-  #define BLOCK_CACHE_SZ    16 // Entries of type CACHE_T
-  #define BLOCK_MAX         99 // Maximum block
-  #define EOL_CHAR          13 // Carriage Return
-  #define FL_READ          "r"
-  #define FL_RW            "r+"
-  #define FL_WRITE         "w"
-  #define FL_APPEND        "a"
-  // #define FILE_NONE
-  #define FILE_PICO
-  // #define FILE_TEENSY
-#endif
+#define _IMMED              1
+#define _INLINE             2
+#define btwi(n,l,h)   ((l<=n) && (n<=h))
 
 enum { COMPILE=1, DEFINE=2, INTERP=3, COMMENT=4 };
-
 typedef CELL_T cell;
 typedef WC_T wc_t;
 typedef uint8_t byte;
@@ -85,6 +60,24 @@ typedef struct { cell sp; cell stk[STK_SZ+1]; } STK_T;
 
 // #define TASK_CYCLES   1000
 typedef struct { STK_T stks[3]; wc_t pc, base; int status; } TASK_T;
+
+#ifdef IS_PC
+  #define FL_READ          "rb"
+  #define FL_RW            "r+b"
+  #define FL_WRITE         "wb"
+  #define FL_APPEND        "ab"
+  #define FILE_PC
+#else
+  #include <Arduino.h>
+  #define IS_BOARD          1
+  #define FL_READ          "r"
+  #define FL_RW            "r+"
+  #define FL_WRITE         "w"
+  #define FL_APPEND        "a"
+  // #define FILE_NONE
+  #define FILE_PICO
+  // #define FILE_TEENSY
+#endif
 
 // These are defined by c4a.cpp
 extern void c4Init();
