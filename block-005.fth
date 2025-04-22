@@ -1,5 +1,7 @@
 block #005 - screen words
+
 find cls loaded?
+
 cur-on(--)." %e[?25h" ;       cur-off(--)." %e[?25l" ;
 cur-block(--)." %e[2 q" ;     cur-bar(--)." %e[5 q" ;
 ->cr(r c--)." %e[%d;%dH" ;    ->rc(c r--) swap ->cr ;
@@ -13,8 +15,6 @@
 
 .color(c--c)dup dup fg ." color-%d%n" ;
 colors(f t--)over - 1+ for .color 1+ next drop white ;
-
-
 
 
 

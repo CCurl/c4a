@@ -2,7 +2,7 @@
 
 find s-scatn loaded?
 
-p1vhere $100 + ;   p2vhere $200 + ;
+p1(--a)vhere $100 + ;   p2(--a)vhere $200 + ;
 s-trunc(str--str)0 over c! ;
 s-end(str--end)dup s-len + ;
 s-catc(dst c--dst)over s-end w! ;

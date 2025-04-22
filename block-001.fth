@@ -4,16 +4,16 @@
 
 rbforget 1 load ;       edblock @ edit ;
 lsz" ls -l" system ;    lgz" lazygit" system ;
+devz" ccc dev" system ;
 
-green ." c4a - v" .version white
-2 block !
+[[ tasks-sz 1- for i 1+ del-task next ]]
+heretask1." -task1-" yield task1 ;add-task drop
+heretask2." -task2-" yield task2 ;add-task drop
 
+." c4a - %Gv" .version white
+7 block !
 
-
-
-
-
-
+ cr .tasks
 
 
 
