@@ -40,7 +40,16 @@ TASK_T tasks[TASKS_SZ];
 	X(STO16,   "w!",        0, t=pop(); n=pop(); store16(t, n); ) \
 	X(STO32,   "!",         0, t=pop(); n=pop(); store32(t, n); ) \
 	X(STOWC,   "wc!",       0, t=pop(); n=pop(); code[(wc_t)t] = (wc_t)n; ) \
-	X(STOCV,   "cv!",       0, t=pop(); n=pop(); store32((cell)&code[(wc_t)t], n); )
+	X(STOCV,   "cv!",       0, t=pop(); n=pop(); store32((cell)&code[(wc_t)t], n); ) \
+	X(IF_C4,   "if",        1, comma(JMPZ);  push(here); comma(0); ) \
+	X(IF0_C4,  "if0",       1, comma(JMPNZ); push(here); comma(0); ) \
+	X(IFN_C4,  "-if",       1, comma(NJMPZ); push(here); comma(0); ) \
+	X(THEN_C4, "then",      1, code[(wc_t)pop()] = (wc_t)here; ) \
+	X(BEGIN,   "begin",     1, push(here); ) \
+	X(AGAIN,   "again",     1, comma(JMP);    comma(pop()); ) \
+	X(WHILE,   "while",     1, comma(JMPNZ);  comma(pop()); ) \
+	X(WHILEN,  "-while",    1, comma(NJMPNZ); comma(pop()); ) \
+	X(UNTIL,   "until",     1, comma(JMPZ);   comma(pop()); )
 
 #define PRIMS_MATH \
 	X(ADD,     "+",         0, t=pop(); TOS += t; ) \
@@ -170,6 +179,8 @@ TASK_T tasks[TASKS_SZ];
 	X(COMMA,   ",",         0, comma(pop()); ) \
 	X(CONST,   "const",     0, addWord(0); compileNum(pop()); comma(EXIT); ) \
 	X(VAR,     "var",       0, addWord(0); compileNum(vhere); comma(EXIT); vhere += pop(); ) \
+	X(VAL,     "val",       0, addWord(0); comma(LIT); commaCell(0); comma(EXIT); ) \
+	X(PVAL,    "(val)",     0, addWord(0); comma(LIT); commaCell((cell)&code[here-4]); comma(EXIT); ) \
 	X(NEXTWD,  "next-wd",   0, push(nextWord()); ) \
 	X(IMMED,   "immediate", 0, last->flg =_IMMED; ) \
 	X(INLINE,  "inline",    0, last->flg =_INLINE; ) \
@@ -186,6 +197,11 @@ TASK_T tasks[TASKS_SZ];
 	X(HERE,    "here",      0, push(here); ) \
 	X(LAST,    "last",      0, push((cell)last); ) \
 	X(VHERE,   "vhere",     0, push(vhere); ) \
+	X(WORDS,   "words",     0, words(999999); ) \
+	X(WORDSN,  "words-n",   0, words(pop()); ) \
+	X(DOTN,    "(.)",       0, iToA(pop(), base); ) \
+	X(DOT,     ".",         0, iToA(pop(), base); emit(32); ) \
+	X(DOTS,    ".s",        0, dotS(); ) \
 	X(ALLOT,   "allot",     0, vhere += pop(); ) \
 	X(BLANK,   "bl",        0, push(32); ) \
 	X(TAB,     "tab",       0, emit(9); ) \
@@ -336,6 +352,19 @@ DE_T *findWord(const char *w) {
 	return (DE_T*)0;
 }
 
+void words(cell count) {
+	cell num = 0, n = 0;
+	DE_T *dp = last, *stop = (DE_T*)&memory[MEM_SZ];
+	while (dp < stop) {
+		if (9 < n) { zType("\r\n"); n = 0; }
+		zType(dp->nm); emit(9);
+		n += (dp->len < 8) ? 1 : 2;
+		if (++num >= count) { return; }
+		dp++;
+	}
+	zTypeF("\t(%d words)", num);
+}
+
 cell findXT(wc_t xt) {
 	DE_T *dp = last, *end = (DE_T*)&memory[MEM_SZ];
 	while (dp < end) {
@@ -378,6 +407,12 @@ void iToA(cell n, cell b) {
 	if (b <= n) { iToA(n/b, b); }
 	n %= b; if (9 < n) { n += 7; }
 	emit('0'+(char)n);
+}
+
+void dotS() {
+	zType("( ");
+	for (int i = 1; i <= dsp; i++) { iToA(dstk[i], base); emit(32); }
+	zType(")");
 }
 
 void fType(const char *s) {

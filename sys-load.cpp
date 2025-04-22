@@ -17,19 +17,6 @@ void sys_load() {
     outer(": create addword vhere lit, ;");
     outer(": does> (jmp) , r> , ;");
 
-    outer(": begin here ; immediate");
-    outer(": again (jmp)   , , ; immediate");
-    outer(": while (jmpnz) , , ; immediate");
-    outer(": until (jmpz)  , , ; immediate");
-    outer(": -while (njmpnz) , , ; immediate");
-    outer(": -until (njmpz)  , , ; immediate");
-
-    outer(": -if (njmpz) , here 0 , ; immediate");
-    outer(": if  (jmpz)  , here 0 , ; immediate");
-    outer(": if0 (jmpnz) , here 0 , ; immediate");
-    outer(": else (jmp) , here swap 0 , here swap wc! ; immediate");
-    outer(": then here swap wc! ; immediate");
-
     outer(": hex     $10 base! ;   : binary  %10 base! ;");
     outer(": decimal #10 base! ;   : ?dup -if dup then ;");
     outer(": rot >r swap r> swap ; : -rot swap >r swap r> ;");
@@ -51,14 +38,8 @@ void sys_load() {
     outer(": #  ( n1--n2 ) base@ /mod swap #n ;");
     outer(": #s ( n-- )    begin # -while ;");
     outer(": #> ( --str )  drop a> if '-' #c then t> 1+ ;");
-    outer(": (.) ( n-- ) <# #s #> ztype ;");
-    outer(": .   ( n-- ) (.) space ;");
 
     outer(": .version version <# # # #. # # #. #s #> ztype ;");
-
-    outer(": ? ( addr-- ) @ . ;");
-    outer(": .s '(' emit space (dsp) @ 1- ?dup");
-    outer("    if for i 1+ cells dstk + @ . next then ')' emit ;");
 
     outer(": [[ vhere >t here >t 1 state ! ;");
     outer(": ]] (exit) , 0 state ! t@ (here) ! t> >r t> (vhere) ! ; immediate");
@@ -68,17 +49,6 @@ void sys_load() {
     outer(": ->flags  wc-sz + c@ ;");
     outer(": ->len    wc-sz + 1+ c@ ;");
     outer(": ->name   wc-sz + 2+ ;");
-
-    outer(": words last >a 0 >t 0 >r");
-    outer("    begin");
-    outer("      a@ ->name ztype r@ 1+ r!");
-    outer("      a@ ->len dup 7 > t@ + t! 14 > t@ + t!");
-    outer("      t@+ 9 > if cr 0 t! else tab then");
-    outer("      a@ de-sz + a! a@ dict-end <");
-    outer("    while tdrop adrop r> .\"  (%d words)\" ;");
-    outer(": words-n ( n-- )  0 >a last swap for");
-    outer("          dup ->name ztype tab a@+ 9 > if cr 0 a! then de-sz +");
-    outer("      next drop adrop ;");
 
     outer("cell var t0  cell var t1  cell var t2");
     outer(": marker here t0 ! last t1 ! vhere t2 ! ;");
