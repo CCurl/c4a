@@ -1,7 +1,7 @@
 #ifndef __C4A_H__
 #define __C4A_H__
 
-#define VERSION   20250421
+#define VERSION   20250422
 #define _SYS_LOAD_
 
 #ifdef _MSC_VER
@@ -54,7 +54,7 @@ typedef CELL_T cell;
 typedef WC_T wc_t;
 typedef uint8_t byte;
 typedef struct { wc_t xt; byte flg, len; char nm[NAME_LEN+1]; } DE_T;
-typedef struct { const char *name; wc_t op; byte fl; byte pad; } PRIM_T;
+typedef struct { wc_t op; byte flg, len; const char *name; } PRIM_T;
 typedef struct { uint16_t num, seq, flags; char data[BLOCK_SZ]; } CACHE_T;
 typedef struct { cell sp; cell stk[STK_SZ+1]; } STK_T;
 

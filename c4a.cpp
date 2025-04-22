@@ -234,7 +234,7 @@ enum _PRIM  {
 };
 
 #undef X
-#define X(op, name, imm, code) { name, op, imm, 0 },
+#define X(op, name, flg, code) { op, flg, 0, name },
 
 PRIM_T prims[] = { PRIMS_ALL {0, 0, 0}};
 
@@ -335,16 +335,26 @@ DE_T *addWord(char *w) {
 	return dp;
 }
 
+PRIM_T *findPrim(const char *w) {
+	PRIM_T *dp = &prims[0];
+	// Check primitives first
+	while (dp->op) {
+		if (strEqI(dp->name, w)) { return dp; }
+		++dp;
+	}
+	return (PRIM_T*)0;
+}
+
 DE_T *findWord(const char *w) {
 	if (!w) { nextWord(); w = wd; }
 	if (isTemp(w)) { return &tmpWords[w[1]-'0']; }
 	int len = strLen(w);
-	DE_T *dp = (DE_T*)&memory[MEM_SZ];
 	// Check primitives first
-	while ((--dp)->xt < BYE) {
-		if ((len == dp->len) && strEqI(dp->nm, w)) { return dp; }
-	}
+	PRIM_T *p = findPrim(w);
+	if (p) { return (DE_T*)p; }
+
 	// Now non-primitives
+	DE_T *dp = (DE_T*)&memory[MEM_SZ];
 	dp = last;
 	while (BYE <= dp->xt) {
 		if ((len == dp->len) && strEqI(dp->nm, w)) { return dp; }
@@ -353,26 +363,47 @@ DE_T *findWord(const char *w) {
 	return (DE_T*)0;
 }
 
+cell wordOut(DE_T *dp, PRIM_T *pp, cell n) {
+	if (0 < n) {
+		if (n % 10 == 0) { zType("\r\n"); }
+		else { emit(9); }
+	}
+	const char *nm = (dp) ? &dp->nm[0] : pp->name;
+	zType(nm);
+	if (7 < strLen(nm)) { ++n; }
+	return n+1;
+}
+
 void words(cell count) {
 	cell num = 0, n = 0;
 	DE_T *dp = last, *stop = (DE_T*)&memory[MEM_SZ];
 	while (dp < stop) {
-		if (9 < n) { zType("\r\n"); n = 0; }
-		zType(dp->nm); emit(9);
-		n += (dp->len < 8) ? 1 : 2;
+		n = wordOut(dp, NULL, n);
 		if (++num >= count) { return; }
 		dp++;
+	}
+	// zType("\r\n** primitives **\r\n");
+	PRIM_T *pp = &prims[0];
+	while (pp->op) {
+		n = wordOut(NULL, pp, n);
+		if (++num >= count) { return; }
+		pp++;
 	}
 	zTypeF("\t(%d words)", num);
 }
 
-cell findXT(wc_t xt) {
+const char *nameByXT(wc_t xt) {
+	PRIM_T* pp = &prims[0];
+	while (pp->op) {
+		if (pp->op == xt) { return pp->name; }
+		pp++;
+	}
 	DE_T *dp = last, *end = (DE_T*)&memory[MEM_SZ];
 	while (dp < end) {
-		if (dp->xt == xt) { return (cell)dp; }
+		if (dp->xt == xt) { return &dp->nm[0]; }
 		dp++;
 	}
-	return 0;
+	return "<unknown>";
 }
 
 void doSee() {
@@ -397,8 +428,8 @@ void doSee() {
 			BCASE NJMPZ:  zTypeF("njmpz $%04lX (-IF?)", (long)x);     i++;
 			BCASE JMPNZ:  zTypeF("jmpnz $%04lX (WHILE?)", (long)x);   i++;
 			BCASE NJMPNZ: zTypeF("njmpnz $%04lX (-WHILE?)", (long)x); i++; break;
-			default: x = findXT((wc_t)op); 
-				zType(x ? ((DE_T*)x)->nm : "<unknown>");
+			default: x = (cell)nameByXT((wc_t)op); 
+				zType((char*)x);
 		}
 	}
 }
@@ -634,11 +665,11 @@ void defineNum(const char *name, cell val) {
 }
 
 void baseSys() {
-	for (int i = 0; prims[i].name; i++) {
-		DE_T *w = addWord((char*)prims[i].name);
-		w->xt = prims[i].op;
-		w->flg = prims[i].fl;
-	}
+	//for (int i = 0; prims[i].name; i++) {
+	//	DE_T *w = addWord((char*)prims[i].name);
+	//	w->xt = prims[i].op;
+	//	w->flg = prims[i].flg;
+	//}
 
 	defineNum("mem-sz",   MEM_SZ);
 	defineNum("block-sz", BLOCK_SZ);
