@@ -32,12 +32,11 @@ void sys_load() {
 
     outer("40 var #buf");
     outer(": <# ( n1--n2 ) #buf 39 + >t 0 !t- dup 0 < >a abs ;");
-    outer(": #c ( c-- )    !t- ; inline");
-    outer(": #. ( -- )     '.' #c ;");
-    outer(": #n ( n-- )    dup 9 > if 7 + then '0' + #c ;");
+    outer(": #. ( -- )     '.' !t- ;");
+    outer(": #n ( n-- )    dup 9 > if 7 + then '0' + !t- ;");
     outer(": #  ( n1--n2 ) base@ /mod swap #n ;");
     outer(": #s ( n-- )    begin # -while ;");
-    outer(": #> ( --str )  drop a> if '-' #c then t> 1+ ;");
+    outer(": #> ( --str )  drop a> if '-' !t- then t> 1+ ;");
 
     outer(": .version version <# # # #. # # #. #s #> ztype ;");
 

@@ -363,12 +363,11 @@ DE_T *findWord(const char *w) {
 	return (DE_T*)0;
 }
 
-cell wordOut(DE_T *dp, PRIM_T *pp, cell n) {
+cell wordOut(const char *nm, cell n) {
 	if (0 < n) {
-		if (n % 10 == 0) { zType("\r\n"); }
+		if ((n%10) == 0) { zType("\r\n"); }
 		else { emit(9); }
 	}
-	const char *nm = (dp) ? &dp->nm[0] : pp->name;
 	zType(nm);
 	if (7 < strLen(nm)) { ++n; }
 	return n+1;
@@ -378,14 +377,14 @@ void words(cell count) {
 	cell num = 0, n = 0;
 	DE_T *dp = last, *stop = (DE_T*)&memory[MEM_SZ];
 	while (dp < stop) {
-		n = wordOut(dp, NULL, n);
+		n = wordOut(&dp->nm[0], n);
 		if (++num >= count) { return; }
 		dp++;
 	}
 	// zType("\r\n** primitives **\r\n");
 	PRIM_T *pp = &prims[0];
 	while (pp->op) {
-		n = wordOut(NULL, pp, n);
+		n = wordOut(pp->name, n);
 		if (++num >= count) { return; }
 		pp++;
 	}
