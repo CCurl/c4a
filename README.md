@@ -201,6 +201,7 @@ The primitives:
 | +           | (X Y--N)     | N: X + Y |
 | -           | (X Y--N)     | N: X - Y |
 | *           | (X Y--N)     | N: X * Y |
+| */          | (N X Y--N')  | N': (N * X) / Y - Scale N by X/Y |
 | /           | (X Y--N)     | N: X / Y (integer division) |
 | /mod        | (X Y--M Q)   | M: X modulo Y, Q: quotient of X / Y |
 | 1+          | (X--Y)       | Increment TOS |

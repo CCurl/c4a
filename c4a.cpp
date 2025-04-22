@@ -55,6 +55,7 @@ TASK_T tasks[TASKS_SZ];
 	X(ADD,     "+",         0, t=pop(); TOS += t; ) \
 	X(SUB,     "-",         0, t=pop(); TOS -= t; ) \
 	X(MUL,     "*",         0, t=pop(); TOS *= t; ) \
+	X(STARSL,  "*/",        0, t=pop(); n = pop(); TOS = (TOS*n)/t; ) \
 	X(DIV,     "/",         0, t=pop(); TOS /= t; ) \
 	X(MOD,     "mod",       0, t=pop(); TOS %= t; ) \
 	X(SLMOD,   "/mod",      0, t=TOS; n = NOS; TOS = n/t; NOS = n%t; ) \
