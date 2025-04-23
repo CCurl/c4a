@@ -366,7 +366,7 @@ DE_T *findWord(const char *w) {
 }
 
 cell wordOut(const char *nm, cell n) {
-	if (11 < n) { zType("\r\n"); n = 0; }
+	if (9 < n) { zType("\r\n"); n = 0; }
 	if (0 < n) { emit(9); }
 	zType(nm);
 	n++; if (7 < strLen(nm)) { ++n; }
