@@ -178,6 +178,8 @@ TASK_T tasks[TASKS_SZ];
 	X(FTYPE,   "ftype",     0, fType((char*)pop()); ) \
 	X(LITC,    "lit,",      0, compileNum(pop()); ) \
 	X(COMMA,   ",",         0, comma(pop()); ) \
+	X(VCOMMA,  "v,",        0, store32(vhere,pop()); vhere += CELL_SZ; ) \
+	X(VCCOMMA, "vc,",       0, *(byte *)(vhere++) = (byte)pop(); ) \
 	X(CONST,   "const",     0, addWord(0); compileNum(pop()); comma(EXIT); ) \
 	X(VAR,     "var",       0, addWord(0); compileNum(vhere); comma(EXIT); vhere += pop(); ) \
 	X(VAL,     "val",       0, addWord(0); comma(LIT); commaCell(0); comma(EXIT); ) \
@@ -364,13 +366,11 @@ DE_T *findWord(const char *w) {
 }
 
 cell wordOut(const char *nm, cell n) {
-	if (0 < n) {
-		if ((n%10) == 0) { zType("\r\n"); }
-		else { emit(9); }
-	}
+	if (11 < n) { zType("\r\n"); n = 0; }
+	if (0 < n) { emit(9); }
 	zType(nm);
-	if (7 < strLen(nm)) { ++n; }
-	return n+1;
+	n++; if (7 < strLen(nm)) { ++n; }
+	return n;
 }
 
 void words(cell count) {
