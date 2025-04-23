@@ -142,17 +142,6 @@ extern void Yellow();
   extern void flushBlock(cell blk, CACHE_T *p, cell clear);
   extern void flushBlocks(cell clear);
   #define EDITOR
-  #ifdef FILE_PC
-    #define FL_READ    "rb"
-    #define FL_RW      "r+b"
-    #define FL_WRITE   "wb"
-    #define FL_APPEND  "ab"
-  #else
-    #define FL_READ    "r"
-    #define FL_RW      "r+"
-    #define FL_WRITE   "w"
-    #define FL_APPEND  "a"
-  #endif
 #endif // FILE_NONE
 
 #endif //  __C4A_H__
