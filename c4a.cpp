@@ -12,23 +12,23 @@
 
 byte memory[MEM_SZ+1];
 wc_t *code = (wc_t*)&memory[0];
-cell here, base, state, inSp;
-cell vhere, block, curTask;
-cell *dstk, *rstk, *lstk;
+cell here, base, state, inSp, vhere, block, curTask;
+cell *dstk, *rstk, *lstk, fgtH, fgtVH;
 cell dsp, rsp, lsp, asp, bsp, tsp;
 cell astk[STK_SZ+1], bstk[STK_SZ+1], tstk[STK_SZ+1];
-DE_T tmpWords[10], *last;
+DE_T tmpWords[10], *last, *fgtL;
 char wd[32], *toIn, *inStk[FSTK_SZ+1];
 TASK_T tasks[TASKS_SZ];
 
 #define PRIMS_BASE \
 	X(EXIT,    "exit",      0, if (0<rsp) { pc = (wc_t)rpop(); } else { return; } ) \
-	X(DUP,     "dup",       0, t=TOS; push(t); ) \
+	X(DUP,     "dup",       0, push(TOS); ) \
+	X(QDUP,    "?dup",      0, if (TOS) { push(TOS); } ) \
 	X(SWAP,    "swap",      0, t=TOS; TOS=NOS; NOS=t; ) \
-	X(DROP,    "drop",      0, pop(); ) \
+	X(DROP,    "drop",      0, if (0<dsp) { --dsp; } ) \
 	X(DUP2,    "2dup",      0, t=TOS; n=NOS; push(n); push(t); ) \
 	X(DROP2,   "2drop",     0, pop(); pop(); ) \
-	X(OVER,    "over",      0, t=NOS; push(t); ) \
+	X(OVER,    "over",      0, push(NOS); ) \
 	X(NIP,     "nip",       0, t=pop(); TOS=t; ) \
 	X(TUCK,    "tuck",      0, t=TOS; TOS=NOS; NOS=t; push(t); ) \
 	X(FET8,    "c@",        0, TOS = *(byte *)TOS; ) \
@@ -202,6 +202,8 @@ TASK_T tasks[TASKS_SZ];
 	X(VHERE,   "vhere",     0, push(vhere); ) \
 	X(WORDS,   "words",     0, words(999999); ) \
 	X(WORDSN,  "words-n",   0, words(pop()); ) \
+	X(MARKER,  "marker",    0, fgtH=here; fgtVH=vhere; fgtL=last; ) \
+	X(FORGET,  "forget",    0, here=fgtH; vhere=fgtVH; last=fgtL; ) \
 	X(DOTN,    "(.)",       0, iToA(pop(), base); ) \
 	X(DOT,     ".",         0, iToA(pop(), base); emit(32); ) \
 	X(DOTS,    ".s",        0, dotS(); ) \
