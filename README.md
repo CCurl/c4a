@@ -153,131 +153,163 @@ c4a provides 10 temporary words, 't0' .. 't9'.
 - The A, B, and T stacks are shared by all tasks.
 
 ## c4a WORD-CODE primitives
-NOTE: Since c4a is intended for dev boards, it has more primitives than needed.</br>
+NOTE: Since c4a is intended for dev boards, it has many more primitives than C4.</br>
       This is primarily because there is more program memory than RAM.</br>
-      It also makes the system faster.</br>
-      Lastly, it makes it less necessary to load screens.</br>
-
-Stack effect notation conventions:
-
-| TERM     | DESCRIPTION |
-|:--       |:-- |
-| SZ/NM/MD | String, uncounted, NULL terminated |
-| A        | Address |
-| C        | Number, 8-bits |
-| WC       | WORD-CODE, 32-bits |
-| N/X/Y    | Number, CELL sized |
-| F        | Flag: 0 mean0 false, <>0 means true |
-| R        | Register number |
-| FH       | File handle: 0 means no file |
-| I        | For loop index counter |
+      It provides more built-in functionality.</br>
+      And the system is faster.</br>
 
 The primitives:
 
-| WORD        | STACK        | DESCRIPTION |
-|:--          |:--           |:-- |
-| (lit)       | (--WC)       | WC: WORD-CODE for LIT primitive |
-| (jmp)       | (--WC)       | WC: WORD-CODE for JMP primitive |
-| (jmpz)      | (--WC)       | WC: WORD-CODE for JMPZ primitive |
-| (jmpnz)     | (--WC)       | WC: WORD-CODE for JMPNZ primitive |
-| (njmpz)     | (--WC)       | WC: WORD-CODE for NJMPZ primitive |
-| (njmpnz)    | (--WC)       | WC: WORD-CODE for NJMPNZ primitive |
-| (exit)      | (--WC)       | WC: WORD-CODE for EXIT primitive |
-| exit        | (--)         | EXIT word |
-| dup         | (X--X X)     | Duplicate TOS (Top-Of-Stack) |
-| swap        | (X Y--Y X)   | Swap TOS and NOS (Next-On-Stack) |
-| drop        | (N--)        | Drop TOS |
-| over        | (N X--N X N) | Push NOS |
-| @           | (A--N)       | N: the CELL at absolute address A |
-| c@          | (A--C)       | C: the CHAR at absolute address A |
-| w@          | (A--W)       | W: the WORD at absolute address A |
-| wc@         | (N--WC)      | WC: the WORD-CODE in CODE slot N |
-| cv@         | (N--)        | Code-Variable: Fetch a 32-bit value from CODE slots N/N+1 |
-| !           | (N A--)      | Store CELL N to absolute address A |
-| c!          | (C A--)      | Store CHAR C to absolute address A |
-| w!          | (W A--)      | Store WORD W to absolute address A |
-| wc!         | (WC N--)     | Store WORD-CODE WC to CODE slot N |
-| cv!         | (N--)        | Code-Variable: Store a 32-bit value to CODE slots N/N+1 |
-| +           | (X Y--N)     | N: X + Y |
-| -           | (X Y--N)     | N: X - Y |
-| *           | (X Y--N)     | N: X * Y |
-| */          | (N X Y--N')  | N': (N * X) / Y - Scale N by X/Y |
-| /           | (X Y--N)     | N: X / Y (integer division) |
-| /mod        | (X Y--M Q)   | M: X modulo Y, Q: quotient of X / Y |
-| 1+          | (X--Y)       | Increment TOS |
-| 1-          | (X--Y)       | Decrement TOS |
-| <           | (X Y--F)     | F: 1 if (X < Y), else 0 |
-| =           | (X Y--F)     | F: 1 if (X = Y), else 0 |
-| >           | (X Y--F)     | F: 1 if (X > Y), else 0 |
-| 0=          | (N--F)       | F: 1 if (N=0), else 0 |
-| and         | (X Y--N)     | N: X AND Y |
-| or          | (X Y--N)     | N: X OR  Y |
-| xor         | (X Y--N)     | N: X XOR Y |
-| com         | (X--Y)       | Y: X with all bits flipped (complement) |
-| for         | (N--)        | Begin FOR loop with bounds 0 and N-1. |
-| i           | (--I)        | N: Current FOR loop index. |
-| next        | (--)         | Increment I. If I >= N, exit, else start loop again. |
-| unloop      | (--)         | Unwind the loop stack. **NOTE:** does NOT exit the loop. |
-| >r          | (N--)        | Push N onto the return stack |
-| r!          | (N--)        | Set R-TOS to N |
-| r@          | (--N)        | N: copy of R-TOS |
-| r@+         | (--N)        | N: copy of R-TOS, then increment it |
-| r@-         | (--N)        | N: copy of R-TOS, then decrement it |
-| r>          | (--N)        | Pop N from the return stack |
-| rdrop       | (--)         | Drop R-TOS |
-| >t          | (N--)        | Push N onto the T stack |
-| t!          | (N--)        | Set T-TOS to N |
-| t@          | (--N)        | N: copy of T-TOS |
-| t@+         | (--N)        | N: copy of T-TOS, then increment T-TOS |
-| t@-         | (--N)        | N: copy of T-TOS, then decrement T-TOS |
-| t>          | (--N)        | Pop N from the T stack |
-| tdrop       | (--)         | Drop T-TOS |
-| >a          | (N--)        | Push N onto the A stack |
-| a!          | (N--)        | Set A-TOS to N |
-| a@          | (--N)        | N: copy of A-TOS |
-| a@+         | (--N)        | N: copy of A-TOS, then increment A-TOS |
-| a@-         | (--N)        | N: copy of A-TOS, then decrement A-TOS |
-| a>          | (--N)        | Pop N from the A stack |
-| adrop       | (--)         | Drop A-TOS |
-| emit        | (C--)        | Output char C |
-| ;           | (--)         | Compile EXIT, set STATE=INTERPRET |
-| lit,        | (N--)        | Compile a push of number N |
-| next-wd     | (--L)        | L: length of the next word from the input stream |
-| immediate   | (--)         | Mark the last created word as IMMEDIATE |
-| inline      | (--)         | Mark the last created word as INLINE |
-| outer       | (S--)        | Send string S to the c4a outer interpreter |
-| addword     | (--)         | Add the next word to the dictionary |
-| timer       | (--N)        | N: Current time |
-| see X       | (--)         | Output the definition of word X |
-| ztype       | (S--)        | Print string at S (unformatted) |
-| ftype       | (S--)        | Print string at S (formatted) |
-| s-cpy       | (D S--D)     | Copy string S to D |
-| s-eq        | (D S--F)     | F: 1 if string S is equal to D (case sensitive) |
-| s-eqi       | (D S--F)     | F: 1 if string S is equal to D (NOT case sensitive) |
-| s-len       | (S--N)       | N: Length of string S |
-| z"          | (--)         | -COMPILE: Create string S to next `"` |
-|             | (--S)        | -RUN: push address S of string |
-| ."          | (--)         | -COMPILE: execute `z"`, compile `ftype` |
-|             | (--)         | -RUN: `ftype` on string |
-| find        | (--XT A)     | XT: Execution Token, A: Dict Entry address (0 0 if not found) |
-| loaded?     | (XT A--)     | Stops current load if A <> 0 (see `find`) |
-| fopen       | (NM MD--FH)  | NM: File Name, MD: Mode, FH: File Handle (0 if error/not found) |
-| fclose      | (FH--)       | FH: File Handle to close |
-| fdelete     | (NM--)       | NM: File Name to delete |
-| fread       | (A N FH--X)  | A: Buffer, N: Size, FH: File Handle, X: num chars read |
-| fwrite      | (A N FH--X)  | A: Buffer, N: Size, FH: File Handle, X: num chars written |
-| fseek       | (N FH--X)    | N: Size, FH: File Handle, X: return from func |
-| fsize       | (FH--N)      | FH: File Handle, N: file size |
-| fpos        | (FH--N)      | FH: File Handle, N: current file read/write position |
-| load        | (N--)        | N: Block number to load |
-| load-next   | (N--)        | Close the current block and load block N next |
-| blocks      | (--)         | Dump block cache |
-| block-addr  | (N--A)       | N: Block number, A: Address in cache |
-| flush       | (F--)        | F: True => clear cache |
-| flush-block | (N F--)      | N: Block number, F: True => clear cache entry |
-| edit        | (N--)        | N: Block number to edit |
-| system      | (S--)        | PC ONLY: S: String to send to `system()` |
-| bye         | (--)         | PC ONLY: Exit c4a |
+| WORD        | STACK          | DESCRIPTION |
+|:--          |:--             |:-- |
+| (lit)       | (--WC)         | WC: WORD-CODE for LIT primitive |
+| (jmp)       | (--WC)         | WC: WORD-CODE for JMP primitive |
+| (jmpz)      | (--WC)         | WC: WORD-CODE for JMPZ primitive |
+| (jmpnz)     | (--WC)         | WC: WORD-CODE for JMPNZ primitive |
+| (njmpz)     | (--WC)         | WC: WORD-CODE for NJMPZ primitive |
+| (njmpnz)    | (--WC)         | WC: WORD-CODE for NJMPNZ primitive |
+| (exit)      | (--WC)         | WC: WORD-CODE for EXIT primitive |
+| exit        | (--)           | EXIT word |
+| dup         | (X--X X)       | Duplicate TOS (Top-Of-Stack) |
+| ?dup        | (X--X | X X)   | Duplicate TOS if it is NON-zero |
+| swap        | (X Y--Y X)     | Swap TOS and NOS (Next-On-Stack) |
+| drop        | (N--)          | Drop TOS |
+| 2dup        | (X Y--X Y X Y) | Duplicate TOS and NOS |
+| 2drop       | (X Y--)        | Drop TOS and NOS |
+| over        | (X Y--X Y X)   | Push NOS |
+| nip         | (X Y--Y)       | Drop NOS |
+| tuck        | (X Y--Y X Y)   | Perform SWAP, OVER |
+| c@          | (A--C)         | C: the CHAR at absolute address A |
+| w@          | (A--W)         | W: the WORD at absolute address A |
+| @           | (A--N)         | N: the CELL at absolute address A |
+| wc@         | (N--WC)        | WC: the WORD-CODE in CODE slot N |
+| cv@         | (N--)          | Code-Variable: Fetch a 32-bit value from CODE slots N/N+1 |
+| c!          | (C A--)        | Store CHAR C to absolute address A |
+| w!          | (W A--)        | Store WORD W to absolute address A |
+| !           | (N A--)        | Store CELL N to absolute address A |
+| wc!         | (WC N--)       | Store WORD-CODE WC to CODE slot N |
+| cv!         | (N--)          | Code-Variable: Store a 32-bit value to CODE slots N/N+1 |
+| +           | (X Y--N)       | N: X + Y |
+| if          | (X--)          | Jump to 'then' if X == 0 (IMMEDIATE) |
+| if0         | (X--)          | Jump to 'then' if X <> 0 (IMMEDIATE) |
+| -if         | (X--X)         | Jump to 'then' if X == 0 (IMMEDIATE) |
+| then        | (--)           | Target for 'if' branch (IMMEDIATE) |
+| begin       | (--)           | Begin a loop (IMMEDIATE) |
+| again       | (--)           | Jump to matching 'begin' (IMMEDIATE) |
+| while       | (X--)          | Jump to matching 'begin' if X <> 0 (IMMEDIATE) |
+| -while      | (X--X)         | Jump to matching 'begin' if X <> 0 (IMMEDIATE) |
+| until       | (X--)          | Jump to matching 'begin' if X == 0 (IMMEDIATE) |
+| -           | (X Y--N)       | N: X - Y |
+| *           | (X Y--N)       | N: X * Y |
+| */          | (N X Y--N')    | N': (N * X) / Y - Scale N by X/Y |
+| /           | (X Y--N)       | N: X / Y (integer division) |
+| mod         | (X Y--M)       | M: X modulo Y |
+| /mod        | (X Y--M Q)     | M: X modulo Y, Q: quotient of X / Y |
+| <<          | (X Y--Z)       | Z: X left-shifted Y bits |
+| >>          | (X Y--Z)       | Z: X right-shifted Y bits |
+| 1+          | (X--Y)         | Increment TOS |
+| 1-          | (X--Y)         | Decrement TOS |
+| 2+          | (X--Y)         | Y: X + 2 |
+| 2*          | (X--Y)         | Y: X * 2 |
+| 2/          | (X--Y)         | Y: X / 2 |
+| CELLS       | (X--Y)         | Y: X * CELL |
+| CELL+       | (X--Y)         | Y: X + CELL |
+| <           | (X Y--F)       | F: 1 if (X <  Y), else 0 |
+| <=          | (X Y--F)       | F: 1 if (X <= Y), else 0 |
+| =           | (X Y--F)       | F: 1 if (X == Y), else 0 |
+| >=          | (X Y--F)       | F: 1 if (X >= Y), else 0 |
+| >           | (X Y--F)       | F: 1 if (X >  Y), else 0 |
+| 0=          | (N--F)         | F: 1 if (N == 0), else 0 |
+| and         | (X Y--N)       | N: X AND Y |
+| or          | (X Y--N)       | N: X OR  Y |
+| xor         | (X Y--N)       | N: X XOR Y |
+| com         | (X--Y)         | Y: X with all bits flipped (one's complement) |
+| min         | (X Y--Z)       | Z: the minimum of (X and Y) |
+| max         | (X Y--Z)       | Z: the maximum of (X and Y) |
+| negate      | (X--Y)         | Y: -X |
+| abs         | (X--Y)         | Y: the absolute value of X |
+| for         | (N--)          | Begin FOR loop with bounds 0 and N-1. |
+| i           | (--I)          | N: Current FOR loop index. |
+| next        | (--)           | Increment I. If I >= N, exit, else start loop again. |
+| unloop      | (--)           | Unwind the loop stack. **NOTE:** does NOT exit the loop. |
+| >r          | (N--)          | Push N onto the return stack |
+| r!          | (N--)          | Set R to N |
+| r@          | (--N)          | N: copy of R |
+| r@+         | (--N)          | N: copy of R, then increment it |
+| r@-         | (--N)          | N: copy of R, then decrement it |
+| r>          | (--N)          | Pop N from the return stack |
+| rdrop       | (--)           | Drop R-TOS |
+| >t          | (N--)          | Push N onto the T stack |
+| t!          | (N--)          | Set T to N |
+| t@          | (--N)          | N: copy of T |
+| t@+         | (--N)          | N: copy of T, then increment T |
+| t@-         | (--N)          | N: copy of T, then decrement T |
+| t>          | (--N)          | Pop N from the T stack |
+| tdrop       | (--)           | Drop T-TOS |
+| >a          | (N--)          | Push N onto the A stack |
+| a!          | (N--)          | Set A to N |
+| a@          | (--N)          | N: copy of A |
+| a@+         | (--N)          | N: copy of A, then increment A |
+| a@-         | (--N)          | N: copy of A, then decrement A |
+| @a          | (N--)          | Store N through A |
+| @a+         | (N--)          | Store N through A, then increment A |
+| @a-         | (N--)          | Store N through A, then decrement A |
+| a>          | (--N)          | Pop N from the A stack |
+| adrop       | (--)           | Drop A-TOS |
+| >b          | (N--)          | Push N onto the B stack |
+| b!          | (N--)          | Set B to N |
+| b@          | (--N)          | N: copy of B |
+| b@+         | (--N)          | N: copy of B, then increment B |
+| b@-         | (--N)          | N: copy of B, then decrement B |
+| b>          | (--N)          | Pop N from the B stack |
+| bdrop       | (--)           | Drop B-TOS |
+| emit        | (C--)          | Output char C |
+| ;           | (--)           | Compile EXIT, set STATE=INTERPRET (IMMEDIATE) |
+| lit,        | (N--)          | Compile a push of number N |
+| next-wd     | (--L)          | L: length of the next word from the input stream |
+| immediate   | (--)           | Mark the last created word as IMMEDIATE |
+| inline      | (--)           | Mark the last created word as INLINE |
+| outer       | (S--)          | Send string S to the c4a outer interpreter |
+| addword     | (--)           | Add the next word to the dictionary |
+| timer       | (--N)          | N: Current time |
+| see X       | (--)           | Output the definition of word X |
+| ztype       | (S--)          | Print string at S (unformatted) |
+| ftype       | (S--)          | Print string at S (formatted) |
+| s-len       | (S--N)         | N: Length of string S |
+| s-cpy       | (D S--D)       | Copy string S to D |
+| s-cat       | (D S--D)       | Concatenate string S to D |
+| s-eq        | (D S--F)       | F: 1 if string S is equal to D (case sensitive) |
+| s-eqi       | (D S--F)       | F: 1 if string S is equal to D (NOT case sensitive) |
+| ltrim       | (S1--S2)       | S2: Trim whitespace from the beginning of S1 |
+| rtrim       | (S--S)         | Trim whitespace from the end of S |
+| fill        | (A N C--)      | Fill N bytes from A with BYTE C |
+| cmove       | (F T N--)      | Copy N bytes from F to T - low to high |
+| cmove>      | (F T N--)      | Copy N bytes from F to T - high to low |
+| lower       | (X--Y)         | Y: lower-case of X if 'A' <= X <= 'Z', else X |
+| upper       | (X--Y)         | Y: upper-case of X if 'a' <= X <= 'a', else X |
+| z"          | (--)           | -COMPILE: Create string S to next `"` |
+|             | (--S)          | -RUN: push address S of string |
+| ."          | (--)           | -COMPILE: execute `z"`, compile `ftype` |
+|             | (--)           | -RUN: `ftype` on string |
+| loaded?     | (XT A--)       | Stops current load if A <> 0 (see `find`) |
+| fopen       | (NM MD--FH)    | NM: File Name, MD: Mode, FH: File Handle (0 if error/not found) |
+| fclose      | (FH--)         | FH: File Handle to close |
+| fdelete     | (NM--)         | NM: File Name to delete |
+| fread       | (A N FH--X)    | A: Buffer, N: Size, FH: File Handle, X: num chars read |
+| fwrite      | (A N FH--X)    | A: Buffer, N: Size, FH: File Handle, X: num chars written |
+| fseek       | (N FH--X)      | N: Size, FH: File Handle, X: return from func |
+| fsize       | (FH--N)        | FH: File Handle, N: file size |
+| fpos        | (FH--N)        | FH: File Handle, N: current file read/write position |
+| load        | (N--)          | N: Block number to load |
+| load-next   | (N--)          | Close the current block and load block N next |
+| blocks      | (--)           | Dump block cache |
+| block-addr  | (N--A)         | N: Block number, A: Address in cache |
+| flush       | (F--)          | F: True => clear cache |
+| flush-block | (N F--)        | N: Block number, F: True => clear cache entry |
+| edit        | (N--)          | N: Block number to edit |
+| find        | (--XT A)       | XT: Execution Token, A: Dict Entry address (0 0 if not found) |
+| system      | (S--)          | PC ONLY: S: String to send to `system()` |
+| bye         | (--)           | PC ONLY: Exit c4a |
 
 ## c4a default words
 Default words are defined in function `sys_load()` in file sys-load.cpp. <br/>
