@@ -666,12 +666,7 @@ void defineNum(const char *name, cell val) {
 }
 
 void baseSys() {
-	//for (int i = 0; prims[i].name; i++) {
-	//	DE_T *w = addWord((char*)prims[i].name);
-	//	w->xt = prims[i].op;
-	//	w->flg = prims[i].flg;
-	//}
-
+	// NOTE: primitives are not added to the dictionary
 	defineNum("mem-sz",   MEM_SZ);
 	defineNum("block-sz", BLOCK_SZ);
 	defineNum("code-sz",  CODE_SLOTS);
@@ -729,6 +724,7 @@ void c4Init() {
 	base = 10;
 	state = INTERP;
 	inSp = block = asp = bsp = tsp = 0;
+	// t0-t5 are "normal", t6-t9 are "inline"
 	for (int i = 6; i <= 9; i++) { tmpWords[i].flg = _INLINE; }
 	fileInit();
 	baseSys();
