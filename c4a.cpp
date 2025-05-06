@@ -358,9 +358,9 @@ DE_T *findWord(const char *w) {
 	if (p) { return (DE_T*)p; }
 
 	// Now non-primitives
-	DE_T *dp = (DE_T*)&memory[MEM_SZ];
-	dp = last;
-	while (BYE <= dp->xt) {
+	DE_T *stop = (DE_T*)&memory[MEM_SZ];
+	DE_T *dp = last;
+	while (dp < stop) {
 		if ((len == dp->len) && strEqI(dp->nm, w)) { return dp; }
 		dp++;
 	}
