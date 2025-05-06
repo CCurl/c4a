@@ -383,14 +383,14 @@ void words(cell count) {
 		if (++num >= count) { return; }
 		dp++;
 	}
-	// zType("\r\n** primitives **\r\n");
-	PRIM_T *pp = &prims[0];
+	fType("\r\n%Y** primitives **%G\r\n");
+	PRIM_T *pp = &prims[n = 0];
 	while (pp->op) {
 		n = wordOut(pp->name, n);
 		if (++num >= count) { return; }
 		pp++;
 	}
-	zTypeF("\t(%d words)", num);
+	push(num); fType("\t%Y(%d words)%W");
 }
 
 const char *nameByXT(wc_t xt) {
@@ -616,7 +616,6 @@ void outer(const char *ln) {
 	inPush(toIn);
 	toIn = (char*)ln;
 	while (nextWord()) {
-		// zTypeF("-word:(%s,%d)-",wd,state);
 		if (isStateChange(wd)) { continue; }
 		if (state == COMMENT) { continue; }
 		if (state == DEFINE) { addWord(wd); state = COMPILE; continue; }
