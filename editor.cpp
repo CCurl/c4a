@@ -164,9 +164,7 @@ static void edRdBlk() {
 static void edSvBlk(int force) {
     if (isDirty || force) {
         char *t = blockAddr(block);
-        blockIsDirty(block);
-        for (int i = 0; i < BLOCK_SZ; i++) { t[i] = edBuf[i]; }
-        t[BLOCK_SZ-1] = 0;
+        cmove((byte*)edBuf, (byte*)t, BLOCK_SZ);
     }
     isDirty = 0;
 }

@@ -55,7 +55,6 @@ typedef WC_T wc_t;
 typedef uint8_t byte;
 typedef struct { wc_t xt; byte flg, len; char nm[NAME_LEN+1]; } DE_T;
 typedef struct { wc_t op; byte flg, len; const char *name; } PRIM_T;
-typedef struct { uint16_t num, seq, flags; char data[BLOCK_SZ]; } CACHE_T;
 typedef struct { cell sp; cell stk[STK_SZ+1]; } STK_T;
 
 // #define TASK_CYCLES   1000
@@ -89,6 +88,8 @@ extern void strCpy(char *d, const char *s);
 extern int  strEq(const char *d, const char *s);
 extern int  strEqI(const char *d, const char *s);
 extern int  strLen(const char *s);
+extern void fill(byte *dst, cell num, byte ch);
+extern void cmove(byte *src, byte *dst, cell num);
 extern int  lower(const char c);
 extern void zTypeF(const char *fmt, ...);
 extern void fType(const char *str);
@@ -134,14 +135,10 @@ extern void Yellow();
   // ... and these - blocks
   extern void blockInit();
   extern char *blockAddr(cell blk);
-  extern void blockIsDirty(cell blk);
-  extern void blockIsClean(cell blk);
   extern void blockLoad(cell blk);
   extern void blockLoadNext(cell blk);
-  extern void dumpCache();
   extern void editBlock(cell blk);
-  extern void flushBlock(cell blk, CACHE_T *p, cell clear);
-  extern void flushBlocks(cell clear);
+  extern void flushBlocks();
   #define EDITOR
 #endif // FILE_NONE
 

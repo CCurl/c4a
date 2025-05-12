@@ -3,7 +3,7 @@
 3 load  4 load  5 load  7 load
 
 rb forget 1 load ;       ed  block @ edit ;         ed!block ! ;
-ls z" ls -l" system ;    lg  z" lazygit" system ;   fl0 flush ;
+ls z" ls -l" system ;    lg  z" lazygit" system ;   flflush ;
 devz" ccc dev" system ;  ndevz" ccc ndev" system ;
 pwdz" pwd" system ;
 sys(a--)cr green dup ztype cr white system ;

@@ -158,12 +158,8 @@ TASK_T tasks[TASKS_SZ];
 	X(LOADED,  "loaded?",     0, t=pop(); pop(); if (t) { toIn = inPop(); } ) \
 	X(LOAD,    "load",        0, t=pop(); blockLoad((int)t); ) \
 	X(NXTBLK,  "load-next",   0, t=pop(); blockLoadNext((int)t); ) \
-	X(BCACHE,  "blocks",      0, dumpCache(); ) \
 	X(BADDR,   "block-addr",  0, t=pop(); push((cell)blockAddr(t)); ) \
-	X(BDIRTY,  "block-dirty", 0, t=pop(); blockIsDirty((int)t); ) \
-	X(BCLEAN,  "block-clean", 0, t=pop(); blockIsClean((int)t); ) \
-	X(FLUSH,   "flush",       0, flushBlocks(pop()); ) \
-	X(FLBLK,   "flush-block", 0, t=pop(); n=pop(); flushBlock(n, 0, t); ) \
+	X(FLUSH,   "flush",       0, flushBlocks(); ) \
 	X(EDIT,    "edit",        0, t=pop(); editBlock(t); )
 #else
     #define PRIMS_FILE
@@ -216,7 +212,7 @@ TASK_T tasks[TASKS_SZ];
 #ifdef IS_PC
   #define PRIMS_SYSTEM \
 	X(SYSTEM,  "system",    0, t=pop(); ttyMode(0); system((char*)t); ) \
-	X(BYE,     "bye",       0, ttyMode(0); flushBlocks(0); exit(0); )
+	X(BYE,     "bye",       0, ttyMode(0); flushBlocks(); exit(0); )
 #else // Must be a dev board ...
   #define PRIMS_SYSTEM \
 	X(POPENI,  "pin-input",  0, pinMode(pop(), INPUT); ) \

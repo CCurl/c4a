@@ -2,7 +2,7 @@
 
  ls
  lg
- 0 flush
+ flush
  blocks
  z" ccc dev" system
  z" git pull" system
