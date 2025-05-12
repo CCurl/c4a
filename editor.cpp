@@ -24,11 +24,6 @@ void editBlock(cell blk) { zType("-no edit-"); }
 #define RCASE         return; case
 #define EOL_CHAR      13
 
-#ifndef MAX
-  #define MIN(a,b) ((a)<(b))?(a):(b)
-  #define MAX(a,b) ((a)>(b))?(a):(b)
-#endif
-
 enum { NORMAL=1, INSERT, REPLACE, QUIT };
 enum { Up=7240, Dn=7248, Rt=7245, Lt=7243, Home=7239, PgUp=7241, PgDn=7249,
     End=7247, Ins=7250, Del=7251, CHome=7287, CEnd=7285,

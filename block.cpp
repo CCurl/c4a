@@ -28,7 +28,7 @@ void flushBlocks() {
 }
 
 static void prepForLoad() { toIn[BLOCK_SZ-1]=0; changeState(INTERP); }
-char *blockAddr(cell blk) { return (char*)&blocks[blk * BLOCK_SZ]; }
+char *blockAddr(cell blk) { return (char*)&blocks[MIN(blk, BLOCK_MAX)*BLOCK_SZ]; }
 void blockLoadNext(cell blk) { toIn=blockAddr(blk); prepForLoad(); }
 void blockLoad(cell blk) { inPush(toIn); blockLoadNext(blk); }
 

@@ -152,9 +152,6 @@ TASK_T tasks[TASKS_SZ];
 	X(FLDEL,   "fdelete",     0, t=pop(); fileDelete((char*)t); ) \
 	X(FLREAD,  "fread",       0, t=pop(); n=pop(); TOS = fileRead((char*)TOS, (int)n, t); ) \
 	X(FLWRITE, "fwrite",      0, t=pop(); n=pop(); TOS = fileWrite((char*)TOS, (int)n, t); ) \
-	X(FSEEK,   "fseek",       0, t=pop(); TOS = fileSeek(t, TOS); ) \
-	X(FPOS ,   "fpos",        0, TOS = filePos(TOS); ) \
-	X(FSIZE,   "fsize",       0, TOS = fileSize(TOS); ) \
 	X(LOADED,  "loaded?",     0, t=pop(); pop(); if (t) { toIn = inPop(); } ) \
 	X(LOAD,    "load",        0, t=pop(); blockLoad((int)t); ) \
 	X(NXTBLK,  "load-next",   0, t=pop(); blockLoadNext((int)t); ) \

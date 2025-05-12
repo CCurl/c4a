@@ -28,7 +28,7 @@
 #define TASKS_SZ           8 // Number of tasks
 #define NAME_LEN          11 // Size of dict-entry is (LEN+1+1+1+2)
 #define BLOCK_CACHE_SZ    16 // Entries of type CACHE_T
-#define BLOCK_MAX         99 // Maximum block
+#define BLOCK_MAX         49 // Maximum block
 #define EOL_CHAR          13 // Carriage Return
 
 // System defines
@@ -48,6 +48,11 @@
 #define _IMMED              1
 #define _INLINE             2
 #define btwi(n,l,h)   ((l<=n) && (n<=h))
+
+#ifndef MAX
+#define MIN(a,b) (((a)<(b))?(a):(b))
+#define MAX(a,b) (((a)>(b))?(a):(b))
+#endif
 
 enum { COMPILE=1, DEFINE=2, INTERP=3, COMMENT=4 };
 typedef CELL_T cell;
@@ -124,12 +129,9 @@ extern void Yellow();
   extern void fileInit();
   extern cell fileOpen(const char *name, const char *mode);
   extern void fileClose(cell fh);
-  extern cell fileSize(cell fh);
   extern void fileDelete(const char *name);
   extern cell fileRead(char *buf, int sz, cell fh);
   extern cell fileWrite(char *buf, int sz, cell fh);
-  extern cell fileSeek(cell fh, cell pos);
-  extern cell filePos(cell fh);
   extern void fileLoad(const char *name);
   
   // ... and these - blocks
