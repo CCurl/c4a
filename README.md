@@ -287,9 +287,9 @@ The primitives:
 | cmove>      | (F T N--)      | Copy N bytes from F to T - high to low |
 | lower       | (X--Y)         | Y: lower-case of X if 'A' <= X <= 'Z', else X |
 | upper       | (X--Y)         | Y: upper-case of X if 'a' <= X <= 'a', else X |
-| z"          | (--)           | -COMPILE: Create string S to next `"` |
+| z"          | (--)           | -COMPILE: Create string S to next `"` (IMMEDIATE) |
 |             | (--S)          | -RUN: push address S of string |
-| ."          | (--)           | -COMPILE: execute `z"`, compile `ftype` |
+| ."          | (--)           | -COMPILE: execute `z"`, compile `ftype` (IMMEDIATE) |
 |             | (--)           | -RUN: `ftype` on string |
 | loaded?     | (XT A--)       | Stops current load if A <> 0 (see `find`) |
 | fopen       | (NM MD--FH)    | NM: File Name, MD: Mode, FH: File Handle (0 if error/not found) |
@@ -297,15 +297,11 @@ The primitives:
 | fdelete     | (NM--)         | NM: File Name to delete |
 | fread       | (A N FH--X)    | A: Buffer, N: Size, FH: File Handle, X: num chars read |
 | fwrite      | (A N FH--X)    | A: Buffer, N: Size, FH: File Handle, X: num chars written |
-| fseek       | (N FH--X)      | N: Size, FH: File Handle, X: return from func |
-| fsize       | (FH--N)        | FH: File Handle, N: file size |
-| fpos        | (FH--N)        | FH: File Handle, N: current file read/write position |
 | load        | (N--)          | N: Block number to load |
 | load-next   | (N--)          | Close the current block and load block N next |
 | blocks      | (--)           | Dump block cache |
 | block-addr  | (N--A)         | N: Block number, A: Address in cache |
 | flush       | (F--)          | F: True => clear cache |
-| flush-block | (N F--)        | N: Block number, F: True => clear cache entry |
 | edit        | (N--)          | N: Block number to edit |
 | find        | (--XT A)       | XT: Execution Token, A: Dict Entry address (0 0 if not found) |
 | system      | (S--)          | PC ONLY: S: String to send to `system()` |
