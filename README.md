@@ -5,7 +5,7 @@
 - c4a has 4 states: INTERPRET, COMPILE, DEFINE, AND COMMENT, <br/>
 - c4a also supports the standard state-change words. <br/>
 
-| Ascii | Word  | State | Description|
+| Ascii | Word  | State | Description |
 |:--    |:--    |:--    |:-- |
 |  $01  |  ]    |   1   | Compile |
 |  $02  |  :    |   2   | Define |
@@ -119,6 +119,10 @@ For example `: ascii dup dup dup ." char: %c, decimal: #%d, binary: %%%b, hex: $
 | %S     | (A--) | Print TOS as a string (unformatted). |
 | %x     | (N--) | Print TOS in base 16. |
 | %[x]   | (--)  | EMIT [x]. |
+
+## The editor
+c4a has a built-in editor. It colorizes the code based on tags in the text. <br/>
+For details, see the [Editor documentation](Editor.md).
 
 ## The A, B, and T stacks
 c4a includes A, B, and T stacks. <br/>
