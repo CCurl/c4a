@@ -153,9 +153,9 @@ TASK_T tasks[TASKS_SZ];
 	X(FLREAD,  "fread",       0, t=pop(); n=pop(); TOS = fileRead((char*)TOS, (int)n, t); ) \
 	X(FLWRITE, "fwrite",      0, t=pop(); n=pop(); TOS = fileWrite((char*)TOS, (int)n, t); ) \
 	X(LOADED,  "loaded?",     0, t=pop(); pop(); if (t) { toIn = inPop(); } ) \
-	X(LOAD,    "load",        0, t=pop(); blockLoad((int)t); ) \
-	X(NXTBLK,  "load-next",   0, t=pop(); blockLoadNext((int)t); ) \
-	X(BADDR,   "block-addr",  0, t=pop(); push((cell)blockAddr(t)); ) \
+	X(LOAD,    "load",        0, t=pop(); blockLoad((wc_t)t); ) \
+	X(NXTBLK,  "load-next",   0, t=pop(); blockLoadNext((wc_t)t); ) \
+	X(BADDR,   "block-addr",  0, t=pop(); push((cell)blockAddr((wc_t)t)); ) \
 	X(FLUSH,   "flush",       0, flushBlocks(); ) \
 	X(EDIT,    "edit",        0, t=pop(); editBlock(t); )
 #else

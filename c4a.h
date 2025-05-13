@@ -1,7 +1,7 @@
 #ifndef __C4A_H__
 #define __C4A_H__
 
-#define VERSION   20250505
+#define VERSION   20250512
 #define _SYS_LOAD_
 
 #ifdef _MSC_VER
@@ -20,14 +20,13 @@
 #include <time.h>
 
 // Change these for the system/board
-// These work for the RPi Pico
-#define MEM_SZ      400*1024
+// These work for the RPi Pico 2 and the Teensy 4.0
+#define MEM_SZ      320*1024
 #define CODE_SLOTS  NUM_BITS // Values larger are inline numbers
 #define STK_SZ            31 // Data stack size
 #define FSTK_SZ            8 // Files stack size
 #define TASKS_SZ           8 // Number of tasks
-#define NAME_LEN          11 // Size of dict-entry is (LEN+1+1+1+2)
-#define BLOCK_CACHE_SZ    16 // Entries of type CACHE_T
+#define NAME_LEN          11 // Size of dict-entry is (2+1+1+NAME_LEN+1)
 #define BLOCK_MAX         49 // Maximum block
 #define EOL_CHAR          13 // Carriage Return
 
@@ -79,8 +78,8 @@ typedef struct { STK_T stks[3]; wc_t pc, base; int status; } TASK_T;
   #define FL_WRITE         "w"
   #define FL_APPEND        "a"
   // #define FILE_NONE
-  #define FILE_PICO
-  // #define FILE_TEENSY
+  // #define FILE_PICO
+  #define FILE_TEENSY
 #endif
 
 // These are defined by c4a.cpp
@@ -136,9 +135,9 @@ extern void Yellow();
   
   // ... and these - blocks
   extern void blockInit();
-  extern char *blockAddr(cell blk);
-  extern void blockLoad(cell blk);
-  extern void blockLoadNext(cell blk);
+  extern char *blockAddr(wc_t blk);
+  extern void blockLoad(wc_t blk);
+  extern void blockLoadNext(wc_t blk);
   extern void editBlock(cell blk);
   extern void flushBlocks();
   #define EDITOR

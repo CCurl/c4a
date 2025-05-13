@@ -149,7 +149,7 @@ static void yankLine(int lineNum, char *to) {
 
 static void edRdBlk() {
     if (block < 1) { block=0; }
-    char *f = blockAddr(block);
+    char *f = blockAddr((wc_t)block);
     for (int i = 0; i < BLOCK_SZ; i++) { edBuf[i] = f[i]; }
     for (int i = 0; i < BLOCK_SZ; i++) { if (edBuf[i]==0) { edBuf[i] = 32; } }
     isDirty = 0;
@@ -158,7 +158,7 @@ static void edRdBlk() {
 
 static void edSvBlk(int force) {
     if (isDirty || force) {
-        char *t = blockAddr(block);
+        char *t = blockAddr((wc_t)block);
         cmove((byte*)edBuf, (byte*)t, BLOCK_SZ);
     }
     isDirty = 0;
