@@ -1,18 +1,25 @@
 # c4a: a Forth system for PCs and Arduino, inspired by ColorForth and Tachyon
 
 ## ColorForth's influence on c4a
-- c4a supports control characters in the whitespace that change the state. <br/>
-- c4a has 4 states: INTERPRET, COMPILE, DEFINE, AND COMMENT, <br/>
-- c4a also supports the standard state-change words. <br/>
+- c4a supports control characters (tags) in the whitespace that change the state.
+- c4a has 4 states: INTERPRET, COMPILE, DEFINE, AND COMMENT.
+- c4a also supports the standard state-change words.
+- c4a has a built-in editor. It has a VI-like feel.
+- - For details, see the [Editor documentation](Editor.md).
+- c4a has 'a', 'b', and 't' words.
+- c4a reads 'blocks.fth' into memory on load.
+- - This is what it uses to edit and load blocks.
+- - Use 'flush' to write it back to disk/flash.
 
-| Ascii | Word  | State | Description |
-|:--    |:--    |:--    |:-- |
-|  $01  |  ]    |   1   | Compile |
-|  $02  |  :    |   2   | Define |
-|  $03  |  [    |   3   | Interpret/execute/immediate |
-|  $04  |       |   4   | Comment |
-|       |  (    |   4   | Comment, save current state |
-|       |  )    |       | End comment, restores saved state |
+## Tags
+| Tag | Word | State | Description |
+|:--  |:--   |:--    |:-- |
+| $01 |  ]   |   1   | Compile |
+| $02 |  :   |   2   | Define |
+| $03 |  [   |   3   | Interpret/execute/immediate |
+| $04 |      |   4   | Comment |
+|     |  (   |   4   | Comment, save current state |
+|     |  )   |       | End comment, restores saved state |
 
 **NOTE**: In the DEFINE state, c4a changes the state to COMPILE after adding the next word. <br/>
 **NOTE**: Unlike ColorForth, ';' compiles EXIT and then changes the state to INTERPRET. <br/>
@@ -22,23 +29,24 @@
 - A WORD-CODE is a 16-bit unsigned number. <br/>
 - Primitives are assigned numbers sequentially from 0 to [BYE]. <br/>
 - If a WORD-CODE is less than or equal to [BYE], it is a primitive. <br/>
-- If the top 3 bits are set, it is 13-bit unsigned literal, 0-$1FFF. <br/>
-- If it is between [BYE], and $E000, it is the code address of a word to execute. <br/>
+- If the top 4 bits are set, it is 13-bit unsigned literal, 0-$0FFF. <br/>
+- If it is between 'BYE' and $F000, it is the code address of a word to execute. <br/>
 
 ## Development board considerations
 - c4a is intended to be used with development boards via the Arduino IDE.
 - However, it can be built for PCs as well for testing.
 - I am not aware of 64-bit dev boards.
 - So a **CELL** in c4a is 32-bits.
-- C4A has more built-in than does C4, for the following reasons:
-- - Program flash is generally larger than RAM, and much of it is unused.
+- C4A has many built-in primitives, for the following reasons:
+- - Program flash is often quite large, so why not use it?
 - - To give C4A more functionality out of the box.
+- - C4A also runs faster because of it.
 
 ## Building c4a
  
 ### PCs - Windows and Linux, and probably others
 - Windows: there is a c4a.sln file for Visual Studio
-  - only the x86 target is supported
+  - only the x86 target (32-bit) is supported
 - Linux: there is a makefile
   - only the 32-bit configuration (-m32) is supported
 - Others:
@@ -47,7 +55,7 @@
 ### Development boards via the Arduino IDE:
 - I use the Arduino IDE v2.x
 - There is a c4a.ino file
-- File `c4a.h` controls parameters for the target board
+- File 'c4a.h' controls parameters for the target board
 - Edit the section where `IS_BOARD` is defined to set the configuration for the board
 - Use `#define FILE_NONE` to disable support for blocks and LittleFS
 - For the RPI Pico:
@@ -60,7 +68,7 @@
 
 ## c4a memory areas
 c4a provides a single memory area. See 'mem-sz' (MEM_SZ in c4a.h) for its size.
-- It is broken into 3 areas: CODE, VARS, and DICT.
+- It is broken into 3 areas: CODE, VARS, and DICTIONARY.
 - The CODE area is an aray of WORD-CODEs starting at the beginning of the memory.
   - `here` is an offset into the CODE area.
   - The size of the CODE area is `code-sz`. See CODE_SZ in c4a.h.
@@ -73,10 +81,10 @@ c4a provides a single memory area. See 'mem-sz' (MEM_SZ in c4a.h) for its size.
   - **NOTE**: These are free for the user/application to use as desired.
 - The VARS area is defined to begin at address `code-sz wc-sz * memory +`.
   - `vhere` is the absolute address of the first free byte the VARS area.
-- The DICT is at the end of the memory. 'last' grows toward the beginning of the memory.
+- The DICTIONARY is at the end of the memory. 'last' grows toward the beginning of the memory.
   - `last` is the address of the most recently created word.
   - A dictionary entry is [xt:2][flags:1][len:1][name:NAME_LEN][0:1]
-  - The default NAME_LEN is 11 (see c4a.h), so the de-sz is 16.
+  - The default NAME_LEN is 11 (see c4a.h), so 'de-sz' is 16.
 - Use `->memory` to turn an offset into an address.
 
 | WORD    | STACK | DESCRIPTION |
@@ -118,6 +126,12 @@ For example `: ascii dup dup dup ." char: %c, decimal: #%d, binary: %%%b, hex: $
 | %s     | (A--) | Print TOS as a string (formatted). |
 | %S     | (A--) | Print TOS as a string (unformatted). |
 | %x     | (N--) | Print TOS in base 16. |
+| %B     | (--)  | Change foreground to blue. |
+| %G     | (--)  | Change foreground to green. |
+| %P     | (--)  | Change foreground to purple. |
+| %R     | (--)  | Change foreground to red. |
+| %W     | (--)  | Change foreground to white. |
+| %Y     | (--)  | Change foreground to yellow. |
 | %[x]   | (--)  | EMIT [x]. |
 
 ## The editor
@@ -133,12 +147,12 @@ Note that there are also additional words `r!` `r@+` and `r@-` for the return st
 
 | WORD  | STACK | DESCRIPTION |
 |:--    |:--    |:-- |
-| `>a`  | (N--) | Push N onto the A stack. |
-| `a!`  | (N--) | Set A-TOS to N. |
-| `a@`  | (--N) | N: copy of A-TOS. |
-| `a@+` | (--N) | N: copy of A-TOS, then increment A-TOS. |
-| `a@-` | (--N) | N: copy of A-TOS, then decrement A-TOS. |
-| `a>`  | (--N) | Pop N from the A stack. |
+|  >a   | (N--) | Push N onto the A stack. |
+|  a!   | (N--) | Set A-TOS to N. |
+|  a@   | (--N) | N: copy of A-TOS. |
+|  a@   | (--N) | N: copy of A-TOS, then increment A-TOS. |
+|  a@   | (--N) | N: copy of A-TOS, then decrement A-TOS. |
+|  a>   | (--N) | Pop N from the A stack. |
 | adrop | (--)  | Drop A-TOS |
 
 ## Temporary words
@@ -255,9 +269,12 @@ The primitives:
 | a@          | (--N)          | N: copy of A |
 | a@+         | (--N)          | N: copy of A, then increment A |
 | a@-         | (--N)          | N: copy of A, then decrement A |
-| @a          | (N--)          | Store N through A |
-| @a+         | (N--)          | Store N through A, then increment A |
-| @a-         | (N--)          | Store N through A, then decrement A |
+| @a          | (--C)          | Fetch BYTE C through A |
+| @a+         | (--C)          | Fetch BYTE C through A, then increment A |
+| @a-         | (--C)          | Fetch BYTE C through A, then decrement A |
+| !a          | (C--)          | Store BYTE C through A |
+| !a+         | (C--)          | Store BYTE C through A, then increment A |
+| !a-         | (C--)          | Store BYTE C through A, then decrement A |
 | a>          | (--N)          | Pop N from the A stack |
 | adrop       | (--)           | Drop A-TOS |
 | >b          | (N--)          | Push N onto the B stack |
@@ -265,6 +282,12 @@ The primitives:
 | b@          | (--N)          | N: copy of B |
 | b@+         | (--N)          | N: copy of B, then increment B |
 | b@-         | (--N)          | N: copy of B, then decrement B |
+| @b          | (--C)          | Fetch BYTE C through B |
+| @b+         | (--C)          | Fetch BYTE C through B, then increment B |
+| @b-         | (--C)          | Fetch BYTE C through B, then decrement B |
+| !b          | (C--)          | Store BYTE C through B |
+| !b+         | (C--)          | Store BYTE C through B, then increment B |
+| !b-         | (C--)          | Store BYTE C through B, then decrement B |
 | b>          | (--N)          | Pop N from the B stack |
 | bdrop       | (--)           | Drop B-TOS |
 | emit        | (C--)          | Output char C |
@@ -305,7 +328,7 @@ The primitives:
 | load-next   | (N--)          | Close the current block and load block N next |
 | blocks      | (--)           | Dump block cache |
 | block-addr  | (N--A)         | N: Block number, A: Address in cache |
-| flush       | (F--)          | F: True => clear cache |
+| flush       | (--)           | Write RAM disk to flash/disk |
 | edit        | (N--)          | N: Block number to edit |
 | find        | (--XT A)       | XT: Execution Token, A: Dict Entry address (0 0 if not found) |
 | system      | (S--)          | PC ONLY: S: String to send to `system()` |
