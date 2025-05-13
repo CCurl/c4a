@@ -1,8 +1,15 @@
 # The c4a editor
 
-The c4a editor is an editor inspired by, and similar to, a stripped-down version of VI.
+The c4a editor is an editor inspired by, and similar to, a stripped-down version of VI. <br/>
+Enable the editor using `#define EDITOR` (in c4a.h). <br/>
+The editor colors the text based on the state tags found in the text. <br/>
 
-Enable the editor using `#define EDITOR` (in c4a.h)
+| Tag   | Color  | Description |
+|:--    |:--     |:-- |
+|  $01  | Green  | Compile |
+|  $02  | Red    | Define |
+|  $03  | Yellow | Interpret |
+|  $04  | White  | Comment |
 
 ## Modes
 There are 4 modes in the editor:
@@ -17,7 +24,7 @@ There are 4 modes in the editor:
 | :--       | :-- |
 | [ctrl]+a  | Insert tag: COMPILE |
 | [ctrl]+b  | Insert tag: DEFINE |
-| [ctrl]+c  | Insert tag: INTERP |
+| [ctrl]+c  | Insert tag: INTERPRET |
 | [ctrl]+d  | Insert tag: COMMENT |
 | [ctrl]+e  | Send the current line to the outer interpreter |
 | [ctrl]+h  | Left 1 char (and delete it if in INSERT mode) |
@@ -40,7 +47,7 @@ There are 4 modes in the editor:
 | [SP] | Right 1 char |
 | 1    | Set tag: COMPILE |
 | 2    | Set tag: DEFINE |
-| 3    | Set tag: INTERP |
+| 3    | Set tag: INTERPRET |
 | 4    | Set tag: COMMENT |
 | :    | Change to COMMAND mode |
 | +    | Save the current block and goto the next block |
