@@ -209,7 +209,7 @@ TASK_T tasks[TASKS_SZ];
 #ifdef IS_PC
   #define PRIMS_SYSTEM \
 	X(SYSTEM,  "system",    0, t=pop(); ttyMode(0); system((char*)t); ) \
-	X(BYE,     "bye",       0, ttyMode(0); flushBlocks(); exit(0); )
+	X(BYE,     "bye",       0, ttyMode(0); exit(0); )
 #else // Must be a dev board ...
   #define PRIMS_SYSTEM \
 	X(POPENI,  "pin-input",  0, pinMode(pop(), INPUT); ) \

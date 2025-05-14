@@ -1,7 +1,7 @@
 #ifndef __C4A_H__
 #define __C4A_H__
 
-#define VERSION   20250512
+#define VERSION   20250513
 #define _SYS_LOAD_
 
 #ifdef _MSC_VER
@@ -38,8 +38,8 @@
 #define NUM_BITS       0xF000
 #define NUM_MASK       0x0FFF
 #define NUM_LINES          24
-#define NUM_COLS           85
-#define BLOCK_SZ         2048 // (24*85 = 2040 + 8 pad)
+#define NUM_COLS           80
+#define BLOCK_SZ      (NUM_LINES*NUM_COLS)
 #define STK_DATA            0
 #define STK_RETN            1
 #define STK_LSTK            2
