@@ -20,12 +20,12 @@ void sys_load() {
 : btwi ( n l h--f ) >r over >  swap r> >  or 0= ;
 : +! tuck  @ + swap ! ;
 : execute ( a-- ) >r ;
-: !t- t@- c! ;   #40 var #buf
+: !t- t@- c! ;  #40 var #buf
 : <# ( n1--n2 ) #buf #39 + >t 0 !t- dup 0 < >a abs ;
 : #. ( -- )     '.' !t- ;
 : #n ( n-- )    dup 9 > if 7 + then '0' + !t- ;
 : #  ( n1--n2 ) base @ /mod swap #n ;
-: #s ( n-- )    begin # -while ;
+: #s ( n--0 )   begin # -while ;
 : #> ( --str )  drop a> if '-' !t- then t> 1+ ;
 : .version version <# # # #. # # #. #s #> ztype ;
 : [[ vhere >t here >t 1 state ! ;

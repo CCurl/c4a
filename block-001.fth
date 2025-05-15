@@ -4,9 +4,8 @@
 
 rb forget 1 load ;       ed  block @ edit ;         ed!block ! ;
 ls z" ls -l" system ;    lg  z" lazygit" system ;   flflush ;
-devz" ccc dev" system ;  ndevz" ccc ndev" system ;
-pwdz" pwd" system ;
-sys(a--)cr green dup ztype cr white system ;
+pwdz" pwd" system ;      sys(a--)dup ." %n%G%S%W%n" system ;
+devz" ccc dev" sys ;     ndevz" ccc ndev" sys ;
 pl(a--)p1 z" cd " s-cpy s-scat z"  && git pull -p" s-cat sys ;
 g1z" \code\mine\c4a" pl ;     g2z" \code\sia" pl ;
 g3z" \code\360DB" pl ;        g4z" \code\bwServiceDefinitions" pl ;
@@ -20,5 +19,6 @@
 
 ." c4a - %Gv" .version white
 1 block !    cr .tasks
+
 
 

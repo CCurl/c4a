@@ -1,7 +1,7 @@
 #ifndef __C4A_H__
 #define __C4A_H__
 
-#define VERSION   20250513
+#define VERSION   20250514
 #define _SYS_LOAD_
 
 #ifdef _MSC_VER
@@ -27,7 +27,7 @@
 #define FSTK_SZ            8 // Files stack size
 #define TASKS_SZ           8 // Number of tasks
 #define NAME_LEN          11 // Size of dict-entry is (2+1+1+NAME_LEN+1)
-#define BLOCK_MAX         49 // Maximum block
+#define BLOCK_MAX         49 // Max block
 #define EOL_CHAR          13 // Carriage Return
 
 // System defines
@@ -44,6 +44,7 @@
 #define STK_RETN            1
 #define STK_LSTK            2
 #define TASK_MAX      (TASKS_SZ-1)
+#define BLOCKS_SZ     (BLOCK_MAX+1)
 #define _IMMED              1
 #define _INLINE             2
 #define btwi(n,l,h)   ((l<=n) && (n<=h))

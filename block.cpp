@@ -2,13 +2,9 @@
 
 #ifndef FILE_NONE
 // Support for blocks
-#define BLOCK_DIRTY     0x01
-#define BLOCK_CLEAN     0xFE
-#define BLOCK_FREE      0xFFFF
 #define BLOCK_FN        "blocks.fth"
 
-char blocks[BLOCK_SZ*(BLOCK_MAX+1)];
-static uint16_t seq;
+char blocks[BLOCK_SZ*BLOCKS_SZ];
 extern char *toIn;
 
 void blockInit() {
