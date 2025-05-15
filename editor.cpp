@@ -462,7 +462,7 @@ static void showEditor() {
     if (!isShow) { return; }
     if (hdr_line[0] == 0) { for (int i = 0; i < (NUM_COLS+2); i++) { hdr_line[i] = '-'; } }
     CursorOff(); GotoXY(1,1); showState(-1);
-    push((cell)hdr_line); fType("%G%S\r\n");
+    Green(); zType(hdr_line); zType("\r\n");
     for (int r=0; r<NUM_LINES; r++) {
         zType("|"); showState(0);
         for (int c=0; c<NUM_COLS; c++) {
