@@ -371,19 +371,17 @@ cell wordOut(const char *nm, cell n) {
 void words(cell count) {
 	cell num = 0, n = 0;
 	DE_T *dp = last, *stop = (DE_T*)&memory[MEM_SZ];
+	Green();
 	while (dp < stop) {
-		n = wordOut(&dp->nm[0], n);
-		if (++num >= count) { return; }
-		dp++;
+		n = wordOut(&(dp++)->nm[0], n);
+		if (++num >= count) { White();  return; }
 	}
-	fType("\r\n%Y** primitives **%G\r\n");
+	push(num); fType("\t%Y(%d words)%n%R** primitives **%B%n");
 	PRIM_T *pp = &prims[n = 0];
 	while (pp->op) {
-		n = wordOut(pp->name, n);
-		if (++num >= count) { return; }
-		pp++;
+		n = wordOut((pp++)->name, n);
 	}
-	push(num); fType("\t%Y(%d words)%W");
+	White();
 }
 
 const char *nameByXT(wc_t xt) {

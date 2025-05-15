@@ -3,23 +3,26 @@
 #ifndef FILE_NONE
 // Support for blocks
 #define BLOCK_FN        "blocks.fth"
+#define DISK_SZ         (BLOCK_SZ*NUM_BLOCKS)
 
-char blocks[BLOCK_SZ*BLOCKS_SZ];
+
+char blocks[DISK_SZ];
 extern char *toIn;
 
 void blockInit() {
-	cell fn = fileOpen(BLOCK_FN, FL_READ);
-    if (fn) {
-        fileRead(blocks, sizeof(blocks), fn);
-		fileClose(fn);
+	cell sz = 0, fh = fileOpen(BLOCK_FN, FL_READ);
+    if (fh) {
+        sz = fileRead(blocks, DISK_SZ, fh);
+		fileClose(fh);
     }
+    if (sz != DISK_SZ) { flushBlocks(); }
 }
 
 void flushBlocks() {
-    cell fn = fileOpen(BLOCK_FN, FL_WRITE);
-    if (fn) {
-        fileWrite(blocks, sizeof(blocks), fn);
-        fileClose(fn);
+    cell fh = fileOpen(BLOCK_FN, FL_WRITE);
+    if (fh) {
+        fileWrite(blocks, DISK_SZ, fh);
+        fileClose(fh);
     }
 }
 
