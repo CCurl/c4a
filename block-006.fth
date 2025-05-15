@@ -14,9 +14,9 @@
      t@ $10 =if0 t! space space a@ $10 - t0then
    next adrop tdrop ;
 align(a1--a2)#4 over #3 and - #3 and + ;
-
-
-
+val seed   (val) t1  seed!(n--)t1 ! ;
+rand(--n)seed dup 13 << xor dup 17 >> xor dup 5 << xor dup seed! ;
+rand-mod(n--m)rand abs swap mod ;
 
 
 
