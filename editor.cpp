@@ -124,14 +124,6 @@ static void moveWord(int isRight) {
     }
 }
 
-static void showState(char ch) {
-    static int lastState = INTERP;
-    if (ch == -1) { lastState = INTERP; return; }
-    int cols[4] = { 40, 203, 226, 231 };
-    if (ch == 0) { ch = (lastState) ? lastState : INTERP; }
-    if (btwi(ch,1,4)) { FG(cols[ch-1]); lastState = ch; }
-}
-
 static void gotoEOL() {
     off = MAX_COL;
     if (EDCH(line, off) > 32) { return; }
@@ -457,22 +449,20 @@ static int processEditorChar(int c) {
     return 1;
 }
 
-static void showFooter() {
-    const char *x[3] = { "-normal-","-insert-","-replace-" };
-    char ch = EDCH(line,off);
-    toFooter(); White();
-    zTypeF("Block# %03d%s", block, isDirty ? " *" : "");
-    if (edMode != NORMAL) { Red(); }
-    zTypeF(" %s", x[edMode-1]);
-    if (edMode != NORMAL) { White(); }
-    zTypeF(" (%d:%d - #%d/$%02x)", line+1, off+1, ch, ch);
-    ClearEOL();
+static void showState(char ch) {
+    static int lastState = INTERP;
+    if (ch == -1) { lastState = INTERP; return; }
+    int cols[4] = { 40, 203, 226, 231 };
+    if (ch == 0) { ch = (lastState) ? lastState : INTERP; }
+    if (btwi(ch, 1, 4)) { FG(cols[ch - 1]); lastState = ch; }
 }
 
 static void showEditor() {
+    static char hdr_line[NUM_COLS+3];
     if (!isShow) { return; }
-    Green(); GotoXY(1,1); showState(-1);
-    for (int i=-2; i<NUM_COLS; i++) { emit('-'); } zType("\r\n");
+    if (hdr_line[0] == 0) { for (int i = 0; i < (NUM_COLS+2); i++) { hdr_line[i] = '-'; } }
+    CursorOff(); GotoXY(1,1); showState(-1);
+    push((cell)hdr_line); fType("%G%S\r\n");
     for (int r=0; r<NUM_LINES; r++) {
         zType("|"); showState(0);
         for (int c=0; c<NUM_COLS; c++) {
@@ -482,8 +472,19 @@ static void showEditor() {
         }
         Green(); zType("|\r\n"); 
     }
-    for (int i=-2; i<NUM_COLS; i++) { emit('-'); }
-    isShow = 0;
+	zType(hdr_line); isShow = 0;
+}
+
+static void showFooter() {
+    const char* x[3] = { "-normal-","-insert-","-replace-" };
+    char ch = EDCH(line, off);
+    toFooter(); White();
+    zTypeF("Block# %03d%s", block, isDirty ? " *" : "");
+    if (edMode != NORMAL) { Red(); }
+    zTypeF(" %s", x[edMode - 1]);
+    if (edMode != NORMAL) { White(); }
+    zTypeF(" (%d:%d - #%d/$%02x)", line + 1, off + 1, ch, ch);
+    ClearEOL();
 }
 
 void editBlock(cell blk) {
