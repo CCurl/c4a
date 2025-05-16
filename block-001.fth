@@ -17,7 +17,7 @@
 heretask1." -task1-" yield task1 ;add-task drop
 heretask2." -task2-" yield task2 ;add-task drop
 
-2 load   2 block !    cr .tasks
+2 load   1 block !    cr .tasks
 
 
 
