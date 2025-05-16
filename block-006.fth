@@ -14,11 +14,11 @@
      t@ $10 =if0 t! space space a@ $10 - t0then
    next adrop tdrop ;
 align(a1--a2)#4 over #3 and - #3 and + ;
-val seed   (val) t1  seed!(n--)t1 ! ;
+val seed  (val) t1  seed!(n--)t1 ! ; timer seed!
 rand(--n)seed dup 13 << xor dup 17 >> xor dup 5 << xor dup seed! ;
 rand-mod(n--m)rand abs swap mod ;
 
-
+tt0 a! begin a@+ drop 10000 rand-mod while a@ . ;
 
 
 
