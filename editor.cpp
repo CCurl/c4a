@@ -4,6 +4,7 @@
 #include <string.h>
 
 void FG(int fg) { zTypeF("\x1B[38;5;%dm", fg); }
+void BG(int bg) { zTypeF("\x1B[48;5;%dm", bg); }
 void Blue() { FG(38); }
 void Green() { FG(40); }
 void Purple() { FG(213); }
@@ -31,7 +32,7 @@ enum { Up=7240, Dn=7248, Rt=7245, Lt=7243, Home=7239, PgUp=7241, PgDn=7249,
 };
 
 static int line, off, edMode, isDirty, isShow, lastBlock;
-static char edBuf[BLOCK_SZ], yanked[NUM_COLS+1];
+static char edBuf[BLOCK_SZ], yanked[NUM_COLS+1], findBuf[32];
 
 static void GotoXY(int x, int y) { zTypeF("\x1B[%d;%dH", y, x); }
 static void CLS() { zType("\x1B[2J"); GotoXY(1, 1); }
@@ -289,6 +290,14 @@ static void gotoBlock(int blk) {
     edRdBlk(); line = off = 0;
 }
 
+static void edFind() {
+    toCmd(); emit('/'); ClearEOL();
+    edReadLine(findBuf, sizeof(findBuf));
+    toCmd(); ClearEOL();
+    if (strEqI(findBuf,"/")) { findBuf[0]=0; }
+    isShow = 1;
+}
+
 static void edCommand() {
     char buf[32];
     toCmd(); emit(':'); ClearEOL();
@@ -402,6 +411,7 @@ static int processEditorChar(int c) {
         BCASE '#': CLS(); isShow=1;
         BCASE '$': gotoEOL();
         BCASE '_': mv(0,-NUM_COLS);
+        BCASE '/': edFind();
         BCASE '1': replaceChar(1,1,0);  // COMPILE
         BCASE '2': replaceChar(2,1,0);  // DEFINE
         BCASE '3': replaceChar(3,1,0);  // INTERP
@@ -457,6 +467,20 @@ static void showState(char ch) {
     if (btwi(ch, 1, 4)) { FG(cols[ch - 1]); lastState = ch; }
 }
 
+static void showFind() {
+    if (findBuf[0]==0) { return; }
+    BG(19); FG(255); 
+    for (int r=0; r<NUM_LINES; r++) {
+        char *cp = &EDCH(r, 0);
+        int c = strFind(cp, findBuf);
+        if (btwi(c,0,MAX_COL-1)) {
+            GotoXY(c+2, r+2);
+            zType(findBuf);
+        }
+    }
+    BG(0);
+}
+
 static void showEditor() {
     static char hdr_line[NUM_COLS+3];
     if (!isShow) { return; }
@@ -473,6 +497,7 @@ static void showEditor() {
         Green(); zType("|\r\n"); 
     }
 	zType(hdr_line); isShow = 0;
+    showFind();
 }
 
 static void showFooter() {

@@ -1,7 +1,7 @@
 #ifndef __C4A_H__
 #define __C4A_H__
 
-#define VERSION   20250515
+#define VERSION   20250518
 #define _SYS_LOAD_
 
 #ifdef _MSC_VER
@@ -92,6 +92,8 @@ extern char *inPop();
 extern void strCpy(char *d, const char *s);
 extern int  strEq(const char *d, const char *s);
 extern int  strEqI(const char *d, const char *s);
+extern int  strEqN(const char *d, const char *s, cell n);
+extern int  strFind(const char *in, const char *lf);
 extern int  strLen(const char *s);
 extern void fill(byte *dst, cell num, byte ch);
 extern void cmove(byte *src, byte *dst, cell num);

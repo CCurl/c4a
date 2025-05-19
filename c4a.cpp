@@ -135,6 +135,8 @@ TASK_T tasks[TASKS_SZ];
 	X(SCAT,    "s-cat",     0, t=pop(); strCat((char*)TOS, (char*)t); ) \
 	X(SEQ,     "s-eq",      0, t=pop(); TOS = strEq((char*)TOS, (char*)t); ) \
 	X(SEQI,    "s-eqi",     0, t=pop(); TOS = strEqI((char*)TOS, (char*)t); ) \
+	X(SEQN,    "s-eqn",     0, t=pop(); n=pop(); TOS = strEqN((char*)TOS, (char*)n, t); ) \
+	X(SFIND,   "s-find",    0, t=pop(); TOS = strFind((char*)TOS, (char*)t); ) \
 	X(LTRIM,   "s-ltrim",   0, TOS = (cell)lTrim((char *)TOS); ) \
 	X(RTRIM,   "s-rtrim",   0, rTrim((char *)TOS); ) \
 	X(FILL,    "fill",      0, t=pop(); n=pop(); fill((byte*)pop(), n, (byte)t); ) \
@@ -265,7 +267,25 @@ int strEq(const char *s, const char *d) {
 	while (*s == *d) { if (*s == 0) { return 1; } s++; d++; }
 	return 0;
 }
-	
+
+int strEqN(const char *s, const char *d, cell n) {
+	while ((*s == *d) && n) {
+		if (--n == 0) { return 1; }
+		s++; d++;
+	}
+	return 0;
+}
+
+int strFind(const char *in, const char *lf) {
+    int c=-1, f=0, ln = strLen(lf);
+	if (ln == 0) { return c; }
+    while (*in) {
+        if (strEqN(in, lf, ln)) { return f; }
+        in++; f++;
+    }
+    return c;
+}
+
 void strCpy(char *d, const char *s) {
 	while (*s) { *(d++) = *(s++); }
 	*(d) = 0;
