@@ -467,16 +467,25 @@ static void showState(char ch) {
     if (btwi(ch, 1, 4)) { FG(cols[ch - 1]); lastState = ch; }
 }
 
+static int doFind1(const char *cp, int r, int st) {
+    int c = strFind(&cp[st], findBuf);
+    if (c < 0) { return c; }
+    GotoXY(st+c+2, r+2);
+    zType(findBuf);
+    return st+c;
+}
+
 static void showFind() {
-    if (findBuf[0]==0) { return; }
+    if (findBuf[0] == 0) { return; }
+    int len = strLen(findBuf);
     BG(19); FG(255); 
     for (int r=0; r<NUM_LINES; r++) {
         char *cp = &EDCH(r, 0);
-        int c = strFind(cp, findBuf);
-        if (btwi(c,0,MAX_COL-1)) {
-            GotoXY(c+2, r+2);
-            zType(findBuf);
-        }
+        char ch = cp[MAX_COL];
+        cp[MAX_COL] = 0;
+        int c = doFind1(cp, r, 0); 
+        while (0 <= c) { c = doFind1(cp, r, c+1); }
+        cp[MAX_COL] = ch;
     }
     BG(0);
 }

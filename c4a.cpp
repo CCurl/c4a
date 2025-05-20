@@ -268,9 +268,9 @@ int strEq(const char *s, const char *d) {
 	return 0;
 }
 
-int strEqN(const char *s, const char *d, cell n) {
-	while ((*s == *d) && n) {
-		if (--n == 0) { return 1; }
+int strEqN(const char *s, const char *d, cell num) {
+	while ((*s == *d) && num) {
+		if (--num == 0) { return 1; }
 		s++; d++;
 	}
 	return 0;
