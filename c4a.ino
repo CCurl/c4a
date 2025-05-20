@@ -25,12 +25,12 @@ cell timer() { return micros(); }
 void ttyMode(int isRaw) {}
 
 // Cells are always 32-bit on dev boards (no 64-bit)
+#define F1(x, y) (*(byte*)(x)<<y)
 #define S1(x, y) (*(byte*)(x)=((y)&0xFF))
-void store32(cell loc, cell val) {
-    if (((cell)loc & 0x03) == 0) { *(cell*)loc = val; }
-    else {
-        S1(loc,val); S1(loc+1,val>>8); S1(loc+2,val>>16); S1(loc+3,val>>24);
-    }
+
+cell fetch16(cell loc) {
+    if (((cell)loc & 0x03) == 0) { return *(short*)loc; }
+    return F1(loc,0) | F1(loc+1,8);
 }
 
 void store16(cell loc, cell val) {
@@ -40,15 +40,16 @@ void store16(cell loc, cell val) {
     }
 }
 
-#define F1(x, y) (*(byte*)(x)<<y)
 cell fetch32(cell loc) {
     if (((cell)loc & 0x03) == 0) { return *(cell*)loc; }
     return F1(loc,0) | F1(loc+1,8) | F1(loc+2,16) | F1(loc+3,24);
 }
 
-cell fetch16(cell loc) {
-    if (((cell)loc & 0x03) == 0) { return *(short*)loc; }
-    return F1(loc,0) | F1(loc+1,8);
+void store32(cell loc, cell val) {
+    if (((cell)loc & 0x03) == 0) { *(cell*)loc = val; }
+    else {
+        S1(loc,val); S1(loc+1,val>>8); S1(loc+2,val>>16); S1(loc+3,val>>24);
+    }
 }
 
 char *in, tib[128];
