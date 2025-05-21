@@ -467,7 +467,7 @@ static void showState(char ch) {
     if (btwi(ch, 1, 4)) { FG(cols[ch - 1]); lastState = ch; }
 }
 
-static int doFind1(const char *cp, int r, int st) {
+static int showFind1(const char *cp, int r, int st) {
     int c = strFind(&cp[st], findBuf);
     if (c < 0) { return c; }
     GotoXY(st+c+2, r+2);
@@ -483,8 +483,8 @@ static void showFind() {
         char *cp = &EDCH(r, 0);
         char ch = cp[MAX_COL];
         cp[MAX_COL] = 0;
-        int c = doFind1(cp, r, 0); 
-        while (0 <= c) { c = doFind1(cp, r, c+1); }
+        int c = showFind1(cp, r, 0); 
+        while (0 <= c) { c = showFind1(cp, r, c+1); }
         cp[MAX_COL] = ch;
     }
     BG(0);
@@ -493,7 +493,7 @@ static void showFind() {
 static void showEditor() {
     static char hdr_line[NUM_COLS+3];
     if (!isShow) { return; }
-    if (hdr_line[0] == 0) { for (int i = 0; i < (NUM_COLS+2); i++) { hdr_line[i] = '-'; } }
+    if (hdr_line[0] == 0) { for (int i=0; i<(NUM_COLS+2); i++) { hdr_line[i]='-'; } }
     CursorOff(); GotoXY(1,1); showState(-1);
     Green(); zType(hdr_line); zType("\r\n");
     for (int r=0; r<NUM_LINES; r++) {
