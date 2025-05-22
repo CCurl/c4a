@@ -52,6 +52,8 @@ There are 4 modes in the editor:
 | :    | Change to COMMAND mode |
 | +    | Save the current block and goto the next block |
 | -    | Save the current block and goto the previous block |
+| /    | Enter a string of characters for the find-buffer |
+| //   | Empty the find-buffer |
 | #    | Redraw the screen |
 | a    | Append: move right 1 char and change to INSERT mode (same as 'li') |
 | A    | Append: goto the end of the line and change to INSERT mode  (same as '$i') |
@@ -73,6 +75,8 @@ There are 4 modes in the editor:
 | J    | Join the current and next lines together |
 | k    | Up 1 line |
 | l    | Right 1 char |
+| n    | Search forwards for [find-buffer] |
+| N    | Search backwards for [find-buffer] |
 | n    | Insert a 'new-line' (#10/$0A) into the block |
 | o    | Insert an empty line BELOW the current line and change to INSERT mode |
 | O    | Insert an empty line ABOVE the current line and change to INSERT mode |

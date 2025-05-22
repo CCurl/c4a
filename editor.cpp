@@ -290,12 +290,30 @@ static void gotoBlock(int blk) {
     edRdBlk(); line = off = 0;
 }
 
+static void doFind(int next) {
+    if (findBuf[0] == 0) { return; }
+    int ln = line;
+    do {
+        ln += next ? 1 : -1;
+        if (ln < 0) { ln = MAX_LINE; }
+        if (MAX_LINE < ln) { ln = 0; }
+        char *cp = &EDCH(ln,0);
+        cp[MAX_COL] = 0;
+        int c = strFind(cp, findBuf);
+        cp[MAX_COL] = 32;
+        if (0 <= c) {
+            line = ln; off = c;
+        }
+    } while (ln != line);
+}
+
 static void edFind() {
     toCmd(); emit('/'); ClearEOL();
     edReadLine(findBuf, sizeof(findBuf));
     toCmd(); ClearEOL();
     if (strEqI(findBuf,"/")) { findBuf[0]=0; }
     isShow = 1;
+    doFind(1);
 }
 
 static void edCommand() {
@@ -438,6 +456,8 @@ static int processEditorChar(int c) {
         BCASE 'l': mvRight();
         BCASE 'M': mv(-4,0);
         BCASE 'm': mv(4,0);
+        BCASE 'N': doFind(0);
+        BCASE 'n': doFind(1);
         BCASE 'o': mvNextLine(); insertLine(line, -1); insertMode();
         BCASE 'O': insertLine(line, -1); insertMode();
         BCASE 'p': mvNextLine(); insertLine(line, -1); putLine(line);
