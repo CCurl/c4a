@@ -1,6 +1,6 @@
 boot block
 
-3 load 4 load 5 load 6 load
+3 load  4 load  5 load  6 load
 
 rbforget 1 load ;
 ed  block @ edit ;       ed!block ! ;

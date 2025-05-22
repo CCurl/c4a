@@ -483,7 +483,7 @@ static void showFind() {
         char *cp = &EDCH(r, 0);
         char ch = cp[MAX_COL];
         cp[MAX_COL] = 0;
-        int c = showFind1(cp, r, 0); 
+        int c = showFind1(cp, r, 0);
         while (0 <= c) { c = showFind1(cp, r, c+1); }
         cp[MAX_COL] = ch;
     }

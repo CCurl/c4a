@@ -321,6 +321,7 @@ int nextWord() {
 		int len = getWord();
 		if (len) { return len; }
 		toIn = (char*)inPop();
+		state = INTERP;
 	}
 	return 0;
 }

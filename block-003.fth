@@ -14,10 +14,10 @@
 
 
 
-p1 z" hi there" s-cpy drop
- p2 z" hi txx"   s-cpy drop
 
 
+
+
 
 
 

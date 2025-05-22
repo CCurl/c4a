@@ -1,7 +1,7 @@
 #ifndef __C4A_H__
 #define __C4A_H__
 
-#define VERSION   20250520
+#define VERSION   20250521
 #define _SYS_LOAD_
 
 #ifdef _MSC_VER
@@ -79,8 +79,8 @@ typedef struct { STK_T stks[3]; wc_t pc, base; int status; } TASK_T;
   #define FL_WRITE         "w"
   #define FL_APPEND        "a"
   // #define FILE_NONE
-  // #define FILE_PICO
-  #define FILE_TEENSY
+  #define FILE_PICO
+  // #define FILE_TEENSY
 #endif
 
 // These are defined by c4a.cpp

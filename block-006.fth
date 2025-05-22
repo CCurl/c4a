@@ -18,7 +18,7 @@
 rand(--n)seed dup 13 << xor dup 17 >> xor dup 5 << xor dup seed! ;
 rand-mod(n--m)rand abs swap mod ;
 
-tt0 a! begin a@+ drop 10000 rand-mod while a@ . ;
+
 
 
 
