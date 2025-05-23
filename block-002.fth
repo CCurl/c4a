@@ -5,9 +5,9 @@
  here code-sz ." %Y  Code: %W%d slots, %d used.%n"
  last vhere -  vhere vars -
               ." %Y  Heap: %W%d bytes used, %d free.%n"
-dict-end last -  de-sz /
+ dict-end last -  de-sz /
               ." %Y Words: %W%d defined."
-de-sz         ."  %d bytes per entry.%n"
+ de-sz        ."  %d bytes per entry.%n"
 
 
 

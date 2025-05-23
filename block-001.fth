@@ -2,8 +2,8 @@
 
 3 load  4 load  5 load  6 load
 
-rb forget 1 load ;
-ed block @ edit ;        ed!block ! ;
+rbforget 1 load ;
+ed  block @ edit ;       ed!block ! ;
 ls z" ls -l" system ;    lg  z" lazygit" system ;   flflush ;
 pwdz" pwd" system ;      sys(a--)dup ." %n%G%S%W%n" system ;
 devz" ccc dev" sys ;     ndevz" ccc ndev" sys ;
