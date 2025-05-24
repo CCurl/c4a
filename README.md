@@ -207,6 +207,7 @@ The primitives:
 | !           | (N A--)        | Store CELL N to absolute address A |
 | wc!         | (WC N--)       | Store WORD-CODE WC to CODE slot N |
 | cv!         | (N--)          | Code-Variable: Store a 32-bit value to CODE slots N/N+1 |
+| ,           | (WC--)         | WC: WORD-CODE to compile |
 | +           | (X Y--N)       | N: X + Y |
 | if          | (X--)          | Jump to 'then' if X == 0 (IMMEDIATE) |
 | if0         | (X--)          | Jump to 'then' if X <> 0 (IMMEDIATE) |
@@ -291,6 +292,8 @@ The primitives:
 | b>          | (--N)          | Pop N from the B stack |
 | bdrop       | (--)           | Drop B-TOS |
 | emit        | (C--)          | Output char C |
+| key         | (--C)          | Read char C |
+| ?key        | (--F)          | F: 1 if key available, else 0 |
 | ;           | (--)           | Compile EXIT, set STATE=INTERPRET (IMMEDIATE) |
 | lit,        | (N--)          | Compile a push of number N |
 | next-wd     | (--L)          | L: length of the next word from the input stream |
