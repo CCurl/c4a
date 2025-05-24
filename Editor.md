@@ -1,8 +1,15 @@
 # The c4a editor
 
-The c4a editor is an editor inspired by, and similar to, a stripped-down version of VI.
+The c4a editor is an editor inspired by, and similar to, a stripped-down version of VI. <br/>
+Enable the editor using `#define EDITOR` (in c4a.h). <br/>
+The editor colors the text based on the state tags found in the text. <br/>
 
-Enable the editor using `#define EDITOR` (in c4a.h)
+| Tag   | Color  | Description |
+|:--    |:--     |:-- |
+|  $01  | Green  | Compile |
+|  $02  | Red    | Define |
+|  $03  | Yellow | Interpret |
+|  $04  | White  | Comment |
 
 ## Modes
 There are 4 modes in the editor:
@@ -17,7 +24,7 @@ There are 4 modes in the editor:
 | :--       | :-- |
 | [ctrl]+a  | Insert tag: COMPILE |
 | [ctrl]+b  | Insert tag: DEFINE |
-| [ctrl]+c  | Insert tag: INTERP |
+| [ctrl]+c  | Insert tag: INTERPRET |
 | [ctrl]+d  | Insert tag: COMMENT |
 | [ctrl]+e  | Send the current line to the outer interpreter |
 | [ctrl]+h  | Left 1 char (and delete it if in INSERT mode) |
@@ -40,11 +47,13 @@ There are 4 modes in the editor:
 | [SP] | Right 1 char |
 | 1    | Set tag: COMPILE |
 | 2    | Set tag: DEFINE |
-| 3    | Set tag: INTERP |
+| 3    | Set tag: INTERPRET |
 | 4    | Set tag: COMMENT |
 | :    | Change to COMMAND mode |
 | +    | Save the current block and goto the next block |
 | -    | Save the current block and goto the previous block |
+| /    | Enter a string of characters for the find-buffer |
+| //   | Empty the find-buffer |
 | #    | Redraw the screen |
 | a    | Append: move right 1 char and change to INSERT mode (same as 'li') |
 | A    | Append: goto the end of the line and change to INSERT mode  (same as '$i') |
@@ -60,13 +69,14 @@ There are 4 modes in the editor:
 | g    | Goto the top-left of the screen |
 | G    | Goto the bottom-left of the screen |
 | h    | Left 1 char |
-| H    | Toggle between current block and help block (block+1) |
 | i    | Insert: change to INSERT mode |
 | I    | Insert: goto the beginning of the line and change to INSERT mode (same as '_i') |
 | j    | Down 1 line |
 | J    | Join the current and next lines together |
 | k    | Up 1 line |
 | l    | Right 1 char |
+| n    | Search forwards for [find-buffer] |
+| N    | Search backwards for [find-buffer] |
 | n    | Insert a 'new-line' (#10/$0A) into the block |
 | o    | Insert an empty line BELOW the current line and change to INSERT mode |
 | O    | Insert an empty line ABOVE the current line and change to INSERT mode |

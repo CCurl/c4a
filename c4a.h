@@ -1,7 +1,7 @@
-#ifndef __C4_H__
-#define __C4_H__
+#ifndef __C4A_H__
+#define __C4A_H__
 
-#define VERSION   20241231
+#define VERSION   20250521
 #define _SYS_LOAD_
 
 #ifdef _MSC_VER
@@ -19,37 +19,61 @@
 #include <stdint.h>
 #include <time.h>
 
+// Change these for the system/board
+// These work for the RPi Pico 2 and the Teensy 4.0
+#define MEM_SZ      320*1024
+#define CODE_SLOTS  NUM_BITS // Values larger are inline numbers
+#define STK_SZ            31 // Data stack size
+#define FSTK_SZ            8 // Files stack size
+#define TASKS_SZ           8 // Number of tasks
+#define NAME_LEN          11 // Size of dict-entry is (2+1+1+NAME_LEN+1)
+#define BLOCK_MAX         49 // Max block
+#define EOL_CHAR          13 // Carriage Return
+
+// System defines
+#define CELL_T           int32_t
+#define CELL_SZ             4
+#define WC_T             uint16_t
+#define WC_SZ               2
+#define NUM_BITS       0xF000
+#define NUM_MASK       0x0FFF
+#define NUM_LINES          24
+#define NUM_COLS           80
+#define BLOCK_SZ      (NUM_LINES*NUM_COLS)
+#define STK_DATA            0
+#define STK_RETN            1
+#define STK_LSTK            2
+#define TASK_MAX      (TASKS_SZ-1)
+#define NUM_BLOCKS    (BLOCK_MAX+1)
+#define _IMMED              1
+#define _INLINE             2
+#define btwi(n,l,h)   ((l<=n) && (n<=h))
+
+#ifndef MAX
+#define MIN(a,b) (((a)<(b))?(a):(b))
+#define MAX(a,b) (((a)>(b))?(a):(b))
+#endif
+
+enum { COMPILE=1, DEFINE=2, INTERP=3, COMMENT=4 };
+typedef CELL_T cell;
+typedef WC_T wc_t;
+typedef uint8_t byte;
+typedef struct { wc_t xt; byte flg, len; char nm[NAME_LEN+1]; } DE_T;
+typedef struct { wc_t op; byte flg, len; const char *name; } PRIM_T;
+typedef struct { cell sp; cell stk[STK_SZ+1]; } STK_T;
+
+// #define TASK_CYCLES   1000
+typedef struct { STK_T stks[3]; wc_t pc, base; int status; } TASK_T;
+
 #ifdef IS_PC
-  #define MEM_SZ     1024*1024 // Could be much bigger
-  #define STK_SZ            64 // Data stack
-  #define RSTK_SZ           64 // Return stack
-  #define LSTK_SZ           45 // 15 nested loops (3 entries per loop)
-  #define TSTK_SZ           64 // 'A' and 'T' stacks
-  #define FSTK_SZ            8 // Files stack
-  #define NAME_LEN          15 // To make dict-entry size 20 (15+1+1+1+2)
-  #define CODE_SLOTS    0xE000 // $E000 and larger are inline numbers
-  #define BLOCK_CACHE_SZ    16 // Each block is 1024 bytes
-  #define BLOCK_MAX       1023 // Maximum block
-  #define EOL_CHAR          13 // Carriage Return
-  #define FL_READ         "rb"
-  #define FL_RW           "r+b"
-  #define FL_WRITE        "wb"
-  #define FL_APPEND       "ab"
+  #define FL_READ          "rb"
+  #define FL_RW            "r+b"
+  #define FL_WRITE         "wb"
+  #define FL_APPEND        "ab"
   #define FILE_PC
 #else
   #include <Arduino.h>
-  #define IS_BOARD           1 // This must be a devdelopment board
-  #define MEM_SZ      464*1024 // These are for a RPi PICO 2 (2350)
-  #define STK_SZ            64 // Data stack
-  #define RSTK_SZ           64 // Return stack
-  #define LSTK_SZ           45 // 15 nested loops (3 entries per loop)
-  #define TSTK_SZ           64 // 'A' and 'T' stacks
-  #define FSTK_SZ            8 // Files stack
-  #define NAME_LEN          15 // To make dict-entry size 20 (15+1+1+1+2)
-  #define CODE_SLOTS    0xE000 // $E000 and larger are inline numbers
-  #define BLOCK_CACHE_SZ    16 // Each block is 1024 bytes
-  #define BLOCK_MAX        255 // Maximum block
-  #define EOL_CHAR          13 // Some people prefer to use 10
+  #define IS_BOARD          1
   #define FL_READ          "r"
   #define FL_RW            "r+"
   #define FL_WRITE         "w"
@@ -59,29 +83,7 @@
   // #define FILE_TEENSY
 #endif
 
-#define btwi(n,l,h)   ((l<=n) && (n<=h))
-#define _IMMED        1
-#define _INLINE       2
-
-#define CELL_T        int32_t
-#define CELL_SZ       4
-#define WC_T          uint16_t
-#define WC_SZ         2
-#define NUM_BITS      0xE000
-#define NUM_MASK      0x1FFF
-#define BLOCK_SZ      1024
-
-enum { COMPILE=1, DEFINE=2, INTERP=3, COMMENT=4 };
-enum { DSPA=0, RSPA, LSPA, TSPA, ASPA, HA, BA, SA, INSPA };
-
-typedef CELL_T cell;
-typedef WC_T wc_t;
-typedef uint8_t byte;
-typedef struct { wc_t xt; byte flg, len; char nm[NAME_LEN+1]; } DE_T;
-typedef struct { wc_t op; const char *name; byte fl; } PRIM_T;
-typedef struct { uint16_t num, seq, flags; char data[BLOCK_SZ]; } CACHE_T;
-
-// These are defined by c4.cpp
+// These are defined by c4a.cpp
 extern void c4Init();
 extern void push(cell x);
 extern cell pop();
@@ -90,9 +92,14 @@ extern char *inPop();
 extern void strCpy(char *d, const char *s);
 extern int  strEq(const char *d, const char *s);
 extern int  strEqI(const char *d, const char *s);
+extern int  strEqN(const char *d, const char *s, cell n);
+extern int  strFind(const char *in, const char *lf);
 extern int  strLen(const char *s);
+extern void fill(byte *dst, cell num, byte ch);
+extern void cmove(byte *src, byte *dst, cell num);
 extern int  lower(const char c);
 extern void zTypeF(const char *fmt, ...);
+extern void fType(const char *str);
 extern int  changeState(int x);
 extern void inner(wc_t start);
 extern void outer(const char *src);
@@ -100,7 +107,7 @@ extern void outerF(const char *fmt, ...);
 extern void ok();
 extern cell block;
 
-// c4.cpp needs these to be defined
+// c4a.cpp needs these to be defined
 extern cell inputFp, outputFp;
 extern cell fetch16(cell loc);
 extern cell fetch32(cell loc);
@@ -113,30 +120,30 @@ extern int  key();
 extern int  qKey();
 extern cell timer();
 extern void sys_load();
+extern void Blue();
+extern void Green();
+extern void Purple();
+extern void Red();
+extern void White();
+extern void Yellow();
 
 #ifndef FILE_NONE
   extern void fileInit();
   extern cell fileOpen(const char *name, const char *mode);
   extern void fileClose(cell fh);
-  extern cell fileSize(cell fh);
   extern void fileDelete(const char *name);
   extern cell fileRead(char *buf, int sz, cell fh);
   extern cell fileWrite(char *buf, int sz, cell fh);
-  extern cell fileSeek(cell fh, cell pos);
-  extern cell filePos(cell fh);
   extern void fileLoad(const char *name);
   
   // ... and these - blocks
   extern void blockInit();
-  extern char *blockAddr(cell blk);
-  extern void blockIsDirty(int blk);
-  extern void blockLoad(int blk);
-  extern void blockLoadNext(int blk);
-  extern void dumpCache();
+  extern char *blockAddr(wc_t blk);
+  extern void blockLoad(wc_t blk);
+  extern void blockLoadNext(wc_t blk);
   extern void editBlock(cell blk);
-  extern void flushBlock(cell blk, CACHE_T *p, cell clear);
-  extern void flushBlocks(cell clear);
+  extern void flushBlocks();
   #define EDITOR
 #endif // FILE_NONE
 
-#endif //  __C4_H__
+#endif //  __C4A_H__
