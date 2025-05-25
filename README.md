@@ -46,11 +46,11 @@
  
 ### PCs - Windows and Linux, and probably others
 - Windows: there is a c4a.sln file for Visual Studio
-  - only the x86 target (32-bit) is supported
-- Linux: there is a makefile
-  - only the 32-bit configuration (-m32) is supported
+  - only the x86 target (32-bit) is supported.
+- Linux: there is a makefile.
+  - only the 32-bit configuration (-m32) is supported.
 - Others:
-  - c4a is simple enough that it should be easy to migrate it to any platform
+  - c4a is simple enough that it should be easy to migrate it to any platform.
 
 ### Development boards via the Arduino IDE:
 - I use the Arduino IDE v2.x
