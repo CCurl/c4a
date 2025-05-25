@@ -137,8 +137,8 @@ TASK_T tasks[TASKS_SZ];
 	X(SEQI,    "s-eqi",     0, t=pop(); TOS = strEqI((char*)TOS, (char*)t); ) \
 	X(SEQN,    "s-eqn",     0, t=pop(); n=pop(); TOS = strEqN((char*)TOS, (char*)n, t); ) \
 	X(SFIND,   "s-find",    0, t=pop(); TOS = strFind((char*)TOS, (char*)t); ) \
-	X(LTRIM,   "s-ltrim",   0, TOS = (cell)lTrim((char *)TOS); ) \
-	X(RTRIM,   "s-rtrim",   0, rTrim((char *)TOS); ) \
+	X(LTRIM,   "ltrim",     0, TOS = (cell)lTrim((char *)TOS); ) \
+	X(RTRIM,   "rtrim",     0, rTrim((char *)TOS); ) \
 	X(FILL,    "fill",      0, t=pop(); n=pop(); fill((byte*)pop(), n, (byte)t); ) \
 	X(CMOVE,   "cmove",     0, t=pop(); n=pop(); cmove((byte*)pop(), (byte *)n, t); ) \
 	X(CMOVEL,  "cmove>",    0, t=pop(); n=pop(); cmovel((byte*)pop(), (byte *)n, t); ) \
