@@ -229,7 +229,7 @@ The primitives in c4a:
 | -           | (X Y--N)    | N: X - Y |
 | *           | (X Y--N)    | N: X * Y |
 | */          | (N X Y--N') | N': (N * X) / Y - Scale N by X/Y |
-| /           | (X Y--N)    | N: X / Y (integer division) |
+| /           | (X Y--Q)    | Q: X / Y quotient (integer division) |
 | mod         | (X Y--M)    | M: X modulo Y |
 | /mod        | (X Y--M Q)  | M: X modulo Y, Q: quotient of X / Y |
 | <<          | (X Y--Z)    | Z: X left-shifted Y bits |
@@ -321,6 +321,8 @@ The primitives in c4a:
 |             | (--S)     | -RUN: push address S of string |
 | ."          | (--)      | -COMPILE: execute `z"`, compile `ftype` (IMMEDIATE) |
 |             | (--)      | -RUN: `ftype` on string |
+| ztype       | (S--)    | Print string at S (unformatted) |
+| ftype       | (S--)    | Print string at S (formatted) |
 
 | FILES       | STACK       | DESCRIPTION |
 |:--          |:--          |:-- |
@@ -343,8 +345,6 @@ The primitives in c4a:
 | key         | (--C)    | Read char C |
 | ?key        | (--F)    | F: 1 if key available, else 0 |
 | ;           | (--)     | Compile EXIT, set STATE=INTERPRET (IMMEDIATE) |
-| ztype       | (S--)    | Print string at S (unformatted) |
-| ftype       | (S--)    | Print string at S (formatted) |
 | lit,        | (N--)    | Compile a push of number N |
 | ,           | (WC--)   | WC: WORD-CODE to store at HERE, HERE += WC-SZ |
 | v,          | (N--)    | N: CELL to store at VHERE, VHERE += CELL |

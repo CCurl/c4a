@@ -145,7 +145,9 @@ TASK_T tasks[TASKS_SZ];
 	X(LOWER,   "lower",     0, TOS = lower((char)TOS); ) \
 	X(UPPER,   "upper",     0, TOS = upper((char)TOS); ) \
 	X(ZQUOTE,  "z\"",       1, quote(); ) \
-	X(DOTQT,   ".\"",       1, quote(); (state==COMPILE) ? comma(FTYPE) : fType((char*)pop()); )
+	X(DOTQT,   ".\"",       1, quote(); (state==COMPILE) ? comma(FTYPE) : fType((char*)pop()); ) \
+	X(ZTYPE,   "ztype",     0, zType((char*)pop()); ) \
+	X(FTYPE,   "ftype",     0, fType((char*)pop()); )
 
 #ifndef FILE_NONE
 #define PRIMS_FILE \
@@ -169,8 +171,6 @@ TASK_T tasks[TASKS_SZ];
 	X(KEY,     "key",       0, push(key()); ) \
 	X(QKEY,    "?key",      0, push(qKey()); ) \
 	X(SEMI,    ";",         1, comma(EXIT); state=INTERP; ) \
-	X(ZTYPE,   "ztype",     0, zType((char*)pop()); ) \
-	X(FTYPE,   "ftype",     0, fType((char*)pop()); ) \
 	X(LITC,    "lit,",      0, compileNum(pop()); ) \
 	X(COMMA,   ",",         0, comma(pop()); ) \
 	X(VCOMMA,  "v,",        0, store32(vhere,pop()); vhere += CELL_SZ; ) \
