@@ -1,7 +1,7 @@
 #ifndef __C4A_H__
 #define __C4A_H__
 
-#define VERSION   20250526
+#define VERSION   20250527
 #define _SYS_LOAD_
 
 #ifdef _MSC_VER
@@ -66,6 +66,8 @@ typedef struct { cell sp; cell stk[STK_SZ+1]; } STK_T;
 typedef struct { STK_T stks[3]; wc_t pc, base; int status; } TASK_T;
 
 #ifdef IS_PC
+  #undef  MEM_SZ
+  #define MEM_SZ      4*1024*1024
   #define FL_READ          "rb"
   #define FL_RW            "r+b"
   #define FL_WRITE         "wb"
