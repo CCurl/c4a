@@ -137,15 +137,17 @@ TASK_T tasks[TASKS_SZ];
 	X(SEQI,    "s-eqi",     0, t=pop(); TOS = strEqI((char*)TOS, (char*)t); ) \
 	X(SEQN,    "s-eqn",     0, t=pop(); n=pop(); TOS = strEqN((char*)TOS, (char*)n, t); ) \
 	X(SFIND,   "s-find",    0, t=pop(); TOS = strFind((char*)TOS, (char*)t); ) \
-	X(LTRIM,   "s-ltrim",   0, TOS = (cell)lTrim((char *)TOS); ) \
-	X(RTRIM,   "s-rtrim",   0, rTrim((char *)TOS); ) \
+	X(LTRIM,   "ltrim",     0, TOS = (cell)lTrim((char *)TOS); ) \
+	X(RTRIM,   "rtrim",     0, rTrim((char *)TOS); ) \
 	X(FILL,    "fill",      0, t=pop(); n=pop(); fill((byte*)pop(), n, (byte)t); ) \
 	X(CMOVE,   "cmove",     0, t=pop(); n=pop(); cmove((byte*)pop(), (byte *)n, t); ) \
 	X(CMOVEL,  "cmove>",    0, t=pop(); n=pop(); cmovel((byte*)pop(), (byte *)n, t); ) \
 	X(LOWER,   "lower",     0, TOS = lower((char)TOS); ) \
 	X(UPPER,   "upper",     0, TOS = upper((char)TOS); ) \
 	X(ZQUOTE,  "z\"",       1, quote(); ) \
-	X(DOTQT,   ".\"",       1, quote(); (state==COMPILE) ? comma(FTYPE) : fType((char*)pop()); )
+	X(DOTQT,   ".\"",       1, quote(); (state==COMPILE) ? comma(FTYPE) : fType((char*)pop()); ) \
+	X(ZTYPE,   "ztype",     0, zType((char*)pop()); ) \
+	X(FTYPE,   "ftype",     0, fType((char*)pop()); )
 
 #ifndef FILE_NONE
 #define PRIMS_FILE \
@@ -169,8 +171,6 @@ TASK_T tasks[TASKS_SZ];
 	X(KEY,     "key",       0, push(key()); ) \
 	X(QKEY,    "?key",      0, push(qKey()); ) \
 	X(SEMI,    ";",         1, comma(EXIT); state=INTERP; ) \
-	X(ZTYPE,   "ztype",     0, zType((char*)pop()); ) \
-	X(FTYPE,   "ftype",     0, fType((char*)pop()); ) \
 	X(LITC,    "lit,",      0, compileNum(pop()); ) \
 	X(COMMA,   ",",         0, comma(pop()); ) \
 	X(VCOMMA,  "v,",        0, store32(vhere,pop()); vhere += CELL_SZ; ) \
