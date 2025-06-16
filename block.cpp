@@ -15,7 +15,7 @@ void blockInit() {
         sz = fileRead(blocks, DISK_SZ, fh);
 		fileClose(fh);
     }
-    if (sz != DISK_SZ) { flushBlocks(); }
+    // if (sz != DISK_SZ) { flushBlocks(); }
 }
 
 void flushBlocks() {
