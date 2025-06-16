@@ -37,9 +37,9 @@
 #define WC_SZ               2
 #define NUM_BITS       0xF000
 #define NUM_MASK       0x0FFF
-#define NUM_LINES          23
-#define NUM_COLS           89
-#define BLOCK_SZ         2048 // 23*89 = 2047
+#define NUM_LINES          24
+#define NUM_COLS           80
+#define BLOCK_SZ      (NUM_LINES*NUM_COLS)
 #define STK_DATA            0
 #define STK_RETN            1
 #define STK_LSTK            2
