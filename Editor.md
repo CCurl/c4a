@@ -35,6 +35,8 @@ There are 4 modes in the editor:
 | [ctrl]+q  | Left 8 chars |
 | [ctrl]+s  | Save the block to disk |
 | [ctrl]+x  | Delete the char under the cursor |
+| [pgup]    | Save the current block and go to block-1 |
+| [pgdn]    | Save the current block and go to block+1 |
 | [esc-esc] | Goto NORMAL mode |
 
 ### NORMAL mode
