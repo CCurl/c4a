@@ -29,24 +29,24 @@ void ttyMode(int isRaw) {}
 #define S1(x, y) (*(byte*)(x)=((y)&0xFF))
 
 cell fetch16(cell loc) {
-    if (((cell)loc & 0x03) == 0) { return *(short*)loc; }
+    if ((loc & 0x03) == 0) { return *(short*)loc; }
     return F1(loc,0) | F1(loc+1,8);
 }
 
 void store16(cell loc, cell val) {
-    if (((cell)loc & 0x03) == 0) { *(short*)loc = (short)val; }
+    if ((loc & 0x03) == 0) { *(short*)loc = (short)val; }
     else {
         S1(loc,val); S1(loc+1,val>>8);;
     }
 }
 
 cell fetch32(cell loc) {
-    if (((cell)loc & 0x03) == 0) { return *(cell*)loc; }
+    if ((loc & 0x03) == 0) { return *(cell*)loc; }
     return F1(loc,0) | F1(loc+1,8) | F1(loc+2,16) | F1(loc+3,24);
 }
 
 void store32(cell loc, cell val) {
-    if (((cell)loc & 0x03) == 0) { *(cell*)loc = val; }
+    if ((loc & 0x03) == 0) { *(cell*)loc = val; }
     else {
         S1(loc,val); S1(loc+1,val>>8); S1(loc+2,val>>16); S1(loc+3,val>>24);
     }

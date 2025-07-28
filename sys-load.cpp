@@ -18,7 +18,6 @@ void sys_load() {
 : hex $10 base ! ;  : binary %10 base ! ;  : decimal #10 base ! ;
 : rot >r swap r> swap ;  : -rot swap >r swap r> ;
 : btwi ( n l h--f ) >r over >  swap r> >  or 0= ;
-: +! tuck  @ + swap ! ;
 : execute ( a-- ) >r ;
 : !t- t@- c! ;  #40 var #buf
 : <# ( n1--n2 ) #buf #39 + >t 0 !t- dup 0 < >a abs ;
@@ -31,7 +30,7 @@ void sys_load() {
 : [[ vhere >t here >t 1 state ! ;
 : ]] (exit) , 0 state ! t@ (here) ! t> >r t> (vhere) ! ; immediate
 mem-sz ->memory const dict-end
-: fgl last de-sz + (last) ! last w@  (here) ! ;
+: fgl last w@  (here) ! last de-sz + (last) ! ;
 marker
     )");
 }
