@@ -3,11 +3,12 @@
 #ifdef IS_PC
 
 #ifdef IS_WINDOWS
+  #include <windows.h>
   #include <conio.h>
   int qKey() { return _kbhit(); }
   int key() { return _getch(); }
   void ttyMode(int isRaw) {}
-  void ms(cell x) { Sleep(x); }
+  void ms(cell x) { Sleep((DWORD)x); }
 #endif
 
 #ifdef IS_LINUX
