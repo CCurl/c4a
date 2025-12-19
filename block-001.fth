@@ -1,10 +1,10 @@
-boot block
+( boot block )
 
 3 load  4 load  5 load  6 load
 
 rbforget 1 load ;
 ed  block @ edit ;       ed!block ! ;
-ls z" ls -l" system ;    lg  z" lazygit" system ;   flflush ;
+ll z" ls -l" system ;    lg  z" lazygit" system ;   flflush ;
 pwdz" pwd" system ;      sys(a--)dup ." %n%G%S%W%n" system ;
 devz" ccc dev" sys ;     ndevz" ccc ndev" sys ;
 pl(a--)p1 z" cd " s-cpy s-scat z"  && git pull -p" s-cat sys ;
@@ -19,6 +19,5 @@
 heretask2." -task2-" yield task2 ;add-task drop
 
 2 load   1 block !   cr .tasks
-
 
 

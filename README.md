@@ -9,7 +9,6 @@
 - c4a has 'a', 'b', and 't' words.
 - c4a reads 'blocks.fth' into memory on load.
 - - This is what it uses to edit and load blocks.
-- - Use 'flush' to write it back to disk/flash.
 
 ## Tags
 | Tag | Word | State | Description |
@@ -136,7 +135,11 @@ For example `: ascii dup dup dup ." char: %c, decimal: #%d, binary: %%%b, hex: $
 
 ## The editor
 c4a has a built-in editor. It colorizes the code based on tags in the text. <br/>
-For details, see the [Editor documentation](Editor.md).
+For details, see the [Editor documentation](Editor.md). <br/>
+**NOTE**: Saving a block updates the block in the RAM-disk. <br/>
+**NOTE**: It does **NOT** automatically write that block to disk. <br/>
+**NOTE**: Use 'flush' to write it back to disk/flash.
+
 
 ## The A, B, and T stacks
 c4a includes A, B, and T stacks. <br/>

@@ -3,6 +3,10 @@
 The c4a editor is an editor inspired by, and similar to, a stripped-down version of VI. <br/>
 Enable the editor using `#define EDITOR` (in c4a.h). <br/>
 The editor colors the text based on the state tags found in the text. <br/>
+It edits blocks of text stored in memory. Each block is 2048 bytes long. <br/>
+It has 23 rows and 89 columns, making 2047 editable characters per block.<br/>
+This leaves 1 byte which is set to 0 (null).<br/>
+To save the ram-disk to disk (blocks.fth), use `flush`.<br/>
 
 | Tag   | Color  | Description |
 |:--    |:--     |:-- |
@@ -33,7 +37,7 @@ There are 4 modes in the editor:
 | [ctrl]+k  | Up 1 line |
 | [ctrl]+l  | Right 1 char |
 | [ctrl]+q  | Left 8 chars |
-| [ctrl]+s  | Save the block to disk |
+| [ctrl]+s  | Save the block to the ram-disk |
 | [ctrl]+x  | Delete the char under the cursor |
 | [pgup]    | Save the current block and go to block-1 |
 | [pgdn]    | Save the current block and go to block+1 |

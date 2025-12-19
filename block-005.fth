@@ -1,4 +1,4 @@
-block #005 - screen words
+( block #005 - screen words )
 
 find cls loaded?
 
@@ -16,7 +16,6 @@
 
 .color(c--c)dup dup fg ." color-%d%n" ;
 colors(f t--)over - 1+ for .color 1+ next drop white ;
-
 
 
 

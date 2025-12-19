@@ -1,4 +1,4 @@
-- Block #002 -
+( Block #002 )
 
 ." %Wc4a - %Gv" .version cr
  mem-sz       ." %YMemory: %W%d bytes.%n"
@@ -8,7 +8,6 @@
  dict-end last -  de-sz /
               ." %Y Words: %W%d defined."
  de-sz        ."  %d bytes per entry.%n"
-
 
 
 

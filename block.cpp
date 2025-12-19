@@ -5,7 +5,6 @@
 #define BLOCK_FN        "blocks.fth"
 #define DISK_SZ         (BLOCK_SZ*NUM_BLOCKS)
 
-
 char blocks[DISK_SZ];
 extern char *toIn;
 

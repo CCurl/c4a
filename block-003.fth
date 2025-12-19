@@ -1,4 +1,4 @@
-block #003 - strings
+( block #003 - strings )
 
 find s-scatn loaded?
 
@@ -16,7 +16,6 @@
 
 
 
-
 
 
 

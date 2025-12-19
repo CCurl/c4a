@@ -1,4 +1,4 @@
-block #006 - some utility words
+( block #006 - some utility words )
 
 find dump loaded?
 
@@ -17,7 +17,6 @@
 val seed  (val) t1  seed!(n--)t1 ! ; timer seed!
 rand(--n)seed dup 13 << xor dup 17 >> xor dup 5 << xor dup seed! ;
 rand-mod(n--m)rand abs swap mod ;
-
 
 
 

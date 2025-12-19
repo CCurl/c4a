@@ -1,4 +1,4 @@
-block #009 - some benchmarks
+( block #009 - some benchmarks )
 
 find mil loaded?
 
@@ -6,7 +6,6 @@
 mil(n--mil)1000 dup * * ;
 bm(n--)timer swap for next elapsed ;
 bb(--)1000 mil bm ;
-
 
 
 
