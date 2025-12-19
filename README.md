@@ -343,7 +343,7 @@ The primitives in c4a:
 |:--          |:--       |:-- |
 | emit        | (C--)    | Output char C |
 | key         | (--C)    | Read char C |
-| ?key        | (--F)    | F: 1 if key available, else 0 |
+| key?        | (--F)    | F: 1 if key available, else 0 |
 | ;           | (--)     | Compile EXIT, set STATE=INTERPRET (IMMEDIATE) |
 | lit,        | (N--)    | Compile a push of number N |
 | ,           | (WC--)   | WC: WORD-CODE to store at HERE, HERE += WC-SZ |
