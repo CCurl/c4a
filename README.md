@@ -359,6 +359,7 @@ The primitives in c4a:
 | outer       | (S--)    | Send string S to the c4a outer interpreter |
 | addword     | (--)     | Add the next word to the dictionary |
 | timer       | (--N)    | N: Current time |
+| ms          | (MS--)   | Sleep for MS milliseconds |
 | see X       | (--)     | Output the definition of word X |
 | find        | (--XT A) | XT: Execution Token, A: Dict Entry address (0 0 if not found) |
 | add-task    | (XT--N)  | XT: addr of code, N: task slot |

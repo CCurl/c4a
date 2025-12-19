@@ -186,6 +186,7 @@ TASK_T tasks[TASKS_SZ];
 	X(OUTER,   "outer",     0, outer((char*)pop()); ) \
 	X(ADDWORD, "addword",   0, addWord(0); ) \
 	X(CLK,     "timer",     0, push(timer()); ) \
+	X(MS,      "ms",        0, ms(pop()); ) \
 	X(SEE,     "see",       0, doSee(); ) \
 	X(FIND,    "find",      0, { DE_T *dp=findWord(0); push(dp?dp->xt:0); push((cell)dp); } ) \
 	X(ADDTASK, "add-task",  0, TOS = addTask(TOS); ) \

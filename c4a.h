@@ -121,6 +121,7 @@ extern void ttyMode(int isRaw);
 extern int  key();
 extern int  qKey();
 extern cell timer();
+extern void ms(cell x);
 extern void sys_load();
 extern void Blue();
 extern void Green();

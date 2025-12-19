@@ -7,6 +7,7 @@
   int qKey() { return _kbhit(); }
   int key() { return _getch(); }
   void ttyMode(int isRaw) {}
+  void ms(cell x) { Sleep(x); }
 #endif
 
 #ifdef IS_LINUX
@@ -48,6 +49,7 @@
       int x = fgetc(stdin);
       return x;
   }
+  void ms(cell x) { usleep(x * 1000); }
 #endif // IS_LINUX
 
 cell timer() { return (cell)clock(); }
