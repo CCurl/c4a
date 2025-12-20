@@ -17,8 +17,7 @@
 | $02 |  :   |   2   | Define |
 | $03 |  [   |   3   | Interpret/execute/immediate |
 | $04 |      |   4   | Comment |
-|     |  (   |   4   | Comment, save current state |
-|     |  )   |       | End comment, restores saved state |
+|     |  (   |       | Comment, skip until the next word is ')' |
 
 **NOTE**: In the DEFINE state, c4a changes the state to COMPILE after adding the next word. <br/>
 **NOTE**: Unlike ColorForth, ';' compiles EXIT and then changes the state to INTERPRET. <br/>
