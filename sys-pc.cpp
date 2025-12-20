@@ -50,7 +50,9 @@
       int x = fgetc(stdin);
       return x;
   }
-  void ms(cell x) { usleep(x * 1000); }
+  void ms(cell x) {
+	  if (x > 0) { usleep(x * 1000); }
+  }
 #endif // IS_LINUX
 
 cell timer() { return (cell)clock(); }
