@@ -683,7 +683,7 @@ void baseSys() {
 	defineNum("block-sz", BLOCK_SZ);
 	defineNum("code-sz",  CODE_SLOTS);
 	defineNum("de-sz",    sizeof(DE_T));
-	defineNum("dstk-sz",  STK_SZ+1);
+	defineNum("stk-sz",   STK_SZ+1);
 	defineNum("wc-sz",    WC_SZ);
 	defineNum("tasks-sz", TASKS_SZ);
 	defineNum("cur-task", (cell)&curTask);

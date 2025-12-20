@@ -90,8 +90,7 @@ c4a provides a single memory area. See 'mem-sz' (MEM_SZ in c4a.h) for its size.
 | memory  | (--A) | A: starting address of the c4a memory |
 | mem-sz  | (--N) | N: size in BYTEs of the c4a memory |
 | code-sz | (--N) | N: number of in WORD-CODE slots in the code area |
-| dstk-sz | (--N) | N: size in CELLs of the DATA and RETURN stacks |
-| tstk-sz | (--N) | N: size in CELLs of the A and T stacks |
+| stk-sz  | (--N) | N: size in CELLs of the built-in stacks |
 | wc-sz   | (--N) | N: size in BYTEs of a WORD-CODE |
 | de-sz   | (--N) | N: size in BYTEs of a dictionary entry |
 | (dsp)   | (--N) | N: Address of the data stack pointer |
