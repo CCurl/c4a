@@ -7,30 +7,29 @@
 #define BLOCK_FN3       "/home/chris/bin/blocks.c4a"
 #define DISK_SZ         (BLOCK_SZ*NUM_BLOCKS)
 
-static cell blockFh = 0;
 static char blocks[DISK_SZ], blockFN[64];
 extern char *toIn;
 
-static cell tryOpen(const char *fn, const char *mode) {
-    blockFh = fileOpen(fn, mode);
-    if (blockFh) { strCpy(blockFN, fn); }
-    return blockFh;
+static cell tryOpen(const char *fn, cell *fileHandle) {
+    *fileHandle = fileOpen(fn, FL_READ);
+    if (*fileHandle) { strCpy(blockFN, fn); }
+    return *fileHandle;
 }
 
-static cell deriveBlockFN() {
-    if (tryOpen(BLOCK_FN1, FL_READ)) { return 1; }
-    if (tryOpen(BLOCK_FN2, FL_READ)) { return 1; }
-    if (tryOpen(BLOCK_FN3, FL_READ)) { return 1; }
+static cell deriveBlockFh() {
+    cell fh = 0;
+    if (tryOpen(BLOCK_FN1, &fh)) { return fh; }
+    if (tryOpen(BLOCK_FN2, &fh)) { return fh; }
+    if (tryOpen(BLOCK_FN3, &fh)) { return fh; }
     strCpy(blockFN, BLOCK_FN1);
     return 0;
 }
 
 void blockInit() {
-	cell sz = 0;
-    if (deriveBlockFN()) {
-        sz = fileRead(blocks, DISK_SZ, blockFh);
-		fileClose(blockFh);
-        blockFh = 0;
+	cell sz = 0, fh = deriveBlockFh();
+    if (fh) {
+        sz = fileRead(blocks, DISK_SZ, fh);
+		fileClose(fh);
     }
 }
 
