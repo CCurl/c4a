@@ -1,7 +1,7 @@
 #ifndef __C4A_H__
 #define __C4A_H__
 
-#define VERSION   20261120
+#define VERSION   20261117
 #define _SYS_LOAD_
 
 #ifdef _MSC_VER
@@ -17,7 +17,6 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <stdint.h>
-#include <string.h>
 #include <time.h>
 
 // Change these for the system/board
@@ -29,16 +28,9 @@
 #define BLOCK_MAX         19 // Max block
 #define EOL_CHAR          13 // Carriage Return
 
-// 32- or 64-bit cell size
-#if INTPTR_MAX > INT32_MAX
-  #define CELL_T         int64_t
-  #define CELL_SZ             8
-#else
-  #define CELL_T         int32_t
-  #define CELL_SZ             4
-#endif
-
 // System defines
+#define CELL_T           int32_t
+#define CELL_SZ             4
 #define WC_T             uint16_t
 #define WC_SZ               2
 #define NUM_BITS       0xF000
@@ -116,9 +108,9 @@ extern cell block, vhere, state;
 // c4a.cpp needs these to be defined
 extern cell outputFp;
 extern cell fetch16(cell loc);
-extern cell fetchCell(cell loc);
+extern cell fetch32(cell loc);
 extern void store16(cell loc, cell val);
-extern void storeCell(cell loc, cell val);
+extern void store32(cell loc, cell val);
 extern void zType(const char *str);
 extern void emit(const char ch);
 extern void ttyMode(int isRaw);

@@ -34,7 +34,7 @@
 - c4a is intended to be used with development boards via the Arduino IDE.
 - However, it can be built for PCs as well for testing.
 - I am not aware of 64-bit dev boards.
-- A **CELL** in c4a is 32 bits by default. Build with `CELL64` defined to make it 64 bits.
+- So a **CELL** in c4a is 32-bits.
 - C4A has many built-in primitives, for the following reasons:
 - - Program flash is often quite large, so why not use it?
 - - To give C4A more functionality out of the box.
@@ -46,8 +46,7 @@
 - Windows: there is a c4a.sln file for Visual Studio
   - only the x86 target (32-bit) is supported.
 - Linux: there is a makefile.
-  - `make c4a` builds the 32-bit configuration (-m32).
-  - `make c4a64` builds the 64-bit cell configuration (-DCELL64, native 64-bit).
+  - only the 32-bit configuration (-m32) is supported.
 - Others:
   - c4a is simple enough that it should be easy to migrate it to any platform.
 
@@ -84,11 +83,11 @@ c4a provides a single memory area. See 'mem-sz' (MEM_SZ in c4a.h) for its size.
   - `here` is an offset into the CODE area.
   - The size of the CODE area is `code-sz`. See CODE_SZ in c4a.h.
   - **NOTE**: Use `wc@` and `wc!` to get and set 16-bit values in the code area.
-  - **NOTE**: Use `cv@` and `cv!` to get and set CELL-sized values in the code area.
+  - **NOTE**: Use `cv@` and `cv!` to get and set 32-bit values in the code area.
   - **NOTE**: CODE slots 0-25 (`0 wc@ .. 25 wc@`) are reserved for c4a system values.
   - **NOTE**: CODE slots 26-(BYE) are unused by c4a.
   - **NOTE**: Using `wc@` and `wc!`, c4a provides storage space for many 16-bit variables.
-  - **NOTE**: Using `cv@` and `cv!`, c4a provides storage space for many CELL-sized variables.
+  - **NOTE**: Using `cv@` and `cv!`, c4a provides storage space for many 32-bit variables.
   - **NOTE**: These are free for the user/application to use as desired.
 - The VARS area is defined to begin at address `code-sz wc-sz * memory +`.
   - `vhere` is the absolute address of the first free byte the VARS area.
@@ -221,12 +220,12 @@ The primitives in c4a:
 | w@          | (A--W)         | W: the WORD at absolute address A |
 | @           | (A--N)         | N: the CELL at absolute address A |
 | wc@         | (N--WC)        | WC: the WORD-CODE in CODE slot N |
-| cv@         | (N--)          | Code-Variable: Fetch a CELL from CODE slots N onward (CELL/WC-SZ slots) |
+| cv@         | (N--)          | Code-Variable: Fetch a 32-bit value from CODE slots N/N+1 |
 | c!          | (C A--)        | Store CHAR C to absolute address A |
 | w!          | (W A--)        | Store WORD W to absolute address A |
 | !           | (N A--)        | Store CELL N to absolute address A |
 | wc!         | (WC N--)       | Store WORD-CODE WC to CODE slot N |
-| cv!         | (N--)          | Code-Variable: Store a CELL to CODE slots N onward (CELL/WC-SZ slots) |
+| cv!         | (N--)          | Code-Variable: Store a 32-bit value to CODE slots N/N+1 |
 | if          | (X--)          | Jump to 'then' if X == 0 (IMMEDIATE) |
 | if0         | (X--)          | Jump to 'then' if X <> 0 (IMMEDIATE) |
 | -if         | (X--X)         | Jump to 'then' if X == 0 (IMMEDIATE) |
@@ -366,7 +365,7 @@ The primitives in c4a:
 | const       | (N--)    | ADD-WORD, generate `LIT [N] EXIT` |
 | var         | (N--)    | ADD-WORD, generate `LIT [VHERE] EXIT`, VHERE += N |
 | val         | (--)     | ADD-WORD, generate `LIT 0 EXIT` |
-| (val)       | (--)     | ADD-WORD, generate `LIT [HERE-CELL/WC-SZ] EXIT` |
+| (val)       | (--)     | ADD-WORD, generate `LIT [HERE-4] EXIT` |
 | next-wd     | (--L)    | L: length of the next word from the input stream |
 | immediate   | (--)     | Mark the last created word as IMMEDIATE |
 | inline      | (--)     | Mark the last created word as INLINE |

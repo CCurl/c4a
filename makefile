@@ -1,11 +1,9 @@
+CFLAGS = -O3 -m32
 srcfiles := $(shell find . -name "*.cpp")
 incfiles := $(shell find . -name "*.h")
 
 c4a: $(srcfiles) $(incfiles)
-	$(CC) -O3 -m32 $(srcfiles) -DIS_LINUX=1 -o c4a
-
-c4a64: $(srcfiles) $(incfiles)
-	$(CC) -O3 -m64 $(srcfiles) -DIS_LINUX=1 -o c4a
+	$(CC) $(CFLAGS) $(srcfiles) -DIS_LINUX=1 -o $@
 
 clean:
 	rm -f c4a
