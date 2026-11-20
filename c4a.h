@@ -20,14 +20,12 @@
 #include <time.h>
 
 // Change these for the system/board
-// These work for the RPi Pico 2 and the Teensy 4.0
-#define MEM_SZ      320*1024
+#define MEM_SZ      4*1024*1024
 #define CODE_SLOTS  NUM_BITS // Values larger are inline numbers
-#define STK_SZ            31 // Data stack size
-#define FSTK_SZ            8 // Files stack size
+#define STK_SZ            63 // Data stack size
 #define TASKS_SZ           8 // Number of tasks
 #define NAME_LEN          11 // Size of dict-entry is (2+1+1+NAME_LEN+1)
-#define BLOCK_MAX         49 // Max block
+#define BLOCK_MAX         19 // Max block
 #define EOL_CHAR          13 // Carriage Return
 
 // System defines
@@ -89,8 +87,6 @@ typedef struct { STK_T stks[3]; wc_t pc, base; int status; } TASK_T;
 extern void c4Init();
 extern void push(cell x);
 extern cell pop();
-extern void inPush(char *in);
-extern char *inPop();
 extern void strCpy(char *d, const char *s);
 extern int  strEq(const char *d, const char *s);
 extern int  strEqI(const char *d, const char *s);
@@ -107,7 +103,7 @@ extern void inner(wc_t start);
 extern void outer(const char *src);
 extern void outerF(const char *fmt, ...);
 extern void ok();
-extern cell block;
+extern cell block, vhere, state;
 
 // c4a.cpp needs these to be defined
 extern cell inputFp, outputFp;
@@ -141,9 +137,8 @@ extern void Yellow();
   
   // ... and these - blocks
   extern void blockInit();
-  extern char *blockAddr(wc_t blk);
-  extern void blockLoad(wc_t blk);
-  extern void blockLoadNext(wc_t blk);
+  extern char *blockAddr(cell blk);
+  extern void blockLoad(cell blk);
   extern void editBlock(cell blk);
   extern void flushBlocks();
   #define EDITOR

@@ -12,12 +12,12 @@
 
 byte memory[MEM_SZ+1];
 wc_t *code = (wc_t*)&memory[0];
-cell here, base, state, inSp, vhere, block, curTask;
+cell here, base, state, vhere, block, curTask;
 cell *dstk, *rstk, *lstk, fgtH, fgtVH;
 cell dsp, rsp, lsp, asp, bsp, tsp;
 cell astk[STK_SZ+1], bstk[STK_SZ+1], tstk[STK_SZ+1];
 DE_T tmpWords[10], *last, *fgtL;
-char wd[32], *toIn, *inStk[FSTK_SZ+1];
+char wd[32], *toIn;
 TASK_T tasks[TASKS_SZ];
 
 #define PRIMS_BASE \
@@ -157,9 +157,8 @@ TASK_T tasks[TASKS_SZ];
 	X(FLDEL,   "fdelete",     0, t=pop(); fileDelete((char*)t); ) \
 	X(FLREAD,  "fread",       0, t=pop(); n=pop(); TOS = fileRead((char*)TOS, (int)n, t); ) \
 	X(FLWRITE, "fwrite",      0, t=pop(); n=pop(); TOS = fileWrite((char*)TOS, (int)n, t); ) \
-	X(LOADED,  "loaded?",     0, t=pop(); pop(); if (t) { toIn = inPop(); } ) \
-	X(LOAD,    "load",        0, t=pop(); blockLoad((wc_t)t); ) \
-	X(NXTBLK,  "load-next",   0, t=pop(); blockLoadNext((wc_t)t); ) \
+	X(LOADED,  "loaded?",     0, t=pop(); pop(); if (t) { while(*toIn) ++toIn; state=INTERP; } ) \
+	X(LOAD,    "load",        0, t=pop(); blockLoad(t); ) \
 	X(BADDR,   "block-addr",  0, t=pop(); push((cell)blockAddr((wc_t)t)); ) \
 	X(FLUSH,   "flush",       0, flushBlocks(); ) \
 	X(EDIT,    "edit",        0, t=pop(); editBlock(t); )
@@ -243,8 +242,6 @@ void push(cell x) { if (dsp < STK_SZ) { dstk[++dsp] = x; } }
 cell pop() { return (0<dsp) ? dstk[dsp--] : 0; }
 void rpush(cell x) { if (rsp < STK_SZ) { rstk[++rsp] = x; } }
 cell rpop() { return (0<rsp) ? rstk[rsp--] : 0; }
-void inPush(char *in) { if (inSp < FSTK_SZ) { inStk[++inSp] = in; } }
-char *inPop() { return (0 < inSp) ? inStk[inSp--] : 0; }
 void comma(cell x) { code[here++] = (wc_t)x; }
 void commaCell(cell n) { store32((cell)&code[here], n); here += (CELL_SZ/WC_SZ); }
 int  changeState(int x) { state = x; return x; }
@@ -307,7 +304,7 @@ void rTrim(char *dst) {
 	while ((dst <= cp) && (*cp < 33)) { *(cp--) = 0; }
 }
 
-int getWord() {
+int nextWord() {
 	int len = 0, ch;
 	while (btwi(*toIn, 1, 32)) {
 		ch = *(toIn++);
@@ -316,16 +313,6 @@ int getWord() {
 	while (btwi(*toIn, 33, 126)) { wd[len++] = *(toIn++); }
 	wd[len] = 0;
 	return len;
-}
-
-int nextWord() {
-	while (toIn) {
-		int len = getWord();
-		if (len) { return len; }
-		toIn = (char*)inPop();
-		state = INTERP;
-	}
-	return 0;
 }
 
 int isTemp(const char *w) {
@@ -625,10 +612,9 @@ int isStateChange(const char *wd) {
 	return 0;
 }
 
-void outer(const char *ln) {
-	// zTypeF("-outer:%s-\n",ln);
-	inPush(toIn);
-	toIn = (char*)ln;
+void outer(const char *src) {
+	char *curIn = toIn;
+	toIn = (char*)src;
 	while (nextWord()) {
 		if (isStateChange(wd)) { continue; }
 		if (state == DEFINE) { addWord(wd); state = COMPILE; continue; }
@@ -643,13 +629,10 @@ void outer(const char *ln) {
 			continue;
 		}
 		zTypeF("-%s?-", wd);
-		if (inputFp) { zTypeF(" at\r\n\t%s", ln); }
-		if (inputFp) { fileClose(inputFp); inputFp = 0; }
-		while (toIn) { toIn = inPop(); }
 		state = INTERP;
-		return;
+		break;
 	}
-	toIn = inPop();
+	toIn = curIn;
 }
 
 void outerF(const char *fmt, ...) {
@@ -735,7 +718,7 @@ void c4Init() {
 	last = (DE_T*)&memory[MEM_SZ];
 	base = 10;
 	state = INTERP;
-	inSp = block = asp = bsp = tsp = 0;
+	block = asp = bsp = tsp = 0;
 	// t0-t5 are "normal", t6-t9 are "inline"
 	for (int i = 6; i <= 9; i++) { tmpWords[i].flg = _INLINE; }
 	fileInit();

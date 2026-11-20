@@ -63,29 +63,32 @@ void store32(cell loc, cell val) { *(uint32_t*)loc = (uint32_t)val; }
 cell fetch16(cell loc) {return *(int16_t*)loc; }
 cell fetch32(cell loc) {return *(int32_t*)loc; }
 
-// REP - Read/Execute/Print (no Loop)
-void REP() {
-	FILE *inFp = (FILE*)inputFp;
-	if (inFp == 0) { inFp = stdin; }
+void readExecute() {
     char tib[128];
     ttyMode(0);
-    ok();
-	if (fgets(tib, sizeof(tib), inFp) == tib) { outer(tib); }
+    if (state == 0) { changeState(INTERP); }
+    if (state == COMMENT) { changeState(INTERP); }
+    if (state == COMPILE) { zTypeF("... ", state); }
+    if (state == INTERP) { zTypeF(" ok\n", state); }
+	if (fgets(tib, sizeof(tib), stdin) == tib) { outer(tib); }
     else { exit(0); }
 }
 
 void loadArgument(const char *arg) {
-    char fn[32];
-    strCpy(fn, arg);
-    cell tmp = fileOpen(fn, FL_READ);
-    if (tmp) { inputFp = tmp; }
+    cell tmp = fileOpen((char *)arg, FL_READ);
+    if (tmp) {
+        char *buf = (char*)(vhere+15000);
+        fileRead(buf, 15000, tmp);
+        fileClose(tmp);
+        outer(buf);
+    }
 }
 
 int main(int argc, char *argv[]) {
 	c4Init();
     if (argc > 1) { loadArgument(argv[1]); }
     else { outer("1 load"); }
-    while (1) { REP(); };
+    while (1) { readExecute(); };
 	return 0;
 }
 

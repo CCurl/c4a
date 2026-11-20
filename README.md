@@ -64,6 +64,18 @@
 - For the Teensy-4.x:
   - Use `#define FILE_TEENSY` to include support for LittleFS
 
+```C
+// Change these for the system/board
+// These work for the RPi Pico 2 and the Teensy 4.0
+#define MEM_SZ      320*1024
+#define CODE_SLOTS  NUM_BITS // Values larger are inline numbers
+#define STK_SZ            31 // Data stack size
+#define TASKS_SZ           8 // Number of tasks
+#define NAME_LEN          11 // Size of dict-entry is (2+1+1+NAME_LEN+1)
+#define BLOCK_MAX         49 // Max block
+#define EOL_CHAR          13 // Carriage Return
+```
+
 ## c4a memory areas
 c4a provides a single memory area. See 'mem-sz' (MEM_SZ in c4a.h) for its size.
 - It is broken into 3 areas: CODE, VARS, and DICTIONARY.
