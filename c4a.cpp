@@ -33,14 +33,14 @@ TASK_T tasks[TASKS_SZ];
 	X(TUCK,    "tuck",      0, t=TOS; TOS=NOS; NOS=t; push(t); ) \
 	X(FET8,    "c@",        0, TOS = *(byte *)TOS; ) \
 	X(FET16,   "w@",        0, TOS = fetch16(TOS); ) \
-	X(FET32,   "@",         0, TOS = fetch32(TOS); ) \
+	X(FET32,   "@",         0, TOS = fetchCell(TOS); ) \
 	X(FETWC,   "wc@",       0, TOS = code[(wc_t)TOS]; ) \
-	X(FETCV,   "cv@",       0, TOS = fetch32((cell)&code[(wc_t)TOS]); ) \
+	X(FETCV,   "cv@",       0, TOS = fetchCell((cell)&code[(wc_t)TOS]); ) \
 	X(STO8,    "c!",        0, t=pop(); n=pop(); *(byte*)t=(byte)n; ) \
 	X(STO16,   "w!",        0, t=pop(); n=pop(); store16(t, n); ) \
-	X(STO32,   "!",         0, t=pop(); n=pop(); store32(t, n); ) \
+	X(STO32,   "!",         0, t=pop(); n=pop(); storeCell(t, n); ) \
 	X(STOWC,   "wc!",       0, t=pop(); n=pop(); code[(wc_t)t] = (wc_t)n; ) \
-	X(STOCV,   "cv!",       0, t=pop(); n=pop(); store32((cell)&code[(wc_t)t], n); ) \
+	X(STOCV,   "cv!",       0, t=pop(); n=pop(); storeCell((cell)&code[(wc_t)t], n); ) \
 	X(IF_C4,   "if",        1, comma(JMPZ);  push(here); comma(0); ) \
 	X(IF0_C4,  "if0",       1, comma(JMPNZ); push(here); comma(0); ) \
 	X(IFN_C4,  "-if",       1, comma(NJMPZ); push(here); comma(0); ) \
@@ -56,7 +56,7 @@ TASK_T tasks[TASKS_SZ];
 	X(SUB,     "-",         0, t=pop(); TOS -= t; ) \
 	X(MUL,     "*",         0, t=pop(); TOS *= t; ) \
 	X(STARSL,  "*/",        0, t=pop(); n = pop(); TOS = (TOS*n)/t; ) \
-	X(PLUSTO,  "+!",        0, t=pop(); n = pop(); store32(t,fetch32(t)+n); ) \
+	X(PLUSTO,  "+!",        0, t=pop(); n = pop(); storeCell(t,fetchCell(t)+n); ) \
 	X(DIV,     "/",         0, t=pop(); TOS /= t; ) \
 	X(MOD,     "mod",       0, t=pop(); TOS %= t; ) \
 	X(SLMOD,   "/mod",      0, t=TOS; n = NOS; TOS = n/t; NOS = n%t; ) \
@@ -173,12 +173,12 @@ TASK_T tasks[TASKS_SZ];
 	X(SEMI,    ";",         1, comma(EXIT); state=INTERP; ) \
 	X(LITC,    "lit,",      0, compileNum(pop()); ) \
 	X(COMMA,   ",",         0, comma(pop()); ) \
-	X(VCOMMA,  "v,",        0, store32(vhere,pop()); vhere += CELL_SZ; ) \
+	X(VCOMMA,  "v,",        0, storeCell(vhere,pop()); vhere += CELL_SZ; ) \
 	X(VCCOMMA, "vc,",       0, *(byte *)(vhere++) = (byte)pop(); ) \
 	X(CONST,   "const",     0, addWord(0); compileNum(pop()); comma(EXIT); ) \
 	X(VAR,     "var",       0, addWord(0); compileNum(vhere); comma(EXIT); vhere += pop(); ) \
 	X(VAL,     "val",       0, addWord(0); comma(LIT); commaCell(0); comma(EXIT); ) \
-	X(PVAL,    "(val)",     0, addWord(0); comma(LIT); commaCell((cell)&code[here-4]); comma(EXIT); ) \
+	X(PVAL,    "(val)",     0, addWord(0); comma(LIT); commaCell((cell)&code[here-(CELL_SZ/WC_SZ)]); comma(EXIT); ) \
 	X(NEXTWD,  "next-wd",   0, push(nextWord()); ) \
 	X(IMMED,   "immediate", 0, last->flg =_IMMED; ) \
 	X(INLINE,  "inline",    0, last->flg =_INLINE; ) \
@@ -243,7 +243,7 @@ cell pop() { return (0<dsp) ? dstk[dsp--] : 0; }
 void rpush(cell x) { if (rsp < STK_SZ) { rstk[++rsp] = x; } }
 cell rpop() { return (0<rsp) ? rstk[rsp--] : 0; }
 void comma(cell x) { code[here++] = (wc_t)x; }
-void commaCell(cell n) { store32((cell)&code[here], n); here += (CELL_SZ/WC_SZ); }
+void commaCell(cell n) { storeCell((cell)&code[here], n); here += (CELL_SZ/WC_SZ); }
 int  changeState(int x) { state = x; return x; }
 void ok() { if (state==0) { state=INTERP; } zType((state==INTERP) ? " ok\r\n" : "... "); }
 int  lower(const char c) { return btwi(c, 'A', 'Z') ? c + 32 : c; }
@@ -324,7 +324,7 @@ DE_T *addWord(char *w) {
 	if (w[0] == 0) { return 0; }
 	if (NAME_LEN < strLen(wd)) { zTypeF("-wd/len:%s-\n", wd); wd[NAME_LEN]=0; }
 	if (isTemp(w)) {
-		tmpWords[w[1]-'0'].xt = here;
+		tmpWords[w[1]-'0'].xt = (wc_t)here;
 		return &tmpWords[w[1]-'0'];
 	}
 	int len = strLen(w);
@@ -334,7 +334,7 @@ DE_T *addWord(char *w) {
 		len = NAME_LEN;
 	}
 	DE_T *dp = --last;
-	dp->xt = here;
+	dp->xt = (wc_t)here;
 	dp->flg = 0;
 	dp->len = len;
 	strCpy(dp->nm, w);
@@ -413,8 +413,8 @@ void doSee() {
 	if (!dp) { zTypeF("-nf:%s-", wd); return; }
 	if (dp->xt <= BYE) { zTypeF("%s is a primitive (#%ld/$%lX).\r\n", wd, dp->xt, dp->xt); return; }
 	cell x = (cell)dp;
-	wc_t i = dp->xt, stop = (last < dp) ? (dp-1)->xt : here;
-	zTypeF("\r\n%08lX: %s (%04lX to %04lX)", (long)x, dp->nm, (long)dp->xt, (long)stop-1);
+	wc_t i = dp->xt, stop = (last < dp) ? (dp-1)->xt : (wc_t)here;
+	zTypeF("\r\n%08llX: %s (%04lX to %04lX)", (long long)x, dp->nm, (long)dp->xt, (long)stop-1);
 	while (i < stop) {
 		wc_t op = code[i++];
 		zTypeF("\r\n%04X: %04X\t", i-1, op);
@@ -422,8 +422,8 @@ void doSee() {
 		x = code[i];
 		switch (op) {
 			case  STOP: zType("stop"); i++;
-			BCASE LIT: x = fetch32((cell)&code[i]);
-				zTypeF("lit #%zd ($%zX)", (size_t)x, (size_t)x);
+			BCASE LIT: x = fetchCell((cell)&code[i]);
+				zTypeF("lit #%lld ($%llX)", (long long)x, (long long)x);
 				i += (CELL_SZ/WC_SZ);
 			BCASE JMP:    zTypeF("jmp $%04lX", (long)x);              i++;
 			BCASE JMPZ:   zTypeF("jmpz $%04lX (IF?)", (long)x);       i++;
@@ -499,7 +499,7 @@ void quote() {
 
 cell addTask(cell xt) {
 	for (int i = 1; i < TASKS_SZ; i++) {
-		if (tasks[i].status == 0) { tasks[i].pc = xt; tasks[i].status = 1; return i; }
+		if (tasks[i].status == 0) { tasks[i].pc = (wc_t)xt; tasks[i].status = 1; return i; }
 	}
 	zType("-tasks-full-");
 	return 0;
@@ -518,7 +518,7 @@ void dumpTasks() {
 	for (int i = 0; i < TASKS_SZ; i++) {
 		TASK_T *t = &tasks[i];
 		zTypeF("%2d %04X %2d", i, t->pc, t->status);
-		zTypeF(" %3d %3d %3d", t->stks[0].sp, t->stks[1].sp, t->stks[2].sp);
+		zTypeF(" %3d %3d %3d", (int)t->stks[0].sp, (int)t->stks[1].sp, (int)t->stks[2].sp);
 		zType("\n");
 	}
 }
@@ -536,7 +536,7 @@ void setTask(cell tsk) {
 wc_t nextTask(wc_t pc) {
 	cell nt = 0;
 	tasks[curTask].pc = pc;
-	for (int i = curTask+1; i < TASKS_SZ; i++) { if (tasks[i].status == 1) { nt = i; break; } }
+	for (int i = (int)curTask+1; i < TASKS_SZ; i++) { if (tasks[i].status == 1) { nt = i; break; } }
 	setTask(nt);
 	return tasks[curTask].pc;
 }
@@ -551,7 +551,7 @@ next:
 	wc = code[pc++];
 	switch(wc) {
 		case  STOP:   return;
-		NCASE LIT:    push(fetch32((cell)&code[pc])); pc += (CELL_SZ/WC_SZ);
+		NCASE LIT:    push(fetchCell((cell)&code[pc])); pc += (CELL_SZ/WC_SZ);
 		NCASE JMP:    pc=code[pc];
 		NCASE JMPZ:   if (pop()==0) { pc=code[pc]; } else { ++pc; }
 		NCASE NJMPZ:  if (TOS==0) { pc=code[pc]; } else { ++pc; }
@@ -566,7 +566,7 @@ next:
 	}
 }
 
-int isNum(const char *w, int b) {
+int isNum(const char *w, cell b) {
 	cell n=0, isNeg=0;
 	if ((w[0]==39) && (w[2]==39) && (w[3]==0)) { push(w[1]); return 1; }
 	if (w[0]=='%') { b= 2; ++w; }

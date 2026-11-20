@@ -74,9 +74,9 @@ cell timer() { return (cell)clock(); }
 void zType(const char *str) { fputs(str, outputFp ? (FILE*)outputFp : stdout); }
 void emit(const char ch) { fputc(ch, outputFp ? (FILE*)outputFp : stdout); }
 void store16(cell loc, cell val) { *(uint16_t*)loc = (uint16_t)val; }
-void store32(cell loc, cell val) { *(uint32_t*)loc = (uint32_t)val; }
+void storeCell(cell loc, cell val) { memcpy((void*)loc, &val, CELL_SZ); }
 cell fetch16(cell loc) {return *(int16_t*)loc; }
-cell fetch32(cell loc) {return *(int32_t*)loc; }
+cell fetchCell(cell loc) { cell val; memcpy(&val, (void*)loc, CELL_SZ); return val; }
 
 // PC Specific
 void readExecute() {

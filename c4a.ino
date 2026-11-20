@@ -24,7 +24,7 @@
 cell timer() { return micros(); }
 void ttyMode(int isRaw) {}
 
-// Cells are always 32-bit on dev boards (no 64-bit)
+// Cell size is set by CELL64 in c4a.h (32-bit by default)
 #define F1(x, y) (*(byte*)(x)<<y)
 #define S1(x, y) (*(byte*)(x)=((y)&0xFF))
 
@@ -40,16 +40,14 @@ void store16(cell loc, cell val) {
     }
 }
 
-cell fetch32(cell loc) {
-    if ((loc & 0x03) == 0) { return *(cell*)loc; }
-    return F1(loc,0) | F1(loc+1,8) | F1(loc+2,16) | F1(loc+3,24);
+cell fetchCell(cell loc) {
+    cell val;
+    memcpy(&val, (void*)loc, CELL_SZ);
+    return val;
 }
 
-void store32(cell loc, cell val) {
-    if ((loc & 0x03) == 0) { *(cell*)loc = val; }
-    else {
-        S1(loc,val); S1(loc+1,val>>8); S1(loc+2,val>>16); S1(loc+3,val>>24);
-    }
+void storeCell(cell loc, cell val) {
+    memcpy((void*)loc, &val, CELL_SZ);
 }
 
 char *in, tib[128];
