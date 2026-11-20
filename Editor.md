@@ -39,7 +39,7 @@ There are 4 modes in the editor:
 | [ctrl]+q  | Left 8 chars |
 | [ctrl]+s  | Save the block to the ram-disk |
 | [ctrl]+x  | Delete the char under the cursor |
-| [ctrl]+z  | Goto NORAL mode |
+| [ctrl]+z  | Goto NORMAL mode |
 | [pgup]    | Save the current block and go to block-1 |
 | [pgdn]    | Save the current block and go to block+1 |
 | [esc-esc] | Goto NORMAL mode |
@@ -84,13 +84,12 @@ There are 4 modes in the editor:
 | l    | Right 1 char |
 | n    | Search forwards for [find-buffer] |
 | N    | Search backwards for [find-buffer] |
-| n    | Insert a 'new-line' (#10/$0A) into the block |
 | o    | Insert an empty line BELOW the current line and change to INSERT mode |
 | O    | Insert an empty line ABOVE the current line and change to INSERT mode |
 | p    | Paste the YANK buffer into a new line BELOW the current line |
 | P    | Paste the YANK buffer into a new line ABOVE the current line |
-| q    | Right 8 chars |
-| Q    | Left 8 chars |
+| q    | Right 4 chars |
+| Q    | Left 4 chars |
 | r    | Replace the char under the cursor with the next key pressed (if printable) |
 | R    | Change to REPLACE mode |
 | t    | Transfer current block to text file 'block-NNN.fth' |
