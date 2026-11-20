@@ -317,19 +317,18 @@ static void edFind() {
     doFind(1);
 }
 
-static void execForth(const char *cmd) {
-    cell curBlock = block;
-    ttyMode(0); changeState(INTERP); outer(cmd);
-    cell newBlock = block;
-    if (curBlock != newBlock) { block = curBlock; gotoBlock(newBlock); }
-}
-
 static void edCommand() {
     char buf[32];
     toCmd(); emit(':'); ClearEOL();
     edReadLine(buf, sizeof(buf));
     toCmd(); ClearEOL();
-    if (strEqI(buf,"rl")) { edRdBlk(); }
+    if (buf[0]=='!') {
+        cell curBlock = block;
+        ttyMode(0); changeState(INTERP); outer(&buf[1]);
+        cell newBlock = block;
+        if (curBlock != newBlock) { block=curBlock; gotoBlock(newBlock); }
+    }
+    else if (strEqI(buf,"rl")) { edRdBlk(); }
     else if (strEqI(buf,"w")) { edSvBlk(0); }
     else if (strEqI(buf,"w!")) { edSvBlk(1); }
     else if (strEqI(buf,"wq")) { edSvBlk(0); edMode=QUIT; }
@@ -338,7 +337,6 @@ static void edCommand() {
         if (isDirty) { zType("(use 'q!' to quit without saving)"); }
         else { edMode=QUIT; }
     }
-    else { execForth(&buf[0]); }
 }
 
 static void toText() {

@@ -126,4 +126,4 @@ COMMAND mode is invoked when pressing ':' in NORMAL mode.
 | wq      | Write the current block and quit (same as ':w' ':q') |
 | q       | Quit, if the current block has NOT changed |
 | q!      | Quit, even if the current block has changed |
-| [other] | Send [other] to the c4a outer interpreter |
+| ![any]  | Send [any] to the c4a outer interpreter |
