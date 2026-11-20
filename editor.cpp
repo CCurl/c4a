@@ -536,7 +536,7 @@ static void showFooter() {
     const char* x[3] = { "-normal-","-insert-","-replace-" };
     char ch = EDCH(line, off);
     toFooter(); White();
-    zTypeF("Block# %03d%s", block, isDirty ? " *" : "");
+    zTypeF("Block# %03d%s", (int)block, isDirty ? " *" : "");
     if (edMode != NORMAL) { Red(); }
     zTypeF(" %s", x[edMode - 1]);
     if (edMode != NORMAL) { White(); }
@@ -545,7 +545,7 @@ static void showFooter() {
 }
 
 void editBlock(cell blk) {
-    setBlock((int)blk);
+    setBlock(blk);
     if (lastBlock == 0) { lastBlock = (int)blk; }
     line = off = 0;
     CLS();
