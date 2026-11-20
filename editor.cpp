@@ -47,7 +47,7 @@ static void normalMode()  { edMode=NORMAL;  }
 static void insertMode()  { edMode=INSERT;  }
 static void replaceMode() { edMode=REPLACE; }
 static void toggleInsert() { (edMode==INSERT) ? normalMode() : insertMode(); }
-static void setBlock(int blk) { block = MAX(MIN(blk, BLOCK_MAX), 0); }
+static void setBlock(cell blk) { block = MAX(MIN(blk, BLOCK_MAX), 0); }
 static int  winKey() { return (224 << 5) ^ key(); }
 static int  winFKey() { return 0xF00 + key() - 58; }
 
@@ -284,8 +284,8 @@ static int edReadLine(char *buf, int sz) {
     return len;
 }
 
-static void gotoBlock(int blk) {
-    lastBlock = block;
+static void gotoBlock(cell blk) {
+    lastBlock = (int)block;
     edSvBlk(0); setBlock(blk);
     edRdBlk(); line = off = 0;
 }
@@ -342,7 +342,7 @@ static void edCommand() {
 
 static void toText() {
     char x[NUM_COLS+1];
-    sprintf(x,"block-%03d.fth",block);
+    sprintf(x,"block-%03d.fth",(int)block);
     cell fh = fileOpen(x, FL_WRITE);
     if (fh) {
         outputFp = fh;
@@ -363,11 +363,11 @@ static void toText() {
 
 static void toBlock() {
     char x[BLOCK_SZ+1];
-    sprintf(x,"block-%03d.fth",block);
+    sprintf(x,"block-%03d.fth",(int)block);
     cell fh = fileOpen(x, FL_READ);
     if (fh) {
         for (int i=0; i<BLOCK_SZ; i++ ) { edBuf[i]=32; }
-        int n = fileRead(x, BLOCK_SZ, fh); toCmd(); zTypeF("%d chars", n);
+        cell n = fileRead(x, BLOCK_SZ, fh); toCmd(); zTypeF("%d chars", (int)n);
         int r=0, c=0;
         fileClose(fh);
         for (int i=0; i<n; i++ ) {
@@ -546,7 +546,7 @@ static void showFooter() {
 
 void editBlock(cell blk) {
     setBlock((int)blk);
-    if (lastBlock == 0) { lastBlock = blk; }
+    if (lastBlock == 0) { lastBlock = (int)blk; }
     line = off = 0;
     CLS();
     edRdBlk();

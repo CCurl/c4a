@@ -29,8 +29,9 @@
 #define EOL_CHAR          13 // Carriage Return
 
 // System defines
-#define CELL_T           int32_t
-#define CELL_SZ             4
+#define CELL_T           int64_t
+#define UCELL_T          uint64_t
+#define CELL_SZ             8
 #define WC_T             uint16_t
 #define WC_SZ               2
 #define NUM_BITS       0xF000
@@ -54,6 +55,7 @@
 
 enum { COMPILE=1, DEFINE=2, INTERP=3, COMMENT=4 };
 typedef CELL_T cell;
+typedef UCELL_T ucell;
 typedef WC_T wc_t;
 typedef uint8_t byte;
 typedef struct { wc_t xt; byte flg, len; char nm[NAME_LEN+1]; } DE_T;
@@ -111,6 +113,8 @@ extern cell fetch16(cell loc);
 extern cell fetch32(cell loc);
 extern void store16(cell loc, cell val);
 extern void store32(cell loc, cell val);
+extern void storeCell(cell loc, cell val);
+extern cell fetchCell(cell loc);
 extern void zType(const char *str);
 extern void emit(const char ch);
 extern void ttyMode(int isRaw);

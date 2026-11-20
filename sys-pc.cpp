@@ -75,8 +75,10 @@ void zType(const char *str) { fputs(str, outputFp ? (FILE*)outputFp : stdout); }
 void emit(const char ch) { fputc(ch, outputFp ? (FILE*)outputFp : stdout); }
 void store16(cell loc, cell val) { *(uint16_t*)loc = (uint16_t)val; }
 void store32(cell loc, cell val) { *(uint32_t*)loc = (uint32_t)val; }
-cell fetch16(cell loc) {return *(int16_t*)loc; }
-cell fetch32(cell loc) {return *(int32_t*)loc; }
+void storeCell(cell loc, cell val) { *(cell*)loc = (cell)val; }
+cell fetch16(cell loc)   { return *(int16_t*)loc; }
+cell fetch32(cell loc)   { return *(int32_t*)loc; }
+cell fetchCell(cell loc) { return *(cell*)loc; }
 
 // PC Specific
 void readExecute() {
