@@ -145,16 +145,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <None Include=".gitignore" />
-    <None Include="block-000.fth" />
-    <None Include="block-001.fth" />
-    <None Include="block-002.fth" />
-    <None Include="block-003.fth" />
-    <None Include="block-004.fth" />
-    <None Include="block-005.fth" />
-    <None Include="block-006.fth" />
-    <None Include="block-009.fth" />
-    <None Include="block-011.fth" />
-    <None Include="blocks.fth" />
     <None Include="c4a.ino" />
     <None Include="Editor.md" />
     <None Include="LICENSE" />
@@ -165,7 +155,6 @@
     <ClCompile Include="block.cpp" />
     <ClCompile Include="c4a.cpp" />
     <ClCompile Include="editor.cpp" />
-    <ClCompile Include="file-pc.cpp" />
     <ClCompile Include="file-pico.cpp" />
     <ClCompile Include="file-teensy.cpp" />
     <ClCompile Include="sys-load.cpp" />

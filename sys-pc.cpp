@@ -55,6 +55,21 @@
   }
 #endif // IS_LINUX
 
+#ifdef FILE_PC
+    // Support for files
+    FILE *makeIn(cell fh) { return fh ? (FILE*)fh: stdin; }
+    FILE *makeOut(cell fh) { return fh ? (FILE*)fh: stdout; }
+
+    cell fileOpen(const char *name, const char *mode) { return (cell)fopen(name, mode); }
+    void fileClose(cell fh) { fclose((FILE*)fh); }
+    void fileDelete(const char *name) { remove(name); }
+    cell fileRead(char *buf, int sz, cell fh) { return fread(buf, 1, sz, makeIn(fh)); }
+    cell fileWrite(char *buf, int sz, cell fh) { return fwrite(buf, 1, sz, makeOut(fh)); }
+    void fileInit() { blockInit(); }
+#endif // FILE_PC
+
+// C4A Required
+cell outputFp = 0;
 cell timer() { return (cell)clock(); }
 void zType(const char *str) { fputs(str, outputFp ? (FILE*)outputFp : stdout); }
 void emit(const char ch) { fputc(ch, outputFp ? (FILE*)outputFp : stdout); }
@@ -63,13 +78,14 @@ void store32(cell loc, cell val) { *(uint32_t*)loc = (uint32_t)val; }
 cell fetch16(cell loc) {return *(int16_t*)loc; }
 cell fetch32(cell loc) {return *(int32_t*)loc; }
 
+// PC Specific
 void readExecute() {
     char tib[128];
     ttyMode(0);
-    if (state == 0) { changeState(INTERP); }
-    if (state == COMMENT) { changeState(INTERP); }
-    if (state == COMPILE) { zTypeF("... ", state); }
-    if (state == INTERP) { zTypeF(" ok\n", state); }
+    if ((state == 0) || (state == COMMENT)) { changeState(INTERP); }
+    if (state == INTERP) { zType(" ok\n"); }
+    else if (state == COMPILE) { zType("... "); }
+    else if (state == DEFINE) { zType("(define) "); }
 	if (fgets(tib, sizeof(tib), stdin) == tib) { outer(tib); }
     else { exit(0); }
 }

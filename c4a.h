@@ -106,7 +106,7 @@ extern void ok();
 extern cell block, vhere, state;
 
 // c4a.cpp needs these to be defined
-extern cell inputFp, outputFp;
+extern cell outputFp;
 extern cell fetch16(cell loc);
 extern cell fetch32(cell loc);
 extern void store16(cell loc, cell val);

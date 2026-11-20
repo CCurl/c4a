@@ -399,8 +399,9 @@ static void doCTL(int c) {
         RCASE 11:    mvUp();                     // <ctrl-k>
         RCASE 12:    mvRight();                  // <ctrl-l>
         RCASE 17:    mv(0, -8);                  // <ctrl-q>
-        RCASE 24:    edDelX('.');                // <ctrl-x>
         RCASE 19:    edSvBlk(0);                 // <ctrl-s>
+        RCASE 24:    edDelX('.');                // <ctrl-x>
+        RCASE 26:    normalMode();               // <ctrl-z>
         RCASE 27:    normalMode();               // <escape>
         RCASE Up:    mvUp();                     // Up
         RCASE Lt:    mvLeft();                   // Left
