@@ -41,9 +41,20 @@ void flushBlocks() {
     }
 }
 
-static void prepForLoad() { toIn[BLOCK_SZ-1]=0; changeState(INTERP); }
-char *blockAddr(wc_t blk) { return (char*)&blocks[MIN(blk, BLOCK_MAX)*BLOCK_SZ]; }
-void blockLoadNext(wc_t blk) { toIn=blockAddr(blk); prepForLoad(); }
-void blockLoad(wc_t blk) { inPush(toIn); blockLoadNext(blk); }
+char *blockAddr(cell blk) {
+    if (blk > BLOCK_MAX) { blk = BLOCK_MAX; }
+    if (blk < 0) { blk = 0; }
+    return (char*)&blocks[blk*BLOCK_SZ];
+}
+
+void blockLoad(cell blk) {
+    // cell curBlock = block;
+    char *x = blockAddr(blk);
+    x[BLOCK_SZ-1]=0;
+    changeState(INTERP);
+    outer(x);
+    changeState(INTERP);
+    // block = curBlock;
+}
 
 #endif // FILE_NONE

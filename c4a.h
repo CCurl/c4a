@@ -20,19 +20,18 @@
 #include <time.h>
 
 // Change these for the system/board
-// These work for the RPi Pico 2 and the Teensy 4.0
-#define MEM_SZ      320*1024
+#define MEM_SZ      4*1024*1024
 #define CODE_SLOTS  NUM_BITS // Values larger are inline numbers
-#define STK_SZ            31 // Data stack size
-#define FSTK_SZ            8 // Files stack size
+#define STK_SZ            63 // Data stack size
 #define TASKS_SZ           8 // Number of tasks
 #define NAME_LEN          11 // Size of dict-entry is (2+1+1+NAME_LEN+1)
-#define BLOCK_MAX         49 // Max block
+#define BLOCK_MAX         19 // Max block
 #define EOL_CHAR          13 // Carriage Return
 
 // System defines
-#define CELL_T           int32_t
-#define CELL_SZ             4
+#define CELL_T           int64_t
+#define UCELL_T          uint64_t
+#define CELL_SZ             8
 #define WC_T             uint16_t
 #define WC_SZ               2
 #define NUM_BITS       0xF000
@@ -56,6 +55,7 @@
 
 enum { COMPILE=1, DEFINE=2, INTERP=3, COMMENT=4 };
 typedef CELL_T cell;
+typedef UCELL_T ucell;
 typedef WC_T wc_t;
 typedef uint8_t byte;
 typedef struct { wc_t xt; byte flg, len; char nm[NAME_LEN+1]; } DE_T;
@@ -89,8 +89,6 @@ typedef struct { STK_T stks[3]; wc_t pc, base; int status; } TASK_T;
 extern void c4Init();
 extern void push(cell x);
 extern cell pop();
-extern void inPush(char *in);
-extern char *inPop();
 extern void strCpy(char *d, const char *s);
 extern int  strEq(const char *d, const char *s);
 extern int  strEqI(const char *d, const char *s);
@@ -107,14 +105,16 @@ extern void inner(wc_t start);
 extern void outer(const char *src);
 extern void outerF(const char *fmt, ...);
 extern void ok();
-extern cell block;
+extern cell block, vhere, state;
 
 // c4a.cpp needs these to be defined
-extern cell inputFp, outputFp;
+extern cell outputFp;
 extern cell fetch16(cell loc);
 extern cell fetch32(cell loc);
 extern void store16(cell loc, cell val);
 extern void store32(cell loc, cell val);
+extern void storeCell(cell loc, cell val);
+extern cell fetchCell(cell loc);
 extern void zType(const char *str);
 extern void emit(const char ch);
 extern void ttyMode(int isRaw);
@@ -141,9 +141,8 @@ extern void Yellow();
   
   // ... and these - blocks
   extern void blockInit();
-  extern char *blockAddr(wc_t blk);
-  extern void blockLoad(wc_t blk);
-  extern void blockLoadNext(wc_t blk);
+  extern char *blockAddr(cell blk);
+  extern void blockLoad(cell blk);
   extern void editBlock(cell blk);
   extern void flushBlocks();
   #define EDITOR
