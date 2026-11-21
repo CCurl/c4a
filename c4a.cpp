@@ -9,6 +9,7 @@
 #define BCASE         break; case
 #define STK(x)        tasks[curTask].stks[x].stk
 #define SP(x)         tasks[curTask].stks[x].sp
+#define WD_SZ         64
 
 byte memory[MEM_SZ+1];
 wc_t *code = (wc_t*)&memory[0];
@@ -17,7 +18,7 @@ cell *dstk, *rstk, *lstk, fgtH, fgtVH;
 cell dsp, rsp, lsp, asp, bsp, tsp;
 cell astk[STK_SZ+1], bstk[STK_SZ+1], tstk[STK_SZ+1];
 DE_T tmpWords[10], *last, *fgtL;
-char wd[32], *toIn;
+char wd[WD_SZ], *toIn;
 TASK_T tasks[NUM_TASKS];
 
 #define PRIMS_BASE \
@@ -310,7 +311,13 @@ int nextWord() {
 		ch = *(toIn++);
 		if (btwi(ch,COMPILE,COMMENT)) { state = ch; }
 	}
-	while (btwi(*toIn, 33, 126)) { wd[len++] = *(toIn++); }
+	while (btwi(*toIn, 33, 126)) {
+		if (len >= WD_SZ-1) {
+			wd[len] = 0;
+			zTypeF("-wd [%s] too long-\r\n", wd);
+			return 0;
+		} else { wd[len++] = *(toIn++); }
+	}
 	wd[len] = 0;
 	return len;
 }
@@ -645,10 +652,10 @@ void outerF(const char *fmt, ...) {
 }
 
 void zTypeF(const char *fmt, ...) {
-	char buf[128];
+	char buf[256];
 	va_list args;
 	va_start(args, fmt);
-	vsnprintf(buf, 128, fmt, args);
+	vsnprintf(buf, 256, fmt, args);
 	va_end(args);
 	zType(buf);
 }
