@@ -19,13 +19,13 @@ void sys_load() {
 : rot >r swap r> swap ;  : -rot swap >r swap r> ;
 : btwi ( n l h--f ) >r over >  swap r> >  or 0= ;
 : execute ( a-- ) >r ;
-: !t- t@- c! ;  #40 var #buf
-: <# ( n1--n2 ) #buf #39 + >t 0 !t- dup 0 < >a abs ;
-: #. ( -- )     '.' !t- ;
-: #n ( n-- )    dup 9 > if 7 + then '0' + !t- ;
+: c!t- t@- c! ;  #40 var #buf
+: <# ( n1--n2 ) #buf #39 + >t 0 c!t- dup 0 < >a abs ;
+: #. ( -- )     '.' c!t- ;
+: #n ( n-- )    dup 9 > if 7 + then '0' + c!t- ;
 : #  ( n1--n2 ) base @ /mod swap #n ;
 : #s ( n--0 )   begin # -while ;
-: #> ( --str )  drop a> if '-' !t- then t> 1+ ;
+: #> ( --str )  drop a> if '-' c!t- then t> 1+ ;
 : .version version <# # # #. # # #. #s #> ztype ;
 : [[ vhere >t here >t 1 state ! ;
 : ]] (exit) , 0 state ! t@ (here) ! t> >r t> (vhere) ! ; immediate

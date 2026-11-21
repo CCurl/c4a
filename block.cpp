@@ -1,6 +1,7 @@
 #include "c4a.h"
 
 #ifndef FILE_NONE
+
 // Support for blocks
 #define BLOCK_FN1       "blocks.c4a"
 #define BLOCK_FN2       "\\bin\\blocks.c4a"
@@ -42,7 +43,7 @@ void flushBlocks() {
 }
 
 char *blockAddr(cell blk) {
-    if (blk > BLOCK_MAX) { blk = BLOCK_MAX; }
+    if (blk >= NUM_BLOCKS) { blk = NUM_BLOCKS-1; }
     if (blk < 0) { blk = 0; }
     return (char*)&blocks[blk*BLOCK_SZ];
 }

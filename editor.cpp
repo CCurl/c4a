@@ -23,7 +23,6 @@ void editBlock(cell blk) { zType("-no edit-"); }
 #define CLEAN(show)   isDirty=0; isShow=show
 #define BCASE         break; case
 #define RCASE         return; case
-#define EOL_CHAR      13
 
 enum { NORMAL=1, INSERT, REPLACE, QUIT };
 enum { Up=7240, Dn=7248, Rt=7245, Lt=7243, Home=7239, PgUp=7241, PgDn=7249,
@@ -47,7 +46,7 @@ static void normalMode()  { edMode=NORMAL;  }
 static void insertMode()  { edMode=INSERT;  }
 static void replaceMode() { edMode=REPLACE; }
 static void toggleInsert() { (edMode==INSERT) ? normalMode() : insertMode(); }
-static void setBlock(cell blk) { block = MAX(MIN(blk, BLOCK_MAX), 0); }
+static void setBlock(cell blk) { block = MAX(MIN(blk, NUM_BLOCKS-1), 0); }
 static int  winKey() { return (224 << 5) ^ key(); }
 static int  winFKey() { return 0xF00 + key() - 58; }
 

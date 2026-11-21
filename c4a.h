@@ -1,16 +1,16 @@
 #ifndef __C4A_H__
 #define __C4A_H__
 
-#define VERSION   20261117
+#define VERSION   20261121
 #define _SYS_LOAD_
 
 #ifdef _MSC_VER
   #define _CRT_SECURE_NO_WARNINGS
-  #define IS_WINDOWS 1
-  #define IS_PC      1
+  #define IS_WINDOWS        1
+  #define IS_PC             1
 #elif (defined __i386 || defined __x86_64 || defined IS_LINUX)
-  #define IS_LINUX   1
-  #define IS_PC      1
+  #define IS_LINUX          1
+  #define IS_PC             1
 #endif
 
 #include <stdio.h>
@@ -20,17 +20,16 @@
 #include <time.h>
 
 // Change these for the system/board
-#define MEM_SZ      4*1024*1024
-#define CODE_SLOTS  NUM_BITS // Values larger are inline numbers
-#define STK_SZ            63 // Data stack size
-#define TASKS_SZ           8 // Number of tasks
-#define NAME_LEN          11 // Size of dict-entry is (2+1+1+NAME_LEN+1)
-#define BLOCK_MAX         19 // Max block
-#define EOL_CHAR          13 // Carriage Return
+#define MEM_SZ      (8*1024*1024)  // Total memory size (code + data)
+#define NUM_BLOCKS         20      // Number of "disk" blocks
+#define STK_SZ             63      // Size of stacks: data, return, loop, a, b, t
+#define NUM_TASKS           8      // Number of tasks
+#define NAME_LEN           15      // Size of dict-entry is (2+1+1+NAME_LEN+1)
+#define EOL_CHAR           13      // Carriage Return
+#define CODE_SLOTS   NUM_BITS      // Values larger are inline numbers
 
 // System defines
 #define CELL_T           int64_t
-#define UCELL_T          uint64_t
 #define CELL_SZ             8
 #define WC_T             uint16_t
 #define WC_SZ               2
@@ -38,36 +37,21 @@
 #define NUM_MASK       0x0FFF
 #define NUM_LINES          23
 #define NUM_COLS           89
-#define BLOCK_SZ         2048
+#define BLOCK_SZ         2048 // (23*89)+1
 #define STK_DATA            0
 #define STK_RETN            1
 #define STK_LSTK            2
-#define TASK_MAX      (TASKS_SZ-1)
-#define NUM_BLOCKS    (BLOCK_MAX+1)
+#define TASK_MAX      (NUM_TASKS-1)
 #define _IMMED              1
 #define _INLINE             2
 #define btwi(n,l,h)   ((l<=n) && (n<=h))
 
 #ifndef MAX
-#define MIN(a,b) (((a)<(b))?(a):(b))
-#define MAX(a,b) (((a)>(b))?(a):(b))
+  #define MIN(a,b) (((a)<(b))?(a):(b))
+  #define MAX(a,b) (((a)>(b))?(a):(b))
 #endif
 
-enum { COMPILE=1, DEFINE=2, INTERP=3, COMMENT=4 };
-typedef CELL_T cell;
-typedef UCELL_T ucell;
-typedef WC_T wc_t;
-typedef uint8_t byte;
-typedef struct { wc_t xt; byte flg, len; char nm[NAME_LEN+1]; } DE_T;
-typedef struct { wc_t op; byte flg, len; const char *name; } PRIM_T;
-typedef struct { cell sp; cell stk[STK_SZ+1]; } STK_T;
-
-// #define TASK_CYCLES   1000
-typedef struct { STK_T stks[3]; wc_t pc, base; int status; } TASK_T;
-
 #ifdef IS_PC
-  #undef  MEM_SZ
-  #define MEM_SZ      4*1024*1024
   #define FL_READ          "rb"
   #define FL_RW            "r+b"
   #define FL_WRITE         "wb"
@@ -84,6 +68,17 @@ typedef struct { STK_T stks[3]; wc_t pc, base; int status; } TASK_T;
   #define FILE_PICO
   // #define FILE_TEENSY
 #endif
+
+enum { COMPILE=1, DEFINE=2, INTERP=3, COMMENT=4 };
+typedef CELL_T cell;
+typedef WC_T wc_t;
+typedef uint8_t byte;
+typedef struct { wc_t xt; byte flg, len; char nm[NAME_LEN+1]; } DE_T;
+typedef struct { wc_t op; byte flg, len; const char *name; } PRIM_T;
+typedef struct { cell sp; cell stk[STK_SZ+1]; } STK_T;
+
+// #define TASK_CYCLES   1000
+typedef struct { STK_T stks[3]; wc_t pc, base; int status; } TASK_T;
 
 // These are defined by c4a.cpp
 extern void c4Init();

@@ -18,7 +18,7 @@ cell dsp, rsp, lsp, asp, bsp, tsp;
 cell astk[STK_SZ+1], bstk[STK_SZ+1], tstk[STK_SZ+1];
 DE_T tmpWords[10], *last, *fgtL;
 char wd[32], *toIn;
-TASK_T tasks[TASKS_SZ];
+TASK_T tasks[NUM_TASKS];
 
 #define PRIMS_BASE \
 	X(EXIT,    "exit",      0, if (0<rsp) { pc = (wc_t)rpop(); } else { return; } ) \
@@ -36,13 +36,11 @@ TASK_T tasks[TASKS_SZ];
 	X(FET32,   "d@",        0, TOS = fetch32(TOS); ) \
 	X(FETCELL, "@",         0, TOS = fetchCell(TOS); ) \
 	X(FETWC,   "wc@",       0, TOS = code[(wc_t)TOS]; ) \
-	X(FETCV,   "cv@",       0, TOS = fetchCell((cell)&code[(wc_t)TOS]); ) \
 	X(STO8,    "c!",        0, t=pop(); n=pop(); *(byte*)t=(byte)n; ) \
 	X(STO16,   "w!",        0, t=pop(); n=pop(); store16(t, n); ) \
 	X(STO32,   "d!",        0, t=pop(); n=pop(); store32(t, n); ) \
 	X(STOCELL, "!",         0, t=pop(); n=pop(); storeCell(t, n); ) \
 	X(STOWC,   "wc!",       0, t=pop(); n=pop(); code[(wc_t)t] = (wc_t)n; ) \
-	X(STOCV,   "cv!",       0, t=pop(); n=pop(); storeCell((cell)&code[(wc_t)t], n); ) \
 	X(IF_C4,   "if",        1, comma(JMPZ);  push(here); comma(0); ) \
 	X(IF0_C4,  "if0",       1, comma(JMPNZ); push(here); comma(0); ) \
 	X(IFN_C4,  "-if",       1, comma(NJMPZ); push(here); comma(0); ) \
@@ -71,11 +69,11 @@ TASK_T tasks[TASKS_SZ];
 	X(DIV2,    "2/",        0, TOS /= 2; ) \
 	X(CELLS,   "cells",     0, TOS *= CELL_SZ; ) \
 	X(CELLPL,  "cell+",     0, TOS += CELL_SZ; ) \
-	X(LT,      "<",         0, t=pop(); TOS = (TOS < t); ) \
+	X(LT,      "<",         0, t=pop(); TOS = (TOS  < t); ) \
 	X(LTEQ,    "<=",        0, t=pop(); TOS = (TOS <= t); ) \
 	X(EQ,      "=",         0, t=pop(); TOS = (TOS == t); ) \
 	X(GTEQ,    ">=",        0, t=pop(); TOS = (TOS >= t); ) \
-	X(GT,      ">",         0, t=pop(); TOS = (TOS > t); ) \
+	X(GT,      ">",         0, t=pop(); TOS = (TOS  > t); ) \
 	X(EQ0,     "0=",        0, TOS = (TOS == 0) ? 1 : 0; ) \
 	X(AND,     "and",       0, t=pop(); TOS &= t; ) \
 	X(OR,      "or",        0, t=pop(); TOS |= t; ) \
@@ -110,12 +108,12 @@ TASK_T tasks[TASKS_SZ];
 	X(AGET,    "a@",        0, push(astk[asp]); ) \
 	X(AGETI,   "a@+",       0, push(astk[asp]++); ) \
 	X(AGETD,   "a@-",       0, push(astk[asp]--); ) \
-	X(AFET,    "@a",        0, t=astk[asp];   push(*(byte*)t); ) \
-	X(AFETI,   "@a+",       0, t=astk[asp]++; push(*(byte*)t); ) \
-	X(AFETD,   "@a-",       0, t=astk[asp]--; push(*(byte*)t); ) \
-	X(ASTO,    "!a",        0, t=astk[asp];   n=pop(); *(byte*)t=(byte)n; ) \
-	X(ASTOI,   "!a+",       0, t=astk[asp]++; n=pop(); *(byte*)t=(byte)n; ) \
-	X(ASTOD,   "!a-",       0, t=astk[asp]--; n=pop(); *(byte*)t=(byte)n; ) \
+	X(AFET,    "c@a",       0, t=astk[asp];   push(*(byte*)t); ) \
+	X(AFETI,   "c@a+",      0, t=astk[asp]++; push(*(byte*)t); ) \
+	X(AFETD,   "c@a-",      0, t=astk[asp]--; push(*(byte*)t); ) \
+	X(ASTO,    "c!a",        0, t=astk[asp];   n=pop(); *(byte*)t=(byte)n; ) \
+	X(ASTOI,   "c!a+",       0, t=astk[asp]++; n=pop(); *(byte*)t=(byte)n; ) \
+	X(ASTOD,   "c!a-",       0, t=astk[asp]--; n=pop(); *(byte*)t=(byte)n; ) \
 	X(AFROM,   "a>",        0, push((0 < asp) ? astk[asp--] : 0); ) \
 	X(ADROP,   "adrop",     0, if (0 < asp) { asp--; } ) \
 	X(TOB,     ">b",        0, t=pop(); if (bsp < STK_SZ) { bstk[++bsp]=t; }; ) \
@@ -123,12 +121,12 @@ TASK_T tasks[TASKS_SZ];
 	X(BGET,    "b@",        0, push(bstk[bsp]); ) \
 	X(BGETI,   "b@+",       0, push(bstk[bsp]++); ) \
 	X(BGETD,   "b@-",       0, push(bstk[bsp]--); ) \
-	X(BFET,    "@b",        0, t=bstk[bsp];   push(*(byte*)t); ) \
-	X(BFETI,   "@b+",       0, t=bstk[bsp]++; push(*(byte*)t); ) \
-	X(BFETD,   "@b-",       0, t=bstk[bsp]--; push(*(byte*)t); ) \
-	X(BSTO,    "!b",        0, t=bstk[bsp];   n=pop(); *(byte*)t=(byte)n; ) \
-	X(BSTOI,   "!b+",       0, t=bstk[bsp]++; n=pop(); *(byte*)t=(byte)n; ) \
-	X(BSTOD,   "!b-",       0, t=bstk[bsp]--; n=pop(); *(byte*)t=(byte)n; ) \
+	X(BFET,    "c@b",       0, t=bstk[bsp];   push(*(byte*)t); ) \
+	X(BFETI,   "c@b+",      0, t=bstk[bsp]++; push(*(byte*)t); ) \
+	X(BFETD,   "c@b-",      0, t=bstk[bsp]--; push(*(byte*)t); ) \
+	X(BSTO,    "c!b",       0, t=bstk[bsp];   n=pop(); *(byte*)t=(byte)n; ) \
+	X(BSTOI,   "c!b+",      0, t=bstk[bsp]++; n=pop(); *(byte*)t=(byte)n; ) \
+	X(BSTOD,   "c!b-",      0, t=bstk[bsp]--; n=pop(); *(byte*)t=(byte)n; ) \
 	X(BFROM,   "b>",        0, push((0 < bsp) ? astk[bsp--] : 0); ) \
 	X(BDROP,   "bdrop",     0, if (0 < bsp) { bsp--; } ) \
 
@@ -175,7 +173,7 @@ TASK_T tasks[TASKS_SZ];
 	X(SEMI,    ";",         1, comma(EXIT); state=INTERP; ) \
 	X(LITC,    "lit,",      0, compileNum(pop()); ) \
 	X(COMMA,   ",",         0, comma(pop()); ) \
-	X(VCOMMA,  "v,",        0, store32(vhere,pop()); vhere += CELL_SZ; ) \
+	X(VCOMMA,  "v,",        0, storeCell(vhere,pop()); vhere += CELL_SZ; ) \
 	X(VCCOMMA, "vc,",       0, *(byte *)(vhere++) = (byte)pop(); ) \
 	X(CONST,   "const",     0, addWord(0); compileNum(pop()); comma(EXIT); ) \
 	X(VAR,     "var",       0, addWord(0); compileNum(vhere); comma(EXIT); vhere += pop(); ) \
@@ -500,7 +498,7 @@ void quote() {
 }
 
 cell addTask(cell xt) {
-	for (int i = 1; i < TASKS_SZ; i++) {
+	for (int i = 1; i < NUM_TASKS; i++) {
 		if (tasks[i].status == 0) { tasks[i].pc = (wc_t)xt; tasks[i].status = 1; return i; }
 	}
 	zType("-tasks-full-");
@@ -517,7 +515,7 @@ void delTask(cell taskNum) {
 void dumpTasks() {
 	zType(" # PC   St DSP RSP LSP\n");
 	zType("-- ---- -- --- --- ---\n");
-	for (int i = 0; i < TASKS_SZ; i++) {
+	for (int i = 0; i < NUM_TASKS; i++) {
 		TASK_T *t = &tasks[i];
 		zTypeF("%2d %04X %2d", i, t->pc, t->status);
 		zTypeF(" %3d %3d %3d", t->stks[0].sp, t->stks[1].sp, t->stks[2].sp);
@@ -538,7 +536,7 @@ void setTask(cell tsk) {
 wc_t nextTask(wc_t pc) {
 	cell nt = 0;
 	tasks[curTask].pc = pc;
-	for (cell i = curTask+1; i < TASKS_SZ; i++) { if (tasks[i].status == 1) { nt = i; break; } }
+	for (cell i = curTask+1; i < NUM_TASKS; i++) { if (tasks[i].status == 1) { nt = i; break; } }
 	setTask(nt);
 	return tasks[curTask].pc;
 }
@@ -670,7 +668,7 @@ void baseSys() {
 	defineNum("de-sz",    sizeof(DE_T));
 	defineNum("stk-sz",   STK_SZ+1);
 	defineNum("wc-sz",    WC_SZ);
-	defineNum("tasks-sz", TASKS_SZ);
+	defineNum("tasks-sz", NUM_TASKS);
 	defineNum("cur-task", (cell)&curTask);
 
 	defineNum("(dsp)",   (cell)&dsp);
