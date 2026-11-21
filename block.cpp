@@ -49,13 +49,12 @@ char *blockAddr(cell blk) {
 }
 
 void blockLoad(cell blk) {
-    // cell curBlock = block;
+    block = blk;
     char *x = blockAddr(blk);
     x[BLOCK_SZ-1]=0;
     changeState(INTERP);
     outer(x);
     changeState(INTERP);
-    // block = curBlock;
 }
 
 #endif // FILE_NONE

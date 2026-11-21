@@ -27,28 +27,28 @@
 #define NAME_LEN           15      // Size of dict-entry is (2+1+1+NAME_LEN+1)
 #define EOL_CHAR           13      // Carriage Return
 #define CODE_SLOTS   NUM_BITS      // Values larger are inline numbers
+#define CELL_T          int64_t    // Can be either 32 or 64 bits
+#define CELL_SZ             8
 
 // System defines
-#define CELL_T           int64_t
-#define CELL_SZ             8
-#define WC_T             uint16_t
+#define WC_T           uint16_t
 #define WC_SZ               2
 #define NUM_BITS       0xF000
 #define NUM_MASK       0x0FFF
-#define NUM_LINES          23
-#define NUM_COLS           89
-#define BLOCK_SZ         2048 // (23*89)+1
-#define STK_DATA            0
-#define STK_RETN            1
-#define STK_LSTK            2
+#define NUM_LINES          23      // For the editor
+#define NUM_COLS           89      // For the editor
+#define BLOCK_SZ         2048      // (23*89)+1
+#define STK_DATA            0      // For the tasks
+#define STK_RETN            1      // For the tasks
+#define STK_LSTK            2      // For the tasks
 #define TASK_MAX      (NUM_TASKS-1)
 #define _IMMED              1
 #define _INLINE             2
 #define btwi(n,l,h)   ((l<=n) && (n<=h))
 
 #ifndef MAX
-  #define MIN(a,b) (((a)<(b))?(a):(b))
-  #define MAX(a,b) (((a)>(b))?(a):(b))
+  #define MIN(a,b) (((a)<(b)) ? (a) : (b))
+  #define MAX(a,b) (((a)>(b)) ? (a) : (b))
 #endif
 
 #ifdef IS_PC

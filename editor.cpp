@@ -286,7 +286,7 @@ static int edReadLine(char *buf, int sz) {
 static void gotoBlock(cell blk) {
     lastBlock = (int)block;
     edSvBlk(0); setBlock(blk);
-    edRdBlk(); line = off = 0;
+    edRdBlk(); // line = off = 0;
 }
 
 static void doFind(int next) {

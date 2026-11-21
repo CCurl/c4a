@@ -111,9 +111,9 @@ TASK_T tasks[NUM_TASKS];
 	X(AFET,    "c@a",       0, t=astk[asp];   push(*(byte*)t); ) \
 	X(AFETI,   "c@a+",      0, t=astk[asp]++; push(*(byte*)t); ) \
 	X(AFETD,   "c@a-",      0, t=astk[asp]--; push(*(byte*)t); ) \
-	X(ASTO,    "c!a",        0, t=astk[asp];   n=pop(); *(byte*)t=(byte)n; ) \
-	X(ASTOI,   "c!a+",       0, t=astk[asp]++; n=pop(); *(byte*)t=(byte)n; ) \
-	X(ASTOD,   "c!a-",       0, t=astk[asp]--; n=pop(); *(byte*)t=(byte)n; ) \
+	X(ASTO,    "c!a",       0, t=astk[asp];   n=pop(); *(byte*)t=(byte)n; ) \
+	X(ASTOI,   "c!a+",      0, t=astk[asp]++; n=pop(); *(byte*)t=(byte)n; ) \
+	X(ASTOD,   "c!a-",      0, t=astk[asp]--; n=pop(); *(byte*)t=(byte)n; ) \
 	X(AFROM,   "a>",        0, push((0 < asp) ? astk[asp--] : 0); ) \
 	X(ADROP,   "adrop",     0, if (0 < asp) { asp--; } ) \
 	X(TOB,     ">b",        0, t=pop(); if (bsp < STK_SZ) { bstk[++bsp]=t; }; ) \

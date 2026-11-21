@@ -84,10 +84,10 @@ cell fetchCell(cell loc) { return *(cell*)loc; }
 void readExecute() {
     char tib[128];
     ttyMode(0);
-    if ((state == 0) || (state == COMMENT)) { changeState(INTERP); }
-    if (state == INTERP) { zType(" ok\n"); }
-    else if (state == COMPILE) { zType("... "); }
-    else if (state == DEFINE) { zType("(define) "); }
+    if (!btwi(state, COMPILE, INTERP)) { changeState(INTERP); }
+    if (state == INTERP) { fType("%W ok%Y\n"); }
+    else if (state == COMPILE) { fType("%W...%G "); }
+    else if (state == DEFINE) { fType("%W(define)%R "); }
 	if (fgets(tib, sizeof(tib), stdin) == tib) { outer(tib); }
     else { exit(0); }
 }

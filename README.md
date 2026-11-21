@@ -6,8 +6,8 @@
 - c4a also supports the standard state-change words.
 - c4a has a built-in editor. It has a VI-like feel.
 - - For details, see the [Editor documentation](Editor.md).
-- c4a has 'a', 'b', and 't' words.
-- c4a reads 'blocks.fth' into memory on load.
+- c4a has 'a', 'b', and 't' stacks and their associated words.
+- c4a reads 'blocks.c4a' into memory on load.
 - - This is what it uses to edit and load blocks.
 
 ## Tags
