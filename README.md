@@ -223,11 +223,12 @@ The primitives in c4a:
 | tuck        | (X Y--Y X Y)   | Perform SWAP, OVER |
 | c@          | (A--C)         | C: the CHAR at absolute address A |
 | w@          | (A--W)         | W: the WORD at absolute address A |
+| d@          | (A--W)         | W: the DWORD at absolute address A |
 | @           | (A--N)         | N: the CELL at absolute address A |
 | wc@         | (N--WC)        | WC: the WORD-CODE in CODE slot N |
-| cv@         | (N--)          | Code-Variable: Fetch a 32-bit value from CODE slots N/N+1 |
 | c!          | (C A--)        | Store CHAR C to absolute address A |
 | w!          | (W A--)        | Store WORD W to absolute address A |
+| d!          | (W A--)        | Store DWORD W to absolute address A |
 | !           | (N A--)        | Store CELL N to absolute address A |
 | wc!         | (WC N--)       | Store WORD-CODE WC to CODE slot N |
 | if          | (X--)          | Jump to 'then' if X == 0 (IMMEDIATE) |
