@@ -80,8 +80,8 @@ TASK_T tasks[NUM_TASKS];
 	X(OR,      "or",        0, t=pop(); TOS |= t; ) \
 	X(XOR,     "xor",       0, t=pop(); TOS ^= t; ) \
 	X(COM,     "com",       0, TOS = ~TOS; ) \
-	X(MIN_C4,  "min",       0, t=pop(); if (t < TOS) { TOS = t; } ) \
-	X(MAX_C4,  "max",       0, t=pop(); if (t > TOS) { TOS = t; } ) \
+	X(MIN_C4A, "min",       0, t=pop(); if (t < TOS) { TOS = t; } ) \
+	X(MAX_C4A, "max",       0, t=pop(); if (t > TOS) { TOS = t; } ) \
 	X(NEGATE,  "negate",    0, TOS = -TOS; ) \
 	X(ABS,     "abs",       0, if (TOS < 0) { TOS = -TOS; } )
 
@@ -181,8 +181,8 @@ TASK_T tasks[NUM_TASKS];
 	X(VAL,     "val",       0, addWord(0); comma(LIT); commaCell(0); comma(EXIT); ) \
 	X(PVAL,    "(val)",     0, addWord(0); comma(LIT); commaCell((cell)&code[here-2-(CELL_SZ/WC_SZ)]); comma(EXIT); ) \
 	X(NEXTWD,  "next-wd",   0, push(nextWord()); ) \
-	X(IMMED,   "immediate", 0, last->flg =_IMMED; ) \
-	X(INLINE,  "inline",    0, last->flg =_INLINE; ) \
+	X(IMMED,   "immediate", 0, last->flg = _IMMED; ) \
+	X(INLINE,  "inline",    0, last->flg = _INLINE; ) \
 	X(OUTER,   "outer",     0, outer((char*)pop()); ) \
 	X(ADDWORD, "addword",   0, addWord(0); ) \
 	X(CLK,     "timer",     0, push(timer()); ) \
@@ -618,6 +618,7 @@ int isStateChange(const char *wd) {
 }
 
 void outer(const char *src) {
+	if (!src) { return; }
 	char *curIn = toIn;
 	toIn = (char*)src;
 	while (nextWord()) {
@@ -725,6 +726,8 @@ void c4Init() {
 	state = INTERP;
 	block = asp = bsp = tsp = 0;
 	// t0-t5 are "normal", t6-t9 are "inline"
+	PRIM_T *pp = &prims[0];
+	while (pp->name) { pp->len = strLen(pp->name); pp++; }
 	for (int i = 6; i <= 9; i++) { tmpWords[i].flg = _INLINE; }
 	fileInit();
 	baseSys();
