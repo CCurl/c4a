@@ -312,7 +312,7 @@ int nextWord() {
 		if (btwi(ch,COMPILE,COMMENT)) { state = ch; }
 	}
 	while (btwi(*toIn, 33, 126)) {
-		if (len >= WD_SZ-1) {
+		if (len >= (WD_SZ-1)) {
 			wd[len] = 0;
 			zTypeF("-wd [%s] too long-\r\n", wd);
 			return 0;
@@ -345,15 +345,13 @@ DE_T *addWord(char *w) {
 	dp->flg = 0;
 	dp->len = len;
 	strCpy(dp->nm, w);
-	// zTypeF("\n-add:%d,%d,[%s],(%d)-\n", last, dp->len, dp->nm, dp->xt);
 	return dp;
 }
 
-PRIM_T *findPrim(const char *w) {
+PRIM_T *findPrim(const char *w, int len) {
 	PRIM_T *dp = &prims[0];
-	// Check primitives first
 	while (dp->op) {
-		if (strEqI(dp->name, w)) { return dp; }
+		if ((dp->len == len) && strEqI(dp->name, w)) { return dp; }
 		++dp;
 	}
 	return (PRIM_T*)0;
@@ -364,7 +362,7 @@ DE_T *findWord(const char *w) {
 	if (isTemp(w)) { return &tmpWords[w[1]-'0']; }
 	int len = strLen(w);
 	// Check primitives first
-	PRIM_T *p = findPrim(w);
+	PRIM_T *p = findPrim(w, len);
 	if (p) { return (DE_T*)p; }
 
 	// Now non-primitives

@@ -98,12 +98,12 @@ static int edKey() {
     return x;
 }
 
-static void mv(int r, int c) {
-    line += r;
-    off += c;
+static void mv(int rowOff, int colOff) {
+    line += rowOff;
+    off += colOff;
     if (line < 0) { line = 0; }
     if (MAX_LINE < line) { line = MAX_LINE; }
-    if (off < 0) { off=0; }
+    if (off < 0) { off = 0; }
     if (MAX_COL < off) { off = MAX_COL;}
 }
 
