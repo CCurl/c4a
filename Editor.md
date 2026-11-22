@@ -6,7 +6,7 @@ The editor colors the text based on the state tags found in the text. <br/>
 It edits blocks of text stored in memory. Each block is 2048 bytes long. <br/>
 It has 23 rows and 89 columns, making 2047 editable characters per block.<br/>
 This leaves 1 byte which is set to 0 (null).<br/>
-To save the ram-disk to disk (blocks.fth), use `flush`.<br/>
+To save the ram-disk to disk (blocks.c4a), use `flush`.<br/>
 
 | Tag   | Color  | Description |
 |:--    |:--     |:-- |
@@ -39,6 +39,7 @@ There are 4 modes in the editor:
 | [ctrl]+q  | Left 8 chars |
 | [ctrl]+s  | Save the block to the ram-disk |
 | [ctrl]+x  | Delete the char under the cursor |
+| [ctrl]+z  | Goto NORMAL mode |
 | [pgup]    | Save the current block and go to block-1 |
 | [pgdn]    | Save the current block and go to block+1 |
 | [esc-esc] | Goto NORMAL mode |
@@ -63,7 +64,7 @@ There are 4 modes in the editor:
 | #    | Redraw the screen |
 | a    | Append: move right 1 char and change to INSERT mode (same as 'li') |
 | A    | Append: goto the end of the line and change to INSERT mode  (same as '$i') |
-| b    | Insert a BLANK/SPACE into the current line |
+| b    | Insert a BLANK/SPACE into the current cursor position |
 | B    | Insert a BLANK/SPACE to the end of the block |
 | c    | Delete the current char and change to INSERT mode (same as 'xi') |
 | C    | Delete to the end of the line and change to INSERT mode (same as 'd$i') |
@@ -81,17 +82,19 @@ There are 4 modes in the editor:
 | J    | Join the current and next lines together |
 | k    | Up 1 line |
 | l    | Right 1 char |
+| m    | Down 4 lines |
+| M    | Up 4 lines |
 | n    | Search forwards for [find-buffer] |
 | N    | Search backwards for [find-buffer] |
-| n    | Insert a 'new-line' (#10/$0A) into the block |
 | o    | Insert an empty line BELOW the current line and change to INSERT mode |
 | O    | Insert an empty line ABOVE the current line and change to INSERT mode |
 | p    | Paste the YANK buffer into a new line BELOW the current line |
 | P    | Paste the YANK buffer into a new line ABOVE the current line |
-| q    | Right 8 chars |
-| Q    | Left 8 chars |
+| q    | Right 4 chars |
+| Q    | Left 4 chars |
 | r    | Replace the char under the cursor with the next key pressed (if printable) |
 | R    | Change to REPLACE mode |
+| S    | Switch to the last shown block |
 | t    | Transfer current block to text file 'block-NNN.fth' |
 | T    | Transfer text file 'block-NNN.fth' to current block |
 | w    | Move right to the beginning of the next word |
@@ -125,4 +128,4 @@ COMMAND mode is invoked when pressing ':' in NORMAL mode.
 | wq      | Write the current block and quit (same as ':w' ':q') |
 | q       | Quit, if the current block has NOT changed |
 | q!      | Quit, even if the current block has changed |
-| ![any]  | Send [any] to the c4a outer interpreter |
+| [other] | Send [other] to the c4a outer interpreter |

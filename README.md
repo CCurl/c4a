@@ -6,8 +6,8 @@
 - c4a also supports the standard state-change words.
 - c4a has a built-in editor. It has a VI-like feel.
 - - For details, see the [Editor documentation](Editor.md).
-- c4a has 'a', 'b', and 't' words.
-- c4a reads 'blocks.fth' into memory on load.
+- c4a has 'a', 'b', and 't' stacks and their associated words.
+- c4a reads 'blocks.c4a' into memory on load.
 - - This is what it uses to edit and load blocks.
 
 ## Tags
@@ -47,8 +47,15 @@
   - only the x86 target (32-bit) is supported.
 - Linux: there is a makefile.
   - only the 32-bit configuration (-m32) is supported.
-- Others:
+  Others:
   - c4a is simple enough that it should be easy to migrate it to any platform.
+
+**NOTES:**
+  - C4A configuration settings are in the `c4a.h` file.
+  - Number of "disk" blocks: `#define NUM_BLOCKS (20)`
+  - Memory size: `#define MEM_SZ (8*1024*10124*)`
+  - CELL size: `#define CELL_T (int64_t), and CELL_SZ (8)`
+
 
 ### Development boards via the Arduino IDE:
 - I use the Arduino IDE v2.x
@@ -64,6 +71,18 @@
 - For the Teensy-4.x:
   - Use `#define FILE_TEENSY` to include support for LittleFS
 
+```C
+// Change these for the system/board
+// These work for the RPi Pico 2 and the Teensy 4.0
+#define MEM_SZ      320*1024
+#define CODE_SLOTS  NUM_BITS // Values larger are inline numbers
+#define STK_SZ            31 // Data stack size
+#define NUM_TASKS          8 // Number of tasks
+#define NAME_LEN          11 // Size of dict-entry is (2+1+1+NAME_LEN+1)
+#define NUM_BLOCKS        50 // Number of "disk" blocks
+#define EOL_CHAR          13 // Carriage Return
+```
+
 ## c4a memory areas
 c4a provides a single memory area. See 'mem-sz' (MEM_SZ in c4a.h) for its size.
 - It is broken into 3 areas: CODE, VARS, and DICTIONARY.
@@ -71,11 +90,9 @@ c4a provides a single memory area. See 'mem-sz' (MEM_SZ in c4a.h) for its size.
   - `here` is an offset into the CODE area.
   - The size of the CODE area is `code-sz`. See CODE_SZ in c4a.h.
   - **NOTE**: Use `wc@` and `wc!` to get and set 16-bit values in the code area.
-  - **NOTE**: Use `cv@` and `cv!` to get and set 32-bit values in the code area.
   - **NOTE**: CODE slots 0-25 (`0 wc@ .. 25 wc@`) are reserved for c4a system values.
   - **NOTE**: CODE slots 26-(BYE) are unused by c4a.
   - **NOTE**: Using `wc@` and `wc!`, c4a provides storage space for many 16-bit variables.
-  - **NOTE**: Using `cv@` and `cv!`, c4a provides storage space for many 32-bit variables.
   - **NOTE**: These are free for the user/application to use as desired.
 - The VARS area is defined to begin at address `code-sz wc-sz * memory +`.
   - `vhere` is the absolute address of the first free byte the VARS area.
@@ -153,12 +170,12 @@ Note that there are also additional words `r!` `r@+` and `r@-` for the return st
 |  a@   | (--N) | N: value of A. |
 |  a@+  | (--N) | N: value of A, then increment A. |
 |  a@-  | (--N) | N: value of A, then decrement A. |
-|  !a   | (N--) | Store N through A. |
-|  !a+  | (N--) | Store N through A, then increment A. |
-|  !a-  | (N--) | Store N through A, then decrement A. |
-|  @a   | (--N) | Fetch N through A. |
-|  @a+  | (--N) | Fetch N through A, then increment A. |
-|  @a-  | (--N) | Fetch N through A, then decrement A. |
+|  c!a  | (N--) | Store N through A. |
+|  c!a+ | (N--) | Store N through A, then increment A. |
+|  c!a- | (N--) | Store N through A, then decrement A. |
+|  c@a  | (--N) | Fetch N through A. |
+|  c@a+ | (--N) | Fetch N through A, then increment A. |
+|  c@a- | (--N) | Fetch N through A, then decrement A. |
 |  a>   | (--N) | Pop N from the A stack. |
 | adrop | (--)  | Drop A-TOS |
 
@@ -206,14 +223,14 @@ The primitives in c4a:
 | tuck        | (X Y--Y X Y)   | Perform SWAP, OVER |
 | c@          | (A--C)         | C: the CHAR at absolute address A |
 | w@          | (A--W)         | W: the WORD at absolute address A |
+| d@          | (A--W)         | W: the DWORD at absolute address A |
 | @           | (A--N)         | N: the CELL at absolute address A |
 | wc@         | (N--WC)        | WC: the WORD-CODE in CODE slot N |
-| cv@         | (N--)          | Code-Variable: Fetch a 32-bit value from CODE slots N/N+1 |
 | c!          | (C A--)        | Store CHAR C to absolute address A |
 | w!          | (W A--)        | Store WORD W to absolute address A |
+| d!          | (W A--)        | Store DWORD W to absolute address A |
 | !           | (N A--)        | Store CELL N to absolute address A |
 | wc!         | (WC N--)       | Store WORD-CODE WC to CODE slot N |
-| cv!         | (N--)          | Code-Variable: Store a 32-bit value to CODE slots N/N+1 |
 | if          | (X--)          | Jump to 'then' if X == 0 (IMMEDIATE) |
 | if0         | (X--)          | Jump to 'then' if X <> 0 (IMMEDIATE) |
 | -if         | (X--X)         | Jump to 'then' if X == 0 (IMMEDIATE) |
@@ -282,12 +299,12 @@ The primitives in c4a:
 | a@          | (--N)  | N: copy of A |
 | a@+         | (--N)  | N: copy of A, then increment A |
 | a@-         | (--N)  | N: copy of A, then decrement A |
-| @a          | (--C)  | Fetch BYTE C through A |
-| @a+         | (--C)  | Fetch BYTE C through A, then increment A |
-| @a-         | (--C)  | Fetch BYTE C through A, then decrement A |
-| !a          | (C--)  | Store BYTE C through A |
-| !a+         | (C--)  | Store BYTE C through A, then increment A |
-| !a-         | (C--)  | Store BYTE C through A, then decrement A |
+| c@a         | (--C)  | Fetch BYTE C through A |
+| c@a+        | (--C)  | Fetch BYTE C through A, then increment A |
+| c@a-        | (--C)  | Fetch BYTE C through A, then decrement A |
+| c!a         | (C--)  | Store BYTE C through A |
+| c!a+        | (C--)  | Store BYTE C through A, then increment A |
+| c!a-        | (C--)  | Store BYTE C through A, then decrement A |
 | a>          | (--N)  | Pop N from the A stack |
 | adrop       | (--)   | Drop A-TOS |
 | >b          | (N--)  | Push N onto the B stack |
@@ -295,12 +312,12 @@ The primitives in c4a:
 | b@          | (--N)  | N: copy of B |
 | b@+         | (--N)  | N: copy of B, then increment B |
 | b@-         | (--N)  | N: copy of B, then decrement B |
-| @b          | (--C)  | Fetch BYTE C through B |
-| @b+         | (--C)  | Fetch BYTE C through B, then increment B |
-| @b-         | (--C)  | Fetch BYTE C through B, then decrement B |
-| !b          | (C--)  | Store BYTE C through B |
-| !b+         | (C--)  | Store BYTE C through B, then increment B |
-| !b-         | (C--)  | Store BYTE C through B, then decrement B |
+| c@b         | (--C)  | Fetch BYTE C through B |
+| c@b+        | (--C)  | Fetch BYTE C through B, then increment B |
+| c@b-        | (--C)  | Fetch BYTE C through B, then decrement B |
+| c!b         | (C--)  | Store BYTE C through B |
+| c!b+        | (C--)  | Store BYTE C through B, then increment B |
+| c!b-        | (C--)  | Store BYTE C through B, then decrement B |
 | b>          | (--N)  | Pop N from the B stack |
 | bdrop       | (--)   | Drop B-TOS |
 

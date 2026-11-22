@@ -1,6 +1,7 @@
 #include "c4a.h"
 
 #ifndef FILE_NONE
+
 // Support for blocks
 #define BLOCK_FN1       "blocks.c4a"
 #define BLOCK_FN2       "\\bin\\blocks.c4a"
@@ -41,9 +42,19 @@ void flushBlocks() {
     }
 }
 
-static void prepForLoad() { toIn[BLOCK_SZ-1]=0; changeState(INTERP); }
-char *blockAddr(wc_t blk) { return (char*)&blocks[MIN(blk, BLOCK_MAX)*BLOCK_SZ]; }
-void blockLoadNext(wc_t blk) { toIn=blockAddr(blk); prepForLoad(); }
-void blockLoad(wc_t blk) { inPush(toIn); blockLoadNext(blk); }
+char *blockAddr(cell blk) {
+    if (blk >= NUM_BLOCKS) { blk = NUM_BLOCKS-1; }
+    if (blk < 0) { blk = 0; }
+    return (char*)&blocks[blk*BLOCK_SZ];
+}
+
+void blockLoad(cell blk) {
+    block = blk;
+    char *x = blockAddr(blk);
+    x[BLOCK_SZ-1]=0;
+    changeState(INTERP);
+    outer(x);
+    changeState(INTERP);
+}
 
 #endif // FILE_NONE

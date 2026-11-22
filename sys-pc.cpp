@@ -55,37 +55,58 @@
   }
 #endif // IS_LINUX
 
+#ifdef FILE_PC
+    // Support for files
+    FILE *makeIn(cell fh) { return fh ? (FILE*)fh: stdin; }
+    FILE *makeOut(cell fh) { return fh ? (FILE*)fh: stdout; }
+
+    cell fileOpen(const char *name, const char *mode) { return (cell)fopen(name, mode); }
+    void fileClose(cell fh) { fclose((FILE*)fh); }
+    void fileDelete(const char *name) { remove(name); }
+    cell fileRead(char *buf, int sz, cell fh) { return fread(buf, 1, sz, makeIn(fh)); }
+    cell fileWrite(char *buf, int sz, cell fh) { return fwrite(buf, 1, sz, makeOut(fh)); }
+    void fileInit() { blockInit(); }
+#endif // FILE_PC
+
+// C4A Required
+cell outputFp = 0;
 cell timer() { return (cell)clock(); }
 void zType(const char *str) { fputs(str, outputFp ? (FILE*)outputFp : stdout); }
 void emit(const char ch) { fputc(ch, outputFp ? (FILE*)outputFp : stdout); }
 void store16(cell loc, cell val) { *(uint16_t*)loc = (uint16_t)val; }
 void store32(cell loc, cell val) { *(uint32_t*)loc = (uint32_t)val; }
-cell fetch16(cell loc) {return *(int16_t*)loc; }
-cell fetch32(cell loc) {return *(int32_t*)loc; }
+void storeCell(cell loc, cell val) { *(cell*)loc = (cell)val; }
+cell fetch16(cell loc)   { return *(int16_t*)loc; }
+cell fetch32(cell loc)   { return *(int32_t*)loc; }
+cell fetchCell(cell loc) { return *(cell*)loc; }
 
-// REP - Read/Execute/Print (no Loop)
-void REP() {
-	FILE *inFp = (FILE*)inputFp;
-	if (inFp == 0) { inFp = stdin; }
+// PC Specific
+void readExecute() {
     char tib[128];
     ttyMode(0);
-    ok();
-	if (fgets(tib, sizeof(tib), inFp) == tib) { outer(tib); }
+    if (!btwi(state, COMPILE, INTERP)) { changeState(INTERP); }
+    if (state == INTERP) { fType("%W ok%Y\n"); }
+    else if (state == COMPILE) { fType("%W...%G "); }
+    else if (state == DEFINE) { fType("%W(define)%R "); }
+	if (fgets(tib, sizeof(tib), stdin) == tib) { outer(tib); }
     else { exit(0); }
 }
 
 void loadArgument(const char *arg) {
-    char fn[32];
-    strCpy(fn, arg);
-    cell tmp = fileOpen(fn, FL_READ);
-    if (tmp) { inputFp = tmp; }
+    cell tmp = fileOpen((char *)arg, FL_READ);
+    if (tmp) {
+        char *buf = (char*)(vhere+15000);
+        fileRead(buf, 15000, tmp);
+        fileClose(tmp);
+        outer(buf);
+    }
 }
 
 int main(int argc, char *argv[]) {
 	c4Init();
     if (argc > 1) { loadArgument(argv[1]); }
     else { outer("1 load"); }
-    while (1) { REP(); };
+    while (1) { readExecute(); };
 	return 0;
 }
 
