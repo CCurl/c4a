@@ -525,7 +525,7 @@ static void showEditor() {
             if (btwi(ch,1,4)) { showState(ch); }
             emit(MAX(ch,32));
         }
-        Green(); zType("|\r\n"); 
+        fType("%G|%n"); 
     }
 	zType(hdr_line); isShow = 0;
     showFind();
