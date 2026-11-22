@@ -34,11 +34,21 @@
 - c4a is intended to be used with development boards via the Arduino IDE.
 - However, it can be built for PCs as well for testing.
 - I am not aware of 64-bit dev boards.
-- So a **CELL** in c4a is 32-bits.
+- However, a **CELL** in c4a can be 32- or 64-bits.
 - C4A has many built-in primitives, for the following reasons:
 - - Program flash is often quite large, so why not use it?
 - - To give C4A more functionality out of the box.
 - - C4A also runs faster because of it.
+
+## The C4A "ram-disk" / block system
+- C4A provides a built-in block system.
+- The block file is named `blocks.c4a`.
+- This file is read into memory on startup.
+- Each block is 2048 bytes.
+- By default there are 20 blocks (file size: 40960).
+- Change `NUM_BLOCKS` for a different number of blocks.
+- Use `block-addr` and `flush` to work with them.
+- See block.cpp for details of the implementation.
 
 ## Building c4a
  
@@ -74,13 +84,15 @@
 ```C
 // Change these for the system/board
 // These work for the RPi Pico 2 and the Teensy 4.0
-#define MEM_SZ      320*1024
-#define CODE_SLOTS  NUM_BITS // Values larger are inline numbers
-#define STK_SZ            31 // Data stack size
-#define NUM_TASKS          8 // Number of tasks
-#define NAME_LEN          11 // Size of dict-entry is (2+1+1+NAME_LEN+1)
-#define NUM_BLOCKS        50 // Number of "disk" blocks
-#define EOL_CHAR          13 // Carriage Return
+#define MEM_SZ       320*1024
+#define CODE_SLOTS   NUM_BITS      // Values larger are inline numbers
+#define STK_SZ             31      // Data stack size
+#define NUM_TASKS           8      // Number of tasks
+#define NAME_LEN           11      // Size of dict-entry is (2+1+1+NAME_LEN+1)
+#define NUM_BLOCKS         50      // Number of "disk" blocks
+#define EOL_CHAR           13      // Carriage Return
+#define CELL_T          int64_t    // Can be either 32 or 64 bits
+#define CELL_SZ             8
 ```
 
 ## c4a memory areas
@@ -99,7 +111,7 @@ c4a provides a single memory area. See 'mem-sz' (MEM_SZ in c4a.h) for its size.
 - The DICTIONARY is at the end of the memory. 'last' grows toward the beginning of the memory.
   - `last` is the address of the most recently created word.
   - A dictionary entry is [xt:2][flags:1][len:1][name:NAME_LEN][0:1]
-  - The default NAME_LEN is 11 (see c4a.h), so 'de-sz' is 16.
+  - The default NAME_LEN is 15 (see c4a.h), so 'de-sz' is 20.
 - Use `->memory` to turn an offset into an address.
 
 | WORD    | STACK | DESCRIPTION |
@@ -126,7 +138,10 @@ Strings in c4a are NULL-terminated with no count byte. <br/>
 
 ## Format specifiers in `ftype` and `."`
 Similar to the printf() function in C, c4a supports formatted output using '%'. <br/>
-For example `: ascii dup dup dup ." char: %c, decimal: #%d, binary: %%%b, hex: $%x%n" ;`.
+For example:
+```forth
+: ascii ( n-- ) dup 2dup ." char: %c, decimal: #%d, binary: %%%b, hex: $%x%n" ;
+```
 
 | Format | Stack | Description |
 |:--     |:--    |:-- |
@@ -153,7 +168,7 @@ c4a has a built-in editor. It colorizes the code based on tags in the text. <br/
 For details, see the [Editor documentation](Editor.md). <br/>
 **NOTE**: Saving a block updates the block in the RAM-disk. <br/>
 **NOTE**: It does **NOT** automatically write that block to disk. <br/>
-**NOTE**: Use 'flush' to write it back to disk/flash.
+**NOTE**: Use `flush` to write the ram-disk back to disk/flash.
 
 
 ## The A, B, and T stacks
@@ -195,10 +210,10 @@ c4a provides 10 temporary words, 't0' .. 't9'.
 - The A, B, and T stacks are shared by all tasks.
 
 ## c4a WORD-CODE primitives
-NOTE: Since c4a is intended for dev boards, it has many more primitives than C4.</br>
+NOTE: Since c4a is intended for dev boards, it has many primitives.</br>
       This is primarily because there is more program memory than RAM.</br>
-      It provides more built-in functionality.</br>
-      And the system is faster.</br>
+      It also provides more built-in functionality.</br>
+      And the system is generally faster.</br>
 
 The primitives in c4a:
 
