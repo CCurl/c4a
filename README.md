@@ -32,9 +32,9 @@
 
 ## Development board considerations
 - c4a is intended to be used with development boards via the Arduino IDE.
-- However, it can be built for PCs as well for testing.
+- However, it can be built for PCs as well for testing or general usage.
 - I am not aware of 64-bit dev boards.
-- So c4a is a 32-bir application.
+- So c4a is a 32-bit application.
 - However, a **CELL** in c4a can be 32- or 64-bits.
 - C4A has many built-in primitives, for the following reasons:
 - - Program flash is often quite large, so why not use it?
