@@ -24,7 +24,7 @@
 #define NUM_BLOCKS         20      // Number of "disk" blocks
 #define STK_SZ             63      // Size of stacks: data, return, loop, a, b, t
 #define NUM_TASKS           8      // Number of tasks
-#define NAME_LEN           15      // Size of dict-entry is (2+1+1+NAME_LEN+1)
+#define NAME_LEN           11      // Size of dict-entry is (2+1+1+NAME_LEN+1)
 #define EOL_CHAR           13      // Carriage Return
 #define CODE_SLOTS   NUM_BITS      // Values larger are inline numbers
 #define CELL_T          int64_t    // Can be either 32 or 64 bits

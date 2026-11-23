@@ -27,18 +27,19 @@
 - A WORD-CODE is a 16-bit unsigned number. <br/>
 - Primitives are assigned numbers sequentially from 0 to [BYE]. <br/>
 - If a WORD-CODE is less than or equal to [BYE], it is a primitive. <br/>
-- If the top 4 bits are set, it is 13-bit unsigned literal, 0-$0FFF. <br/>
+- If the top 4 bits are set, it is 12-bit unsigned literal, 0-$0FFF. <br/>
 - If it is between 'BYE' and $F000, it is the code address of a word to execute. <br/>
 
 ## Development board considerations
 - c4a is intended to be used with development boards via the Arduino IDE.
 - However, it can be built for PCs as well for testing.
 - I am not aware of 64-bit dev boards.
+- So c4a is a 32-bir application.
 - However, a **CELL** in c4a can be 32- or 64-bits.
 - C4A has many built-in primitives, for the following reasons:
 - - Program flash is often quite large, so why not use it?
 - - To give C4A more functionality out of the box.
-- - C4A also runs faster because of it.
+- - C4A also runs generally faster because of it.
 
 ## The C4A "ram-disk" / block system
 - C4A provides a built-in block system.
@@ -111,7 +112,7 @@ c4a provides a single memory area. See 'mem-sz' (MEM_SZ in c4a.h) for its size.
 - The DICTIONARY is at the end of the memory. 'last' grows toward the beginning of the memory.
   - `last` is the address of the most recently created word.
   - A dictionary entry is [xt:2][flags:1][len:1][name:NAME_LEN][0:1]
-  - The default NAME_LEN is 15 (see c4a.h), so 'de-sz' is 20.
+  - The default NAME_LEN is 11 (see c4a.h), so 'de-sz' is 16.
 - Use `->memory` to turn an offset into an address.
 
 | WORD    | STACK | DESCRIPTION |
@@ -354,8 +355,8 @@ The primitives in c4a:
 |             | (--S)     | -RUN: push address S of string |
 | ."          | (--)      | -COMPILE: execute `z"`, compile `ftype` (IMMEDIATE) |
 |             | (--)      | -RUN: `ftype` on string |
-| ztype       | (S--)    | Print string at S (unformatted) |
-| ftype       | (S--)    | Print string at S (formatted) |
+| ztype       | (S--)     | Print string at S (unformatted) |
+| ftype       | (S--)     | Print string at S (formatted) |
 
 | FILES       | STACK       | DESCRIPTION |
 |:--          |:--          |:-- |
@@ -366,7 +367,6 @@ The primitives in c4a:
 | fwrite      | (A N FH--X) | A: Buffer, N: Size, FH: File Handle, X: num chars written |
 | loaded?     | (XT A--)    | Stops current load if A <> 0 (see `find`) |
 | load        | (N--)       | N: Block number to load |
-| load-next   | (N--)       | Close the current block and load block N next |
 | blocks      | (--)        | Dump block cache |
 | block-addr  | (N--A)      | N: Block number, A: Address in cache |
 | flush       | (--)        | Write RAM disk to flash/disk |
@@ -393,7 +393,7 @@ The primitives in c4a:
 | addword     | (--)     | Add the next word to the dictionary |
 | timer       | (--N)    | N: Current time |
 | ms          | (MS--)   | Sleep for MS milliseconds |
-| see X       | (--)     | Output the definition of word X |
+| see [X]     | (--)     | Output the definition of word [X] |
 | find        | (--XT A) | XT: Execution Token, A: Dict Entry address (0 0 if not found) |
 | add-task    | (XT--N)  | XT: addr of code, N: task slot |
 | del-task    | (N--)    | Delete task in slot N |
