@@ -324,7 +324,7 @@ static void execForth(const char *cmd) {
 }
 
 static void edCommand() {
-    char buf[32];
+    char buf[128];
     toCmd(); emit(':'); ClearEOS();
     edReadLine(buf, sizeof(buf));
     toCmd(); ClearEOS();
