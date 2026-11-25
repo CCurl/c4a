@@ -27,18 +27,29 @@
 - A WORD-CODE is a 16-bit unsigned number. <br/>
 - Primitives are assigned numbers sequentially from 0 to [BYE]. <br/>
 - If a WORD-CODE is less than or equal to [BYE], it is a primitive. <br/>
-- If the top 4 bits are set, it is 13-bit unsigned literal, 0-$0FFF. <br/>
+- If the top 4 bits are set, it is 12-bit unsigned literal, 0-$0FFF. <br/>
 - If it is between 'BYE' and $F000, it is the code address of a word to execute. <br/>
 
 ## Development board considerations
 - c4a is intended to be used with development boards via the Arduino IDE.
-- However, it can be built for PCs as well for testing.
+- However, it can be built for PCs as well for testing or general usage.
 - I am not aware of 64-bit dev boards.
-- So a **CELL** in c4a is 32-bits.
+- So c4a is a 32-bit application.
+- However, a **CELL** in c4a can be 32- or 64-bits.
 - C4A has many built-in primitives, for the following reasons:
 - - Program flash is often quite large, so why not use it?
 - - To give C4A more functionality out of the box.
-- - C4A also runs faster because of it.
+- - C4A also runs generally faster because of it.
+
+## The C4A "ram-disk" / block system
+- C4A provides a built-in block system.
+- The block file is named `blocks.c4a`.
+- This file is read into memory on startup.
+- Each block is 2048 bytes.
+- By default there are 20 blocks (file size: 40960).
+- Change `NUM_BLOCKS` for a different number of blocks.
+- Use `block-addr` and `flush` to work with them.
+- See block.cpp for details of the implementation.
 
 ## Building c4a
  
@@ -74,13 +85,15 @@
 ```C
 // Change these for the system/board
 // These work for the RPi Pico 2 and the Teensy 4.0
-#define MEM_SZ      320*1024
-#define CODE_SLOTS  NUM_BITS // Values larger are inline numbers
-#define STK_SZ            31 // Data stack size
-#define NUM_TASKS          8 // Number of tasks
-#define NAME_LEN          11 // Size of dict-entry is (2+1+1+NAME_LEN+1)
-#define NUM_BLOCKS        50 // Number of "disk" blocks
-#define EOL_CHAR          13 // Carriage Return
+#define MEM_SZ       320*1024
+#define CODE_SLOTS   NUM_BITS      // Values larger are inline numbers
+#define STK_SZ             31      // Data stack size
+#define NUM_TASKS           8      // Number of tasks
+#define NAME_LEN           11      // Size of dict-entry is (2+1+1+NAME_LEN+1)
+#define NUM_BLOCKS         50      // Number of "disk" blocks
+#define EOL_CHAR           13      // Carriage Return
+#define CELL_T          int64_t    // Can be either 32 or 64 bits
+#define CELL_SZ             8
 ```
 
 ## c4a memory areas
@@ -126,7 +139,10 @@ Strings in c4a are NULL-terminated with no count byte. <br/>
 
 ## Format specifiers in `ftype` and `."`
 Similar to the printf() function in C, c4a supports formatted output using '%'. <br/>
-For example `: ascii dup dup dup ." char: %c, decimal: #%d, binary: %%%b, hex: $%x%n" ;`.
+For example:
+```forth
+: ascii ( n-- ) dup 2dup ." char: %c, decimal: #%d, binary: %%%b, hex: $%x%n" ;
+```
 
 | Format | Stack | Description |
 |:--     |:--    |:-- |
@@ -153,7 +169,7 @@ c4a has a built-in editor. It colorizes the code based on tags in the text. <br/
 For details, see the [Editor documentation](Editor.md). <br/>
 **NOTE**: Saving a block updates the block in the RAM-disk. <br/>
 **NOTE**: It does **NOT** automatically write that block to disk. <br/>
-**NOTE**: Use 'flush' to write it back to disk/flash.
+**NOTE**: Use `flush` to write the ram-disk back to disk/flash.
 
 
 ## The A, B, and T stacks
@@ -195,10 +211,10 @@ c4a provides 10 temporary words, 't0' .. 't9'.
 - The A, B, and T stacks are shared by all tasks.
 
 ## c4a WORD-CODE primitives
-NOTE: Since c4a is intended for dev boards, it has many more primitives than C4.</br>
+NOTE: Since c4a is intended for dev boards, it has many primitives.</br>
       This is primarily because there is more program memory than RAM.</br>
-      It provides more built-in functionality.</br>
-      And the system is faster.</br>
+      It also provides more built-in functionality.</br>
+      And the system is generally faster.</br>
 
 The primitives in c4a:
 
@@ -339,8 +355,8 @@ The primitives in c4a:
 |             | (--S)     | -RUN: push address S of string |
 | ."          | (--)      | -COMPILE: execute `z"`, compile `ftype` (IMMEDIATE) |
 |             | (--)      | -RUN: `ftype` on string |
-| ztype       | (S--)    | Print string at S (unformatted) |
-| ftype       | (S--)    | Print string at S (formatted) |
+| ztype       | (S--)     | Print string at S (unformatted) |
+| ftype       | (S--)     | Print string at S (formatted) |
 
 | FILES       | STACK       | DESCRIPTION |
 |:--          |:--          |:-- |
@@ -351,7 +367,6 @@ The primitives in c4a:
 | fwrite      | (A N FH--X) | A: Buffer, N: Size, FH: File Handle, X: num chars written |
 | loaded?     | (XT A--)    | Stops current load if A <> 0 (see `find`) |
 | load        | (N--)       | N: Block number to load |
-| load-next   | (N--)       | Close the current block and load block N next |
 | blocks      | (--)        | Dump block cache |
 | block-addr  | (N--A)      | N: Block number, A: Address in cache |
 | flush       | (--)        | Write RAM disk to flash/disk |
@@ -378,7 +393,7 @@ The primitives in c4a:
 | addword     | (--)     | Add the next word to the dictionary |
 | timer       | (--N)    | N: Current time |
 | ms          | (MS--)   | Sleep for MS milliseconds |
-| see X       | (--)     | Output the definition of word X |
+| see [X]     | (--)     | Output the definition of word [X] |
 | find        | (--XT A) | XT: Execution Token, A: Dict Entry address (0 0 if not found) |
 | add-task    | (XT--N)  | XT: addr of code, N: task slot |
 | del-task    | (N--)    | Delete task in slot N |

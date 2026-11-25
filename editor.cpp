@@ -36,6 +36,7 @@ static char edBuf[BLOCK_SZ], yanked[NUM_COLS+1], findBuf[32];
 static void GotoXY(int x, int y) { zTypeF("\x1B[%d;%dH", y, x); }
 static void CLS() { zType("\x1B[2J"); GotoXY(1, 1); }
 static void ClearEOL() { zType("\x1B[K"); }
+static void ClearEOS() { zType("\x1B[0J"); }
 static void CursorBlock() { zType("\x1B[2 q"); }
 static void CursorOn() { zType("\x1B[?25h"); }
 static void CursorOff() { zType("\x1B[?25l"); }
@@ -225,7 +226,7 @@ static void execLine(int ln) {
     char c = x[MAX_COL];
     x[MAX_COL] = 0;
     changeState(INTERP); ttyMode(0);
-    toCmd(); outer(x);
+    toCmd(); ClearEOS(); outer(x);
     x[MAX_COL] = c;
 }
 
@@ -323,10 +324,10 @@ static void execForth(const char *cmd) {
 }
 
 static void edCommand() {
-    char buf[32];
-    toCmd(); emit(':'); ClearEOL();
+    char buf[128];
+    toCmd(); emit(':'); ClearEOS();
     edReadLine(buf, sizeof(buf));
-    toCmd(); ClearEOL();
+    toCmd(); ClearEOS();
     if (strEqI(buf,"rl")) { edRdBlk(); }
     else if (strEqI(buf,"w")) { edSvBlk(0); }
     else if (strEqI(buf,"w!")) { edSvBlk(1); }
